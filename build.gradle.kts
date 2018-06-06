@@ -7,7 +7,7 @@ subprojects {
     apply(plugin = "maven-publish")
 
     group = "org.gradle"
-    version = "0.1.0"
+    version = "0.1.1"
 
     repositories {
         maven {
