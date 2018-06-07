@@ -67,9 +67,9 @@ public class CommandsParser {
             throw new InvalidSampleException("executable field cannot be empty", e);
         }
         final String executionDirectory = ConfigUtil.string(commandConfig, EXECUTION_SUBDIRECTORY, null);
-        final List<String> commands = ConfigUtil.strings(commandConfig, ARGS, Collections.emptyList());
-        final List<String> flags = ConfigUtil.strings(commandConfig, FLAGS, Collections.emptyList());
-        final Map<String, String> environmentVariables = ConfigUtil.map(commandConfig, ENV, Collections.emptyMap());
+        final List<String> commands = ConfigUtil.strings(commandConfig, ARGS, new ArrayList<String>());
+        final List<String> flags = ConfigUtil.strings(commandConfig, FLAGS, new ArrayList<String>());
+        final Map<String, String> environmentVariables = ConfigUtil.map(commandConfig, ENV, new HashMap<String, String>());
         String expectedOutput = null;
         if (commandConfig.hasPath(EXPECTED_OUTPUT_FILE)) {
             final File expectedOutputFile = new File(sampleProjectDir, commandConfig.getString(EXPECTED_OUTPUT_FILE));

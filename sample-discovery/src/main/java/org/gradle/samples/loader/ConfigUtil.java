@@ -19,11 +19,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 class ConfigUtil {
     public static Map<String, String> map(Config config, String key, Map<String, String> defaultValues) {
@@ -58,8 +54,11 @@ class ConfigUtil {
         if (config.hasPath(key)) {
             Object value = config.getAnyRef(key);
             if (value instanceof List) {
-                List<?> list = (List) value;
-                return list.stream().map(Object::toString).collect(Collectors.toList());
+                List<String> result = new ArrayList<>();
+                for (Object o : (List) value) {
+                    result.add(o.toString());
+                }
+                return result;
             } else if (value.toString().length() > 0) {
                 return Arrays.asList(value.toString().split(" "));
             }

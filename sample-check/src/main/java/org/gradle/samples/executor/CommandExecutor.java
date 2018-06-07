@@ -15,6 +15,7 @@
  */
 package org.gradle.samples.executor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.samples.model.Command;
 
 import javax.annotation.Nullable;
@@ -24,7 +25,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public abstract class CommandExecutor {
     private final File directory;
@@ -47,42 +47,52 @@ public abstract class CommandExecutor {
         if (directory != null) {
             processBuilder.directory(directory);
         }
-        String command = processBuilder.command().get(0);
+        final String command = processBuilder.command().get(0);
         try {
             if (errorStream == null) {
                 processBuilder.redirectErrorStream(true);
             }
-            Process process = processBuilder.start();
+            final Process process = processBuilder.start();
             ExecutorService executor = Executors.newFixedThreadPool(3);
-            executor.execute(() -> {
-                byte[] buffer = new byte[4096];
-                while (true) {
-                    if (readStream(process.getInputStream(), outputStream, command, buffer)) break;
-                }
-            });
-            if (errorStream != null) {
-                executor.execute(() -> {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
                     byte[] buffer = new byte[4096];
                     while (true) {
-                        if (readStream(process.getErrorStream(), errorStream, command, buffer)) break;
+                        if (readStream(process.getInputStream(), outputStream, command, buffer)) break;
+                    }
+                }
+            });
+
+            if (errorStream != null) {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        byte[] buffer = new byte[4096];
+                        while (true) {
+                            if (readStream(process.getErrorStream(), errorStream, command, buffer)) break;
+                        }
                     }
                 });
             }
             if (inputStream != null) {
-                executor.execute(() -> {
-                    byte[] buffer = new byte[4096];
-                    OutputStream output = process.getOutputStream();
-                    while (true) {
-                        try {
-                            int read = inputStream.read(buffer);
-                            output.write(buffer);
-                            if (read == -1) {
-                                output.flush();
-                                output.close();
-                                break;
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        byte[] buffer = new byte[4096];
+                        OutputStream output = process.getOutputStream();
+                        while (true) {
+                            try {
+                                int read = inputStream.read(buffer);
+                                output.write(buffer);
+                                if (read == -1) {
+                                    output.flush();
+                                    output.close();
+                                    break;
+                                }
+                            } catch (IOException e) {
+                                throw new RuntimeException("Could not write input", e);
                             }
-                        } catch (IOException e) {
-                            throw new RuntimeException("Could not write input", e);
                         }
                     }
                 });
@@ -112,8 +122,9 @@ public abstract class CommandExecutor {
     }
 
     private String commandErrorMessage(ProcessBuilder processBuilder) {
-        return "Could not run command " + processBuilder.command().stream().collect(Collectors.joining(" "));
+        return "Could not run command " + StringUtils.join(processBuilder.command(), " ");
     }
+
     public class RunHandle {
         private final ProcessBuilder processBuilder;
         private final Process process;
@@ -139,6 +150,7 @@ public abstract class CommandExecutor {
                 throw new RuntimeException(commandErrorMessage(processBuilder) + ". Exited with result " + result);
             }
         }
+
         private void shutdownExecutor() {
             try {
                 executor.shutdown();

@@ -16,14 +16,13 @@
 package org.gradle.samples.executor;
 
 import org.gradle.tooling.BuildException;
+import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnectionException;
-import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProjectConnection;
 
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 public class GradleToolingApiCommandExecutor extends CommandExecutor {
     private final ProjectConnection projectConnection;
@@ -33,37 +32,31 @@ public class GradleToolingApiCommandExecutor extends CommandExecutor {
         this.projectConnection = projectConnection;
     }
 
-    public static <T extends LongRunningOperation, R> R run(final T operation, final Function<T, R> function) {
-        operation.setStandardOutput(Logging.detailed());
-        operation.setStandardError(Logging.detailed());
-        try {
-            return function.apply(operation);
-        } catch (GradleConnectionException e) {
-            System.out.println();
-            System.out.println("ERROR: failed to run build. See log file for details.");
-            System.out.println();
-            throw e;
-        }
-    }
-
     @Override
     protected int run(String executable, List<String> commands, List<String> flags, Map<String, String> environmentVariables, OutputStream outputStream) {
-        return run(projectConnection.newBuild(), buildLauncher -> {
-            buildLauncher.forTasks(commands.toArray(new String[0]));
-            buildLauncher.withArguments(flags);
-            // Do not override environment unless specifically requested
+        try {
+            BuildLauncher build = projectConnection.newBuild();
+            build.forTasks(commands.toArray(new String[0]));
+            build.withArguments(flags);
+
             if (!environmentVariables.isEmpty()) {
-                buildLauncher.setEnvironmentVariables(environmentVariables);
+                build.setEnvironmentVariables(environmentVariables);
             }
+
             // NOTE: Both stdout and stderr go to the same output stream, just like what a typical user would see in their console
-            buildLauncher.setStandardOutput(outputStream);
-            buildLauncher.setStandardError(outputStream);
-            try {
-                buildLauncher.run();
-            } catch (BuildException e) {
-                return 1;
-            }
-            return 0;
-        });
+            build.setStandardOutput(outputStream);
+            build.setStandardError(outputStream);
+            build.setJvmArguments("-Xmx512m", "-XX:MaxPermSize=128m");
+
+            build.run();
+        } catch (BuildException e) {
+            return 1;
+        } catch (GradleConnectionException e) {
+            System.out.println("ERROR: failed to run build. See log file for details.");
+            throw e;
+        } finally {
+            projectConnection.close();
+        }
+        return 0;
     }
 }

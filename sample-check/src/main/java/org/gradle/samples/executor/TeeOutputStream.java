@@ -15,6 +15,7 @@
  */
 package org.gradle.samples.executor;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -23,28 +24,48 @@ import java.util.List;
 public class TeeOutputStream extends OutputStream {
     private final List<OutputStream> targets;
 
-    public TeeOutputStream(OutputStream... targets) {
+    TeeOutputStream(OutputStream... targets) {
         this.targets = Arrays.asList(targets);
     }
 
     @Override
-    public void write(int b) throws IOException {
-        withAll(stream -> stream.write(b));
+    public void write(final int b) throws IOException {
+        withAll(new IOAction() {
+            @Override
+            public void withStream(OutputStream stream) throws IOException {
+                stream.write(b);
+            }
+        });
     }
 
     @Override
-    public void write(byte[] b, int off, int len) throws IOException {
-        withAll(stream -> stream.write(b, off, len));
+    public void write(@Nonnull final byte[] b, final int off, final int len) throws IOException {
+        withAll(new IOAction() {
+            @Override
+            public void withStream(OutputStream stream) throws IOException {
+                stream.write(b, off, len);
+            }
+        });
     }
 
     @Override
     public void flush() throws IOException {
-        withAll(stream -> stream.flush());
+        withAll(new IOAction() {
+            @Override
+            public void withStream(OutputStream stream) throws IOException {
+                stream.flush();
+            }
+        });
     }
 
     @Override
     public void close() throws IOException {
-        withAll(stream -> stream.close());
+        withAll(new IOAction() {
+            @Override
+            public void withStream(OutputStream stream) throws IOException {
+                stream.close();
+            }
+        });
     }
 
     private void withAll(IOAction action) throws IOException {
