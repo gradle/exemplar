@@ -16,6 +16,7 @@
 package org.gradle.samples.test.runner;
 
 import org.apache.commons.io.FileUtils;
+import org.gradle.internal.impldep.com.google.common.collect.Lists;
 import org.gradle.samples.executor.CliCommandExecutor;
 import org.gradle.samples.executor.CommandExecutionResult;
 import org.gradle.samples.executor.ExecutionMetadata;
@@ -75,6 +76,13 @@ public class SamplesRunner extends ParentRunner<Sample> {
 
     @Override
     protected List<Sample> getChildren() {
+        List<Sample> samplesFromDirectory = getIndependentSamplesFromDirectory();
+        List<Sample> result = Lists.newArrayList();
+        result.addAll(samplesFromDirectory);
+        return result;
+    }
+
+    private List<Sample> getIndependentSamplesFromDirectory() {
         SamplesRoot samplesRoot = getTestClass().getAnnotation(SamplesRoot.class);
         File samplesRootDir;
         try {
@@ -87,7 +95,7 @@ public class SamplesRunner extends ParentRunner<Sample> {
             if (!samplesRootDir.exists()) {
                 throw new InitializationError("Samples root directory " + samplesRootDir.getAbsolutePath() + " does not exist");
             }
-            return SamplesDiscovery.allSamples(samplesRootDir);
+            return SamplesDiscovery.independentSamples(samplesRootDir);
         } catch (InitializationError e) {
             throw new RuntimeException("Could not initialize SamplesRunner", e);
         }

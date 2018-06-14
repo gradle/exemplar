@@ -34,7 +34,7 @@ class SamplesDiscoveryTest extends Specification {
 //        tmpDir.newFile("advanced-sample/nested/crazy.sample.conf") << "commands: [{executable: build}, {executable: cleanup}]"
 
         when:
-        Collection<Sample> samples = SamplesDiscovery.allSamples(tmpDir.root)
+        Collection<Sample> samples = SamplesDiscovery.independentSamples(tmpDir.root)
 
         then:
         samples.size() == 2
@@ -48,10 +48,107 @@ class SamplesDiscoveryTest extends Specification {
         tmpDir.newFile("src/play/bogus.conf") << "I'm not a sample file"
 
         when:
-        Collection<Sample> samples = SamplesDiscovery.filteredSamples(tmpDir.root, ["sample"].toArray() as String[], true)
+        Collection<Sample> samples = SamplesDiscovery.filteredIndependentSamples(tmpDir.root, ["sample"].toArray() as String[], true)
 
         then:
         samples.size() == 1
         samples[0].id == "first-sample_default"
+    }
+
+    def "discovers samples embedded in an asciidoctor file"() {
+        given:
+        def file = tmpDir.newFile("sample.adoc") << """
+= HEADER
+
+.Sample title
+====
+[.testable-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+task compile {
+    doLast {
+        println "compiling source"
+    }
+}
+task testCompile(dependsOn: compile) {
+    doLast {
+        println "compiling test source"
+    }
+}
+task test(dependsOn: [compile, testCompile]) {
+    doLast {
+        println "running unit tests"
+    }
+}
+task build(dependsOn: [test])
+----
+
+.init.gradle
+[source,groovy]
+----
+useLogger(new CustomEventLogger())
+
+class CustomEventLogger extends BuildAdapter implements TaskExecutionListener {
+
+    public void beforeExecute(Task task) {
+        println "[\$task.name]"
+    }
+
+    public void afterExecute(Task task, TaskState state) {
+        println()
+    }
+    
+    public void buildFinished(BuildResult result) {
+        println 'build completed'
+        if (result.failure != null) {
+            result.failure.printStackTrace()
+        }
+    }
+}
+----
+
+[.sample-command,allow-disordered-output=true]
+----
+\$ gradle -I init.gradle build
+> Task :compile
+[compile]
+compiling source
+
+
+> Task :testCompile
+[testCompile]
+compiling test source
+
+
+> Task :test
+[test]
+running unit tests
+
+
+> Task :build
+[build]
+
+build completed
+3 actionable tasks: 3 executed
+----
+=====
+====
+"""
+
+        when:
+        Collection<Sample> samples = SamplesDiscovery.extractFromAsciidoctorFile(file)
+
+        then:
+        samples.size() == 1
+        def commands = samples.get(0).commands
+
+        and:
+        commands.size() == 1
+        def command = commands.get(0)
+        command.executable == "gradle"
+        command.args == ["-I", "init.gradle", "build"]
+        command.allowDisorderedOutput
     }
 }
