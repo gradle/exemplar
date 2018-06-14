@@ -16,6 +16,7 @@
 package org.gradle.samples.test.runner;
 
 import org.apache.commons.io.FileUtils;
+import org.gradle.internal.impldep.com.google.common.collect.Lists;
 import org.gradle.samples.executor.CliCommandExecutor;
 import org.gradle.samples.executor.CommandExecutionResult;
 import org.gradle.samples.executor.ExecutionMetadata;
@@ -76,6 +77,34 @@ public class SamplesRunner extends ParentRunner<Sample> {
 
     @Override
     protected List<Sample> getChildren() {
+        List<Sample> samplesFromDirectory = getSamplesFromDirectory();
+        List<Sample> samplesFromDocument = getSamplesFromDocument();
+        List<Sample> result = Lists.newArrayList();
+        result.addAll(samplesFromDirectory);
+        result.addAll(samplesFromDocument);
+        return result;
+    }
+
+    private List<Sample> getSamplesFromDocument() {
+        DocumentWithSamples documentWithSamples = getTestClass().getAnnotation(DocumentWithSamples.class);
+        File documentFile;
+        try {
+            if (documentWithSamples != null) {
+                documentFile = new File(documentWithSamples.value());
+            } else {
+                throw new InitializationError("Document with samples is not declared.  Please annotate your test class with @DocumentWithSamples(\"path/to/document.adoc\")");
+            }
+
+            if (!documentFile.exists()) {
+                throw new InitializationError("Document " + documentWithSamples.value() + " does not exist");
+            }
+            return SamplesDiscovery.allSamplesFromDocument(documentFile);
+        } catch (InitializationError e) {
+            throw new RuntimeException("Could not initialize SamplesRunner", e);
+        }
+    }
+
+    private List<Sample> getSamplesFromDirectory() {
         SamplesRoot samplesRoot = getTestClass().getAnnotation(SamplesRoot.class);
         File samplesRootDir;
         try {
