@@ -1,7 +1,6 @@
 object Versions {
     val COMMONS_IO = "2.4"
     val COMMONS_LANG3 = "3.7"
-    //    TODO: Junit 5
     val JUNIT = "4.12"
     val JSR305 = "3.0.2"
     val SLF4J = "1.7.16"

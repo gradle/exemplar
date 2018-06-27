@@ -33,7 +33,6 @@ public class CliCommandExecutor extends CommandExecutor {
         commandLine.addAll(flags);
         commandLine.addAll(commands);
 
-        Logging.detailed().println("Running command: `" + commandLine + "`");
         try {
             run(new ProcessBuilder(commandLine), output);
         } catch (Exception e) {
