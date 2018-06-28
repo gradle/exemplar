@@ -16,7 +16,7 @@ subprojects {
 
     repositories {
         maven {
-            url = uri("https://repo.gradle.org/gradle/libs-releases")
+            url = uri("https://repo.gradle.org/gradle/libs")
         }
         jcenter()
     }
