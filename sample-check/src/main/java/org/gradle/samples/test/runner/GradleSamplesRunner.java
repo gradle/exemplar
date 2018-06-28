@@ -15,31 +15,35 @@
  */
 package org.gradle.samples.test.runner;
 
+import org.apache.commons.io.IOUtils;
 import org.gradle.samples.executor.CommandExecutionResult;
-import org.gradle.samples.executor.GradleToolingApiCommandExecutor;
+import org.gradle.samples.executor.CommandExecutor;
+import org.gradle.samples.executor.ExecutionMetadata;
 import org.gradle.samples.loader.SamplesDiscovery;
 import org.gradle.samples.model.Command;
 import org.gradle.samples.model.Sample;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProjectConnection;
+import org.gradle.testkit.runner.BuildResult;
+import org.gradle.testkit.runner.GradleRunner;
+import org.gradle.testkit.runner.internal.DefaultGradleRunner;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runners.model.InitializationError;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A custom implementation of {@link SamplesRunner} that uses the Gradle Tooling API to execute sample builds.
  */
 public class GradleSamplesRunner extends SamplesRunner {
-    private File customGradleInstallation = null;
-    private GradleConnector gradleConnector;
-
     @Rule
     public TemporaryFolder tempGradleUserHomeDir = new TemporaryFolder();
+    private File customGradleInstallation = null;
 
     /**
      * Constructs a new {@code ParentRunner} that will run {@code @TestClass}
@@ -48,8 +52,6 @@ public class GradleSamplesRunner extends SamplesRunner {
      */
     public GradleSamplesRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
-
-        gradleConnector = GradleConnector.newConnector();
     }
 
     @Override
@@ -95,30 +97,67 @@ public class GradleSamplesRunner extends SamplesRunner {
     }
 
     @Override
-    public CommandExecutionResult execute(final File tempSampleOutputDir, final Command command) throws IOException {
-        // Further isolate samples with unique Gradle user home dir
-        File tempGradleUserHomeDir = new File(tempSampleOutputDir, ".gradle");
-        tempGradleUserHomeDir.mkdirs();
-
-        // Gradle Daemons should shut down after being idle
-        File tempGradleProperties = new File(tempGradleUserHomeDir, "gradle.properties");
-        Files.write(tempGradleProperties.toPath(), "org.gradle.daemon.idletimeout=30000".getBytes());
-
-        File tempWorkingDirectory = tempSampleOutputDir;
-
+    public CommandExecutionResult execute(final File tempSampleOutputDir, final Command command) {
+        File workingDir = tempSampleOutputDir;
         if (command.getExecutionSubdirectory() != null) {
-            tempWorkingDirectory = new File(tempSampleOutputDir, command.getExecutionSubdirectory());
+            workingDir = new File(tempSampleOutputDir, command.getExecutionSubdirectory());
         }
 
-        ProjectConnection projectConnection = gradleConnector
-                .forProjectDirectory(tempWorkingDirectory)
-                .useGradleUserHomeDir(tempGradleUserHomeDir)
-                .connect();
+        boolean expectFailure = command.isExpectFailure();
+        ExecutionMetadata executionMetadata = getExecutionMetadata(tempSampleOutputDir);
+        return new GradleRunnerCommandExecutor(workingDir, customGradleInstallation, expectFailure).execute(command, executionMetadata);
+    }
 
-        try {
-            return new GradleToolingApiCommandExecutor(projectConnection).execute(command, getExecutionMetadata(tempSampleOutputDir));
-        } finally {
-            projectConnection.close();
+    private static class GradleRunnerCommandExecutor extends CommandExecutor {
+        private final File workingDir;
+        private final File customGradleInstallation;
+        private final boolean expectFailure;
+
+        private GradleRunnerCommandExecutor(File workingDir, File customGradleInstallation, boolean expectFailure) {
+            this.workingDir = workingDir;
+            this.customGradleInstallation = customGradleInstallation;
+            this.expectFailure = expectFailure;
+        }
+
+        @Override
+        protected int run(String executable, List<String> commands, List<String> flags, Map<String, String> environmentVariables, OutputStream output) {
+            assert environmentVariables.isEmpty() : "Gradle Runner does not support changing environment variables";
+
+            List<String> allArguments = new ArrayList<>(commands);
+            allArguments.addAll(flags);
+
+            GradleRunner gradleRunner = GradleRunner.create()
+                    .withProjectDir(workingDir)
+                    .withArguments(allArguments)
+                    .forwardOutput();
+            if (customGradleInstallation!=null) {
+                gradleRunner.withGradleInstallation(customGradleInstallation);
+            }
+            ((DefaultGradleRunner)gradleRunner).withJvmArguments(
+                    // TODO: Does TestKit already do this?
+                    "-Dorg.gradle.daemon.idletimeout=30000",
+                    // TODO: Configurable?
+                    "-Xmx512m",
+                    // TODO: OK for newer JDKs?
+                    "-XX:MaxPermSize=128m"
+            );
+
+            Writer mergedOutput = new OutputStreamWriter(output);
+            try {
+                BuildResult buildResult;
+                if (expectFailure) {
+                    buildResult = gradleRunner.buildAndFail();
+                } else {
+                    buildResult = gradleRunner.build();
+                }
+                mergedOutput.write(buildResult.getOutput());
+                mergedOutput.close();
+                return expectFailure ? 1 : 0;
+            } catch (Exception e) {
+                throw new RuntimeException("Could not execute " + executable, e);
+            } finally {
+                IOUtils.closeQuietly(mergedOutput);
+            }
         }
     }
 }
