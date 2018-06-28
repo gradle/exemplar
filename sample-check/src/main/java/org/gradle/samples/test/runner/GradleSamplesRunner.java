@@ -77,9 +77,12 @@ public class GradleSamplesRunner extends SamplesRunner {
                 samplesRootDir = new File(samplesRootProperty);
             } else if (customGradleInstallation != null) {
                 samplesRootDir = new File(customGradleInstallation, "samples");
-                gradleConnector.useInstallation(customGradleInstallation);
             } else {
                 throw new InitializationError("Samples root directory is not declared. Please annotate your test class with @SamplesRoot(\"path/to/samples\")");
+            }
+
+            if (customGradleInstallation != null) {
+                gradleConnector.useInstallation(customGradleInstallation);
             }
 
             if (!samplesRootDir.exists()) {
