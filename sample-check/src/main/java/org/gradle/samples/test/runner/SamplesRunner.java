@@ -55,7 +55,6 @@ public class SamplesRunner extends ParentRunner<Sample> {
     public SamplesRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
 
-
         SamplesOutputNormalizers samplesOutputNormalizers = testClass.getAnnotation(SamplesOutputNormalizers.class);
         if (samplesOutputNormalizers != null) {
             try {
@@ -100,28 +99,32 @@ public class SamplesRunner extends ParentRunner<Sample> {
     }
 
     @Override
-    protected void runChild(final Sample Sample, final RunNotifier notifier) {
-        Description childDescription = describeChild(Sample);
-        notifier.fireTestStarted(childDescription);
-        try {
-            final Sample testSpecificSample = initSample(Sample);
+    protected void runChild(final Sample sample, final RunNotifier notifier) {
+        Description childDescription = describeChild(sample);
+        if (isIgnored(sample)) {
+            notifier.fireTestIgnored(childDescription);
+        } else {
+            notifier.fireTestStarted(childDescription);
+            try {
+                final Sample testSpecificSample = initSample(sample);
 
-            // Execute and verify each command
-            for (Command command : testSpecificSample.getCommands()) {
-                CommandExecutionResult result = execute(testSpecificSample.getProjectDir(), command);
+                // Execute and verify each command
+                for (Command command : testSpecificSample.getCommands()) {
+                    CommandExecutionResult result = execute(testSpecificSample.getProjectDir(), command);
 
-                if (result.getExitCode() != 0 && !command.isExpectFailure()) {
-                    Assert.fail("Expected sample invocation to succeed but it failed. Output was:\n" + result.getOutput());
-                } else if (result.getExitCode() == 0 && command.isExpectFailure()) {
-                    Assert.fail("Expected sample invocation to fail but it succeeded. Output was:\n" + result.getOutput());
+                    if (result.getExitCode() != 0 && !command.isExpectFailure()) {
+                        Assert.fail("Expected sample invocation to succeed but it failed. Output was:\n" + result.getOutput());
+                    } else if (result.getExitCode() == 0 && command.isExpectFailure()) {
+                        Assert.fail("Expected sample invocation to fail but it succeeded. Output was:\n" + result.getOutput());
+                    }
+
+                    verifyOutput(command, result);
                 }
-
-                verifyOutput(command, result);
+            } catch (Throwable t) {
+                notifier.fireTestFailure(new Failure(childDescription, t));
+            } finally {
+                notifier.fireTestFinished(childDescription);
             }
-        } catch (Throwable t) {
-            notifier.fireTestFailure(new Failure(childDescription, t));
-        } finally {
-            notifier.fireTestFinished(childDescription);
         }
     }
 

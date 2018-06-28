@@ -16,6 +16,7 @@
 package org.gradle.samples.test.runner;
 
 import org.apache.commons.io.IOUtils;
+import org.gradle.api.JavaVersion;
 import org.gradle.samples.executor.CommandExecutionResult;
 import org.gradle.samples.executor.CommandExecutor;
 import org.gradle.samples.executor.ExecutionMetadata;
@@ -50,6 +51,14 @@ public class GradleSamplesRunner extends SamplesRunner {
      */
     public GradleSamplesRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
+    }
+
+    /**
+     * Gradle samples tests are ignored on Java 7 and below.
+     */
+    @Override
+    protected boolean isIgnored(Sample child) {
+        return !JavaVersion.current().isJava8Compatible();
     }
 
     @Override
