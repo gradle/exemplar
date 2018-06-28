@@ -153,8 +153,7 @@ You can use normalizers by annotating your JUnit test class with `@SamplesOutput
 Custom normalizers must implement the `org.gradle.samples.test.OutputNormalizer` interface. The two above are included in sample-check.
 
 
-See docs for:
+### Custom Gradle installation
 
- - [sample-check](sample-check/README.md) — run and verify samples' output.
- - [sample-discovery](sample-discovery/README.md) — discover and parse sample configuration.
- - sample-expo (not quite ready yet) — search and show off samples.
+To allow Gradle itself to run using test versions of Gradle, the `GradleSamplesRunner` allows a custom installation to be injected using the system property "integTest.gradleHomeDir".
+
