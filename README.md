@@ -37,8 +37,8 @@ plugins {
 
 repositories {
     maven {
-        url = uri("https://repo.gradle.org/gradle/ext-releases-local")
-        // `url "https://repo.gradle.org/gradle/ext-releases-local"` will do for Groovy scripts
+        url = uri("https://repo.gradle.org/gradle/libs")
+        // `url "https://repo.gradle.org/gradle/libs"` will do for Groovy scripts
     }
 }
 
