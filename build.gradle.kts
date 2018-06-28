@@ -7,7 +7,7 @@ subprojects {
     apply(plugin = "maven-publish")
 
     group = "org.gradle"
-    version = "0.3.3"
+    version = "0.4.0"
 
     configure<JavaPluginConvention> {
         sourceCompatibility = JavaVersion.VERSION_1_7
