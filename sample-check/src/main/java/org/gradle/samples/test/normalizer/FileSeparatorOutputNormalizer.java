@@ -22,6 +22,6 @@ import java.io.File;
 public class FileSeparatorOutputNormalizer implements OutputNormalizer {
     @Override
     public String normalize(String commandOutput, ExecutionMetadata executionMetadata) {
-        return commandOutput.replace(File.separatorChar, '/');
+        return commandOutput.replaceAll(File.separatorChar + "(\\w[\\w\\-]*)", "/$1");
     }
 }
