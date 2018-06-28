@@ -57,7 +57,6 @@ class CommandsParserTest extends Specification {
         command.executionSubdirectory == null
         command.args == []
         command.flags == []
-        command.environmentVariables == [:]
         !command.expectFailure
         command.expectedOutput == null
         !command.allowAdditionalOutput
@@ -71,7 +70,6 @@ class CommandsParserTest extends Specification {
             execution-subdirectory: subproj
             args: build
             flags: -I init.gradle.kts
-            env: {"ORG_GRADLE_PROJECT_envProjectProp": envPropertyValue}
             expect-failure: true
             allow-additional-output: true
             allow-disordered-output: true
@@ -90,7 +88,6 @@ class CommandsParserTest extends Specification {
         command.executionSubdirectory == "subproj"
         command.args == ["build"]
         command.flags == ["-I", "init.gradle.kts"]
-        command.environmentVariables == ["ORG_GRADLE_PROJECT_envProjectProp": "envPropertyValue"]
         command.expectFailure
         command.expectedOutput == "> Task :build"
         command.allowAdditionalOutput

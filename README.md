@@ -13,7 +13,6 @@ It allows any command-line executable on the `PATH` to be invoked. You are not l
 
 While this has an element of integration testing, it is not meant to replace your integration tests unless the logging output is the only result of executing your tool.
 One cannot verify other side effects of invoking the samples, such as files created or their contents, unless that is explicitly configured.
-Every test copies each sample to a new temporary location and forks a new process, making this testing method slower than most.
 
 This library is used to verify the functionality of samples in [Gradle documentation](https://docs.gradle.org).
 
@@ -134,7 +133,6 @@ A [Command](../sample-discovery/src/main/java/org/gradle/samples/model/Command.j
  - optional string `execution-subdirectory` — Working directory in which to invoke the executable. _If not specified, the API assumes `./` (the directory the sample config file is in)._
  - optional string `args` — Arguments for executable. Default is `""`.
  - optional string `flags` — CLI flags (separated for tools that require these be provided in a certain order). Default is `""`.
- - optional map<string, string> `env` — Override environment variables. _If not specified, the invoking process inherits environment variables from the invoking process._
  - optional string `expected-output-file` — Relative path from sample config file to a readable file to compare actual output to. Default is `null`. _If not specified, output verification is not performed._
  - optional boolean `expect-failure` — Invoking this command is expected to produce a non-zero exit code. Default: `false`.
  - optional boolean `allow-additional-output` — Allow extra lines in actual output. Default: `false`.

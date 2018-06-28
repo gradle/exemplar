@@ -33,7 +33,6 @@ public class CommandsParser {
     private static final String EXECUTION_SUBDIRECTORY = "execution-subdirectory";
     private static final String ARGS = "args";
     private static final String FLAGS = "flags";
-    private static final String ENV = "env";
     private static final String EXPECT_FAILURE = "expect-failure";
     private static final String ALLOW_ADDITIONAL_OUTPUT = "allow-additional-output";
     private static final String ALLOW_DISORDERED_OUTPUT = "allow-disordered-output";
@@ -69,7 +68,6 @@ public class CommandsParser {
         final String executionDirectory = ConfigUtil.string(commandConfig, EXECUTION_SUBDIRECTORY, null);
         final List<String> commands = ConfigUtil.strings(commandConfig, ARGS, new ArrayList<String>());
         final List<String> flags = ConfigUtil.strings(commandConfig, FLAGS, new ArrayList<String>());
-        final Map<String, String> environmentVariables = ConfigUtil.map(commandConfig, ENV, new HashMap<String, String>());
         String expectedOutput = null;
         if (commandConfig.hasPath(EXPECTED_OUTPUT_FILE)) {
             final File expectedOutputFile = new File(sampleProjectDir, commandConfig.getString(EXPECTED_OUTPUT_FILE));
@@ -85,6 +83,6 @@ public class CommandsParser {
         final boolean allowAdditionalOutput = ConfigUtil.booleanValue(commandConfig, ALLOW_ADDITIONAL_OUTPUT, false);
         final boolean allowDisorderedOutput = ConfigUtil.booleanValue(commandConfig, ALLOW_DISORDERED_OUTPUT, false);
 
-        return new Command(executable, executionDirectory, commands, flags, environmentVariables, expectedOutput, expectFailures, allowAdditionalOutput, allowDisorderedOutput);
+        return new Command(executable, executionDirectory, commands, flags, expectedOutput, expectFailures, allowAdditionalOutput, allowDisorderedOutput);
     }
 }

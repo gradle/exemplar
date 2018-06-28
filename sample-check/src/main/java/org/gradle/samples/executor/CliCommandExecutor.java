@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class CliCommandExecutor extends CommandExecutor {
     public CliCommandExecutor(File directory) {
@@ -27,7 +26,7 @@ public class CliCommandExecutor extends CommandExecutor {
     }
 
     @Override
-    protected int run(final String executable, final List<String> commands, final List<String> flags, Map<String, String> environmentVariables, final OutputStream output) {
+    protected int run(final String executable, final List<String> commands, final List<String> flags, final OutputStream output) {
         List<String> commandLine = new ArrayList<>();
         commandLine.add(executable);
         commandLine.addAll(flags);

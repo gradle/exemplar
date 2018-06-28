@@ -18,25 +18,22 @@ package org.gradle.samples.model;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Map;
 
 public class Command {
     private final String executable;
     private final String executionSubdirectory;
     private final List<String> args;
     private final List<String> flags;
-    private final Map<String, String> environmentVariables;
     private final String expectedOutput;
     private final boolean expectFailure;
     private final boolean allowAdditionalOutput;
     private final boolean allowDisorderedOutput;
 
-    public Command(@Nonnull String executable, @Nullable String executionDirectory, List<String> args, List<String> flags, Map<String, String> environmentVariables, @Nullable String expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput) {
+    public Command(@Nonnull String executable, @Nullable String executionDirectory, List<String> args, List<String> flags, @Nullable String expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput) {
         this.executable = executable;
         this.executionSubdirectory = executionDirectory;
         this.args = args;
         this.flags = flags;
-        this.environmentVariables = environmentVariables;
         this.expectedOutput = expectedOutput;
         this.expectFailure = expectFailure;
         this.allowAdditionalOutput = allowAdditionalOutput;
@@ -85,9 +82,5 @@ public class Command {
      */
     public boolean isAllowDisorderedOutput() {
         return allowDisorderedOutput;
-    }
-
-    public Map<String, String> getEnvironmentVariables() {
-        return environmentVariables;
     }
 }

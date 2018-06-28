@@ -24,7 +24,6 @@ import org.gradle.samples.model.Command;
 import org.gradle.samples.model.Sample;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
-import org.gradle.testkit.runner.internal.DefaultGradleRunner;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runners.model.InitializationError;
@@ -35,7 +34,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A custom implementation of {@link SamplesRunner} that uses the Gradle Tooling API to execute sample builds.
@@ -83,10 +81,6 @@ public class GradleSamplesRunner extends SamplesRunner {
                 throw new InitializationError("Samples root directory is not declared. Please annotate your test class with @SamplesRoot(\"path/to/samples\")");
             }
 
-            if (customGradleInstallation != null) {
-                gradleConnector.useInstallation(customGradleInstallation);
-            }
-
             if (!samplesRootDir.exists()) {
                 throw new InitializationError("Samples root directory " + samplesRootDir.getAbsolutePath() + " does not exist");
             }
@@ -120,9 +114,7 @@ public class GradleSamplesRunner extends SamplesRunner {
         }
 
         @Override
-        protected int run(String executable, List<String> commands, List<String> flags, Map<String, String> environmentVariables, OutputStream output) {
-            assert environmentVariables.isEmpty() : "Gradle Runner does not support changing environment variables";
-
+        protected int run(String executable, List<String> commands, List<String> flags, OutputStream output) {
             List<String> allArguments = new ArrayList<>(commands);
             allArguments.addAll(flags);
 
@@ -130,17 +122,10 @@ public class GradleSamplesRunner extends SamplesRunner {
                     .withProjectDir(workingDir)
                     .withArguments(allArguments)
                     .forwardOutput();
-            if (customGradleInstallation!=null) {
+
+            if (customGradleInstallation != null) {
                 gradleRunner.withGradleInstallation(customGradleInstallation);
             }
-            ((DefaultGradleRunner)gradleRunner).withJvmArguments(
-                    // TODO: Does TestKit already do this?
-                    "-Dorg.gradle.daemon.idletimeout=30000",
-                    // TODO: Configurable?
-                    "-Xmx512m",
-                    // TODO: OK for newer JDKs?
-                    "-XX:MaxPermSize=128m"
-            );
 
             Writer mergedOutput = new OutputStreamWriter(output);
             try {

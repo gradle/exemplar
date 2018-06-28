@@ -21,7 +21,6 @@ import org.gradle.samples.model.Command;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +36,7 @@ public abstract class CommandExecutor {
         this.directory = directory;
     }
 
-    protected abstract int run(final String executable, final List<String> commands, final List<String> flags, Map<String, String> environmentVariables, final OutputStream output);
+    protected abstract int run(final String executable, final List<String> commands, final List<String> flags, final OutputStream output);
 
     public void run(ProcessBuilder processBuilder, final OutputStream outputStream) {
         run(processBuilder, outputStream, null, null).waitForSuccess();
@@ -162,7 +161,7 @@ public abstract class CommandExecutor {
 
     public CommandExecutionResult execute(final Command command, final ExecutionMetadata executionMetadata) {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final int exitCode = run(command.getExecutable(), command.getArgs(), command.getFlags(), command.getEnvironmentVariables(), outputStream);
+        final int exitCode = run(command.getExecutable(), command.getArgs(), command.getFlags(), outputStream);
 
         return new CommandExecutionResult(command, exitCode, outputStream.toString(), executionMetadata);
     }
