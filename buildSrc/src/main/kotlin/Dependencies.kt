@@ -5,7 +5,7 @@ object Versions {
     val JSR305 = "3.0.2"
     val SLF4J = "1.7.16"
     val SPOCK_CORE = "1.1-groovy-2.4"
-    val TYPESAFE_CONFIG = "1.3.1"
+    val TYPESAFE_CONFIG = "1.2.1"
 }
 
 object Libraries {
