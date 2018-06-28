@@ -26,11 +26,11 @@ public class CliCommandExecutor extends CommandExecutor {
     }
 
     @Override
-    protected int run(final String executable, final List<String> commands, final List<String> flags, final OutputStream output) {
+    protected int run(final String executable, final List<String> args, final List<String> flags, final OutputStream output) {
         List<String> commandLine = new ArrayList<>();
         commandLine.add(executable);
         commandLine.addAll(flags);
-        commandLine.addAll(commands);
+        commandLine.addAll(args);
 
         try {
             run(new ProcessBuilder(commandLine), output);

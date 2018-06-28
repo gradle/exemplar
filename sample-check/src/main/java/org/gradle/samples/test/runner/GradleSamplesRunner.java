@@ -114,8 +114,8 @@ public class GradleSamplesRunner extends SamplesRunner {
         }
 
         @Override
-        protected int run(String executable, List<String> commands, List<String> flags, OutputStream output) {
-            List<String> allArguments = new ArrayList<>(commands);
+        protected int run(String executable, List<String> args, List<String> flags, OutputStream output) {
+            List<String> allArguments = new ArrayList<>(args);
             allArguments.addAll(flags);
 
             GradleRunner gradleRunner = GradleRunner.create()

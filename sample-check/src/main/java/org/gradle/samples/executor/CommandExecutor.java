@@ -36,7 +36,7 @@ public abstract class CommandExecutor {
         this.directory = directory;
     }
 
-    protected abstract int run(final String executable, final List<String> commands, final List<String> flags, final OutputStream output);
+    protected abstract int run(final String executable, final List<String> args, final List<String> flags, final OutputStream output);
 
     public void run(ProcessBuilder processBuilder, final OutputStream outputStream) {
         run(processBuilder, outputStream, null, null).waitForSuccess();
