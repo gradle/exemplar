@@ -18,10 +18,15 @@ package org.gradle.samples.test.normalizer;
 import org.gradle.samples.executor.ExecutionMetadata;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
 public class FileSeparatorOutputNormalizer implements OutputNormalizer {
     @Override
     public String normalize(String commandOutput, ExecutionMetadata executionMetadata) {
-        return commandOutput.replaceAll(File.separatorChar + "(?=[A-Za-z0-9_])", "/");
+        return normalize(commandOutput, executionMetadata, File.separatorChar);
+    }
+
+    protected String normalize(String commandOutput, ExecutionMetadata executionMetadata, char separatorChar) {
+        return commandOutput.replaceAll(Pattern.quote(String.valueOf(separatorChar)) + "(?=\\w)", "/");
     }
 }
