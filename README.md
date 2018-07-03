@@ -28,7 +28,7 @@ This library is used to verify the functionality of samples in [Gradle documenta
 
 ### Get sample-check
 
-First things first, you can pull this library down from Gradle's artifactory repository. Here's some Gradle Kotlin DSL configuration:
+First things first, you can pull this library down from Gradle's artifactory repository. Here's some [Gradle Kotlin DSL](https://github.com/gradle/kotlin-dsl) configuration:
 
 ```gradle
 plugins {
