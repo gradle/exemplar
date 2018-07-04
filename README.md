@@ -50,7 +50,7 @@ dependencies {
 
 ### Configure samples
 
-**NOTE: There are a bunch of (tested) samples under `test/samples` of this repository you can use to understand ways to configure samples.**  
+**NOTE: There are a bunch of (tested) samples under `sample-check/src/test/samples` of this repository you can use to understand ways to configure samples.**  
 
 You can configure a sample to be tested by creating a file ending with `.sample.conf` (e.g. `hello-world.sample.conf`) in a sample project dir. 
 This is a file in [HOCON format](https://github.com/lightbend/config/blob/master/HOCON.md) that might look something like this:
