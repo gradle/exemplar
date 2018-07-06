@@ -10,7 +10,9 @@ class SampleTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder()
 
     @Rule
-    public Sample sample = new Sample("src/test/samples/gradle", temporaryFolder, "basic-sample")
+    public Sample sample = Sample.from("src/test/samples/gradle")
+            .into(temporaryFolder)
+            .withDefaultSample("basic-sample")
 
     @Test
     void "copies default sample"() {

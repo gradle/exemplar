@@ -17,14 +17,16 @@
 package org.gradle.samples.test.rule;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * A JUnit rule which copies a sample into the test directory before the test executes.
@@ -35,48 +37,50 @@ import java.io.IOException;
 public class Sample implements TestRule {
 
     private final SourceSampleDirSupplier sourceSampleDirSupplier;
-    private final TargetBaseDirSupplier targetBaseDirSupplier;
-    private final String defaultSampleName;
+    private TargetBaseDirSupplier targetBaseDirSupplier;
+    private String defaultSampleName;
 
     private String sampleName;
     private File targetDir;
 
-    public Sample(String sourceBaseDirPath, TemporaryFolder temporaryFolder) {
-        this(sourceBaseDirPath, temporaryFolder, null);
+    public static Sample from(final String sourceBaseDirPath) {
+        return from(new SourceSampleDirSupplier() {
+            @Override
+            public File getDir(String sampleName) {
+                return new File(sourceBaseDirPath, sampleName);
+            }
+        });
     }
 
-    public Sample(final String sourceBaseDirPath, final TemporaryFolder temporaryFolder, @Nullable String defaultSampleName) {
-        this(rootDirSourceSampleDirProvider(sourceBaseDirPath),
-                new TargetBaseDirSupplier() {
-                    @Override
-                    public File getDir() {
-                        try {
-                            return temporaryFolder.newFolder("samples");
-                        } catch (IOException e) {
-                            throw new RuntimeException("Could not create samples target base dir", e);
-                        }
-                    }
-                },
-                defaultSampleName);
+    public static Sample from(SourceSampleDirSupplier sourceSampleDirSupplier) {
+        return new Sample(sourceSampleDirSupplier);
     }
 
-    private static SourceSampleDirSupplier rootDirSourceSampleDirProvider(final String sourceBaseDirPath) {
-        return new SourceSampleDirSupplier() {
-                 @Override
-                 public File getDir(String sampleName) {
-                     return new File(sourceBaseDirPath, sampleName);
-                 }
-             };
-    }
-
-    public Sample(SourceSampleDirSupplier sourceSampleDirSupplier, TargetBaseDirSupplier targetBaseDirSupplier) {
-        this(sourceSampleDirSupplier, targetBaseDirSupplier, null);
-    }
-
-    public Sample(SourceSampleDirSupplier sourceSampleDirSupplier, TargetBaseDirSupplier targetBaseDirSupplier, @Nullable String defaultSampleName) {
+    private Sample(SourceSampleDirSupplier sourceSampleDirSupplier) {
         this.sourceSampleDirSupplier = sourceSampleDirSupplier;
+    }
+
+    public Sample into(final TemporaryFolder temporaryFolder) {
+        return into(new TargetBaseDirSupplier() {
+            @Override
+            public File getDir() {
+                try {
+                    return temporaryFolder.newFolder("samples");
+                } catch (IOException e) {
+                    throw new RuntimeException("Could not create samples target base dir", e);
+                }
+            }
+        });
+    }
+
+    public Sample into(TargetBaseDirSupplier targetBaseDirSupplier) {
         this.targetBaseDirSupplier = targetBaseDirSupplier;
-        this.defaultSampleName = defaultSampleName;
+        return this;
+    }
+
+    public Sample withDefaultSample(String name) {
+        this.defaultSampleName = name;
+        return this;
     }
 
     public interface SourceSampleDirSupplier {
@@ -93,6 +97,8 @@ public class Sample implements TestRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
+                assertNotNull("No sample selected. Please use @UsesSample or withDefaultSampleName()", sampleName);
+                assertNotNull("targetBaseDirSupplier must not be null. Please use into() to set one.", targetBaseDirSupplier);
                 File srcDir = sourceSampleDirSupplier.getDir(sampleName);
                 FileUtils.copyDirectory(srcDir, getDir());
                 base.evaluate();
