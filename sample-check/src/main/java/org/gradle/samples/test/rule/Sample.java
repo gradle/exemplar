@@ -46,7 +46,7 @@ public class Sample implements TestRule {
     }
 
     public Sample(final String sourceBaseDirPath, final TemporaryFolder temporaryFolder, @Nullable String defaultSampleName) {
-        this(eagerSourceSampleDirSupplier(sourceBaseDirPath),
+        this(rootDirSourceSampleDirProvider(sourceBaseDirPath),
                 new TargetBaseDirSupplier() {
                     @Override
                     public File getDir() {
@@ -60,7 +60,7 @@ public class Sample implements TestRule {
                 defaultSampleName);
     }
 
-    private static SourceSampleDirSupplier eagerSourceSampleDirSupplier(final String sourceBaseDirPath) {
+    private static SourceSampleDirSupplier rootDirSourceSampleDirProvider(final String sourceBaseDirPath) {
         return new SourceSampleDirSupplier() {
                  @Override
                  public File getDir(String sampleName) {
