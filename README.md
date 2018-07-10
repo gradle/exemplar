@@ -91,17 +91,15 @@ You can verify samples either through one of the [JUnit Test Runners](#verifying
 
 #### Verifying using a JUnit Runner
 
-This library provides 2 JUnit runners [`SamplesRunner`](src/main/java/org/gradle/samples/test/runner/SamplesRunner.java) (executes via CLI) and [`GradleSamplesRunner`](src/main/java/org/gradle/samples/test/runner/GradleSamplesRunner.java) (executes samples using [Gradle's Tooling API](https://docs.gradle.org/current/userguide/embedding.html))
-
-**NOTE:** `GradleSamplesRunner` supports Java 8 and above and ignores tests when running on Java 7 or lower.
-
-**NOTE:** If you are using `GradleSamplesRunner`, you will need to add `gradleTestKit()` as a dependency as well:
+This library provides 2 JUnit runners [`SamplesRunner`](src/main/java/org/gradle/samples/test/runner/SamplesRunner.java) (executes via CLI) and [`GradleSamplesRunner`](src/main/java/org/gradle/samples/test/runner/GradleSamplesRunner.java) (executes samples using [Gradle TestKit](https://docs.gradle.org/current/userguide/test_kit.html)). If you are using `GradleSamplesRunner`, you will need to add `gradleTestKit()` as a dependency as well:
 
 ```kotlin
 dependencies {
     testImplementation(gradleTestKit())
 }
 ```
+
+**NOTE:** `GradleSamplesRunner` supports Java 8 and above and ignores tests when running on Java 7 or lower.
 
 To use them, just create a JUnit test class in your test sources (maybe something like `src/integTest/com/example/SamplesIntegrationTest.java`, [keeping these slow tests separate](https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests) from your fast unit tests.) and annotate it with which JUnit runner implementation you'd like and where to find samples. 
 Like this:
