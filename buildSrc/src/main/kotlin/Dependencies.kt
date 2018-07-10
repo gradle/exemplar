@@ -1,4 +1,5 @@
 object Versions {
+    val ASCIIDOCTOR = "1.5.6"
     val COMMONS_IO = "2.4"
     val COMMONS_LANG3 = "3.7"
     val JUNIT = "4.12"
@@ -9,6 +10,7 @@ object Versions {
 }
 
 object Libraries {
+    val ASCIIDOCTOR = "org.asciidoctor:asciidoctorj:${Versions.ASCIIDOCTOR}"
     val COMMONS_IO = "commons-io:commons-io:${Versions.COMMONS_IO}"
     val COMMONS_LANG3 = "org.apache.commons:commons-lang3:${Versions.COMMONS_LANG3}"
     val JUNIT = "junit:junit:${Versions.JUNIT}"

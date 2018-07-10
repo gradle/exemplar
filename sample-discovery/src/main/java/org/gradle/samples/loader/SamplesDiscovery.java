@@ -17,12 +17,18 @@ package org.gradle.samples.loader;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
+import org.asciidoctor.ast.Document;
+import org.asciidoctor.ast.Section;
+import org.asciidoctor.extension.JavaExtensionRegistry;
 import org.gradle.samples.model.Command;
 import org.gradle.samples.model.Sample;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 public class SamplesDiscovery {
@@ -52,5 +58,15 @@ public class SamplesDiscovery {
                 .toString()
                 .replaceAll("[/\\\\]", "_");
         return prefix + "_" + FilenameUtils.removeExtension(scenarioFile.getName());
+    }
+
+    public static List<Sample> allSamplesFromDocument(File documentFile) {
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create();
+        JavaExtensionRegistry extensionRegistry = asciidoctor.javaExtensionRegistry();
+        SampleBlockProcessor processor = new SampleBlockProcessor();
+//        extensionRegistry.block("sample", processor);
+        extensionRegistry.block("sample", SampleBlockProcessor.class);
+        asciidoctor.convertFile(documentFile, new Options());
+        return processor.getSamples();
     }
 }

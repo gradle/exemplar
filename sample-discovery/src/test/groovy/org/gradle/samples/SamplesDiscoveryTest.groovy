@@ -54,4 +54,35 @@ class SamplesDiscoveryTest extends Specification {
         samples.size() == 1
         samples[0].id == "first-sample_default"
     }
+
+    def "check asciidoc file"() {
+        given:
+        def file = tmpDir.newFile("sample.adoc") << """
+= HEADER
+
+[sample]
+some text
+"""
+//        def file = tmpDir.newFile("sample.adoc") << """
+//= Main section
+//
+//== Subsection
+//[sample]
+//> cd cpp/application
+//> ./gradlew assemble
+//
+//BUILD SUCCESSFUL in 1s
+//
+//> ./build/install/main/debug/app
+//Hello, World!
+//
+//== Next subsection
+//"""
+
+        when:
+        Collection<Sample> samples = SamplesDiscovery.allSamplesFromDocument(file)
+
+        then:
+        true
+    }
 }
