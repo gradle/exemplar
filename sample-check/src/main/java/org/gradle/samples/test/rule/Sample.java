@@ -97,8 +97,8 @@ public class Sample implements TestRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                assertNotNull("No sample selected. Please use @UsesSample or withDefaultSampleName()", sampleName);
-                assertNotNull("targetBaseDirSupplier must not be null. Please use into() to set one.", targetBaseDirSupplier);
+                assertNotNull("No sample selected. Please use @UsesSample or withDefaultSample()", sampleName);
+                assertNotNull("TargetBaseDirSupplier must not be null. Please use into() to set one.", targetBaseDirSupplier);
                 File srcDir = sourceSampleDirSupplier.getDir(sampleName);
                 FileUtils.copyDirectory(srcDir, getDir());
                 base.evaluate();
