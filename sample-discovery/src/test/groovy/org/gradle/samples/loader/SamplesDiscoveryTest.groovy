@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.samples
+package org.gradle.samples.loader
 
-import org.gradle.samples.loader.SamplesDiscovery
 import org.gradle.samples.model.Sample
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
