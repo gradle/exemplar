@@ -61,7 +61,7 @@ public class SamplesDiscovery {
 
         List<Sample> samples = new ArrayList<>();
         for (File sampleConfigFile : sampleConfigFiles) {
-            extractFromAsciidoctorFile(sampleConfigFile);
+            samples.addAll(extractFromAsciidoctorFile(sampleConfigFile));
         }
 
         return samples;

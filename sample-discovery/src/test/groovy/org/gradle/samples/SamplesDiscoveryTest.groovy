@@ -55,7 +55,7 @@ class SamplesDiscoveryTest extends Specification {
         samples[0].id == "first-sample_default"
     }
 
-    def "discovers samples embedded in an asciidoctor file"() {
+    def "discovers samples inside an asciidoctor file with sources inline"() {
         given:
         def file = tmpDir.newFile("sample.adoc") << """
 = HEADER

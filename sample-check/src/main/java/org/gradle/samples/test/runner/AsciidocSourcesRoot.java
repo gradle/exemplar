@@ -26,6 +26,27 @@ import java.lang.annotation.Target;
 /**
  * Specifies the directory to find Asciidoc files with embedded samples.
  *
+ * This directory is relative to project where Exemplar is invoked.
+ *
+ * For example, given this structure:
+ *
+ * <pre>
+ * monorepo/
+ * ├── build.gradle
+ * ├── subprojectBar/
+ * │   └── build.gradle
+ * │   └── src/
+ * │       ├── samples/
+ * │       │   └── bar.adoc
+ * │       └── test/
+ * │           └── java/
+ * │               └── DocsSampleTest.java
+ * └── subprojectFoo/
+ *     └── src/
+ * </pre>
+ *
+ * ...DocsSampleTest should declare @AsciidocSourcesRoot("src/samples").
+ *
  * @see EmbeddedSamplesRunner
  */
 @Documented
