@@ -1,12 +1,34 @@
-= Doc Title
+= Embedding sample configuration
 
-Preamble
+This doc demonstrates how one can declare embedded commands instead of using `.sample.conf` files.
 
-== Subsection
+== Embedded commands example
 
-Subsection description
+Here we see sources that are `include`d, and inline commands and output.
 
-.Sample title
+.CLI quickstart sample
+====
+[.testable-sample,dir="src/test/samples/cli/quickstart"]
+=====
+.sample.sh
+[source,bash]
+----
+include::src/test/samples/cli/quickstart/sample.sh[]
+----
+
+[.sample-command]
+----
+$ bash sample.sh
+hello, world
+----
+=====
+====
+
+== Embedded sources and commands example
+
+This example embeds all the things.
+
+.Gradle custom logging example
 ====
 [.testable-sample]
 =====
@@ -57,7 +79,8 @@ class CustomEventLogger extends BuildAdapter implements TaskExecutionListener {
 
 [.sample-command,allow-disordered-output=true]
 ----
-$ gradle -I init.gradle build
+$ gradle --no-daemon --no-parallel -I init.gradle build
+
 > Task :compile
 [compile]
 compiling source

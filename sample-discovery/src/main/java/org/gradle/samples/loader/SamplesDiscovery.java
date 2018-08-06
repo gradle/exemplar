@@ -79,59 +79,100 @@ public class SamplesDiscovery {
     public static List<Sample> extractFromAsciidoctorFile(File documentFile) throws IOException {
         Asciidoctor asciidoctor = Asciidoctor.Factory.create();
         Document document = asciidoctor.loadFile(documentFile, new HashMap<String, Object>());
-        Path tempDirectory = Files.createTempDirectory("exemplar-testable-samples");
-        return recurseAsciidocTree(document.getBlocks(), new ArrayList<Sample>(), tempDirectory);
+        return processAsciidocSampleBlocks(document);
     }
 
-    private static List<Sample> recurseAsciidocTree(List<StructuralNode> nodes, List<Sample> samples, Path tempDir) throws IOException {
-        for (StructuralNode node : nodes) {
-            if (node.hasRole("testable-sample") && node.isBlock()) {
-                String sampleId = RandomStringUtils.randomAlphabetic(7);
-                File tempSampleDir = Files.createDirectory(tempDir.resolve(sampleId)).toFile();
-                List<Command> commands = processEmbeddedSample((Block) node, tempSampleDir);
-                // Nothing to verify, skip this sample
-                if (commands.isEmpty()) {
-                    continue;
+    /**
+     * Perform an pre-order traversal of the tree under the given search root, and process testable-sample nodes
+     * and their descendant sample-command blocks.
+     *
+     * Asciidoctor renders content as it parses it, which prevents us from collecting nodes to process separately.
+     * If we do not process as we discover samples, they will already be rendered as HTML (default backend)
+     * and the contents are no longer parsable.
+     *
+     * @param rootNode Asciidoctor AST root node
+     * @return extracted list of {@link Sample}s
+     * @throws IOException if any temporary directory or file could not be created
+     */
+    private static List<Sample> processAsciidocSampleBlocks(StructuralNode rootNode) throws IOException {
+        List<Sample> samples = new ArrayList<>();
+        Path tempDir = Files.createTempDirectory("exemplar-testable-samples");
+
+        Queue<StructuralNode> queue = new ArrayDeque<>();
+        queue.add(rootNode);
+        while (!queue.isEmpty()) {
+            StructuralNode node = queue.poll();
+            for (StructuralNode child : node.getBlocks()) {
+                if (child.isBlock() && child.hasRole("testable-sample")) {
+                    List<Command> commands = extractAsciidocCommands((Block) node);
+                    // Nothing to verify, skip this sample
+                    if (commands.isEmpty()) {
+                        // TODO: print a warning here as this is probably a user mistake
+                        continue;
+                    }
+                    samples.add(processSampleNode(child, tempDir, commands));
+                } else {
+                    queue.offer(child);
                 }
-
-                samples.add(new Sample(sampleId, tempSampleDir, commands));
             }
-
-            recurseAsciidocTree(node.getBlocks(), samples, tempDir);
         }
-
         return samples;
     }
 
-    private static List<Command> processEmbeddedSample(Block inlineSampleBlock, File tempSampleDir) throws IOException {
-        List<Command> commands = new ArrayList<>();
+    /**
+     * "testable-sample"s that declare a "dir" attribute have the sample sources living there.
+     *
+     * @param node Asciidoctor StructuralNode
+     * @param tempDir Path to create any temporary dirs/files
+     * @param commands Pre-extracted commands
+     * @return new Sample
+     */
+    private static Sample processSampleNode(StructuralNode node, Path tempDir, List<Command> commands) {
+        String sampleId;
+        File sampleDir;
+        if (node.hasAttribute("dir")) {
+            String dir = node.getAttribute("dir").toString();
+            sampleId = dir.replaceAll("[/\\\\]", "_");
+            sampleDir = new File(dir);
+        } else {
+            sampleId = RandomStringUtils.randomAlphabetic(7);
+            try {
+                sampleDir = Files.createDirectory(tempDir.resolve(sampleId)).toFile();
+            } catch (IOException e) {
+                throw new IllegalStateException("Could not create temp sample directory under " + tempDir.toString());
+            }
+            extractEmbeddedSampleSources((Block) node, sampleDir);
+        }
+        return new Sample(sampleId, sampleDir, commands);
+    }
 
-        List<StructuralNode> children = inlineSampleBlock.getBlocks();
-        for (StructuralNode child : children) {
-            if (child.hasRole("sample-command") && child.isBlock()) {
-                commands.add(parseEmbeddedCommand((Block) child));
-            } else if (child.getStyle().equals("source") && child.getTitle() != null) {
-                File sampleFile = new File(tempSampleDir, child.getTitle());
-                File sampleSubfolder = sampleFile.getParentFile();
-                if (!sampleSubfolder.exists() && !sampleSubfolder.mkdirs()) {
-                    throw new IllegalStateException("Couldn't create dir: " + sampleSubfolder);
+    private static List<Command> extractAsciidocCommands(Block testableSampleBlock) {
+        List<Command> commands = new ArrayList<>();
+        Queue<StructuralNode> queue = new ArrayDeque<>();
+        queue.add(testableSampleBlock);
+        while (!queue.isEmpty()) {
+            StructuralNode node = queue.poll();
+            for (StructuralNode child : node.getBlocks()) {
+                if (child.isBlock() && child.hasRole("sample-command")) {
+                    commands.add(parseEmbeddedCommand((Block) child, "$ "));
+                } else {
+                    queue.offer(child);
                 }
-                Files.write(sampleFile.toPath(), child.getContent().toString().getBytes());
             }
         }
 
         return commands;
     }
 
-    protected static Command parseEmbeddedCommand(Block block) {
+    private static Command parseEmbeddedCommand(Block block, String commandPrefix) {
         String[] commandLineAndOutput = block.getSource().split("\r?\n", 2);
 
         String commandLine = commandLineAndOutput[0];
-        if (!commandLine.startsWith("$ ")) {
-            throw new InvalidSampleException("Could not parse inline sample command " + commandLine);
+        if (!commandLine.startsWith(commandPrefix)) {
+            throw new InvalidSampleException("Inline sample command " + commandLine);
         }
 
-        String[] commandLineWords = commandLine.substring(2).split("\\s+");
+        String[] commandLineWords = commandLine.substring(commandPrefix.length()).split("\\s+");
         String executable = commandLineWords[0];
 
         List<String> args = new ArrayList<>();
@@ -153,5 +194,22 @@ public class SamplesDiscovery {
                 attributes.containsKey("expect-failure"),
                 attributes.containsKey("allow-additional-output"),
                 attributes.containsKey("allow-disordered-output"));
+    }
+
+    private static void extractEmbeddedSampleSources(Block sampleBlock, File tempSampleDir) {
+        for (StructuralNode block : sampleBlock.getBlocks()) {
+            if (block.getStyle().equals("source") && block.getTitle() != null) {
+                File sampleFile = new File(tempSampleDir, block.getTitle());
+                File sampleSubfolder = sampleFile.getParentFile();
+                if (!sampleSubfolder.exists() && !sampleSubfolder.mkdirs()) {
+                    throw new IllegalStateException("Couldn't create dir: " + sampleSubfolder);
+                }
+                try {
+                    Files.write(sampleFile.toPath(), block.getContent().toString().getBytes());
+                } catch (IOException e) {
+                    throw new IllegalStateException("Could not write sample source file " + sampleFile.toPath().toString());
+                }
+            }
+        }
     }
 }

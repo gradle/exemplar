@@ -151,4 +151,49 @@ build completed
         command.args == ["-I", "init.gradle", "build"]
         command.allowDisorderedOutput
     }
+
+    def "discovers samples inside an asciidoctor file with sources included"() {
+        given:
+        tmpDir.newFolder("src", "samples", "bash")
+        tmpDir.newFile("src/samples/bash/script.sh") << """
+#!/usr/bin/env bash
+
+echo "Hello world"
+"""
+        def file = tmpDir.newFile("sample.adoc") << """
+= Document title
+
+.Sample title
+====
+[.testable-sample,dir="src/samples/bash"]
+=====
+.script.sh
+[source,bash]
+----
+include::src/samples/bash/script.sh[]
+----
+
+[.sample-command]
+----
+\$ bash script.sh
+Hello world
+----
+=====
+====
+"""
+
+        when:
+        Collection<Sample> samples = SamplesDiscovery.extractFromAsciidoctorFile(file)
+
+        then:
+        samples.size() == 1
+        samples.get(0).projectDir.toString() == "src/samples/bash"
+        def commands = samples.get(0).commands
+
+        and:
+        commands.size() == 1
+        def command = commands.get(0)
+        command.executable == "bash"
+        command.args == ["script.sh"]
+    }
 }
