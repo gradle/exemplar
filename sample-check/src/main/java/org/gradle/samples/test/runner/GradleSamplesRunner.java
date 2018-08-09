@@ -17,6 +17,7 @@ package org.gradle.samples.test.runner;
 
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.JavaVersion;
+import org.gradle.samples.executor.CliCommandExecutor;
 import org.gradle.samples.executor.CommandExecutionResult;
 import org.gradle.samples.executor.CommandExecutor;
 import org.gradle.samples.executor.ExecutionMetadata;
@@ -39,6 +40,7 @@ import java.util.List;
  * A custom implementation of {@link SamplesRunner} that uses the Gradle Tooling API to execute sample builds.
  */
 public class GradleSamplesRunner extends SamplesRunner {
+    public static final String GRADLE_EXECUTABLE = "gradle";
     @Rule
     public TemporaryFolder tempGradleUserHomeDir = new TemporaryFolder();
     private File customGradleInstallation = null;
@@ -125,6 +127,10 @@ public class GradleSamplesRunner extends SamplesRunner {
 
         @Override
         protected int run(String executable, List<String> args, List<String> flags, OutputStream output) {
+            if (!executable.equals(GRADLE_EXECUTABLE)) {
+                return new CliCommandExecutor(workingDir).run(executable, args, flags, output);
+            }
+
             List<String> allArguments = new ArrayList<>(args);
             allArguments.addAll(flags);
 

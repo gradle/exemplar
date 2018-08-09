@@ -18,7 +18,28 @@ package org.gradle.samples.test.runner;
 import java.lang.annotation.*;
 
 /**
- * Specifies the root directory under which to search for sample definitions.
+ * Specifies the directory to find samples, be they external or embedded.
+ *
+ * This directory is relative to project where Exemplar is invoked.
+ *
+ * For example, given this structure:
+ *
+ * <pre>
+ * monorepo/
+ * ├── build.gradle
+ * ├── subprojectBar/
+ * │   └── build.gradle
+ * │   └── src/
+ * │       ├── samples/
+ * │       │   └── bar.adoc
+ * │       └── test/
+ * │           └── java/
+ * │               └── DocsSampleTest.java
+ * └── subprojectFoo/
+ *     └── src/
+ * </pre>
+ *
+ * ...DocsSampleTest should declare @AsciidocSourcesRoot("src/samples").
  *
  * @see SamplesRunner
  */

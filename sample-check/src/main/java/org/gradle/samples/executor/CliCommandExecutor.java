@@ -26,7 +26,7 @@ public class CliCommandExecutor extends CommandExecutor {
     }
 
     @Override
-    protected int run(final String executable, final List<String> args, final List<String> flags, final OutputStream output) {
+    public int run(final String executable, final List<String> args, final List<String> flags, final OutputStream output) {
         List<String> commandLine = new ArrayList<>();
         commandLine.add(executable);
         commandLine.addAll(flags);

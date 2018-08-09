@@ -40,6 +40,8 @@ public class SamplesDiscovery {
         for (File sampleConfigFile : sampleConfigFiles) {
             final String id = generateSampleId(rootSamplesDir, sampleConfigFile);
             final List<Command> commands = CommandsParser.parse(sampleConfigFile);
+            // FIXME: Currently the temp directory used when running sample-check has a different name.
+            // This causes Gradle project names to differ when one is not explicitly set in settings.gradle. This should be preserved.
             final File sampleProjectDir = sampleConfigFile.getParentFile();
             samples.add(new Sample(id, sampleProjectDir, commands));
         }
