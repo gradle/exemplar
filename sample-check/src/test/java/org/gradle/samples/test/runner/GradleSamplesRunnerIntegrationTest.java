@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.samples.test.runner
+package org.gradle.samples.test.runner;
 
-import org.gradle.samples.test.normalizer.FileSeparatorOutputNormalizer
-import org.gradle.samples.test.normalizer.GradleOutputNormalizer
-import org.gradle.samples.test.normalizer.JavaObjectSerializationOutputNormalizer
-import org.junit.runner.RunWith
+import org.gradle.samples.test.normalizer.FileSeparatorOutputNormalizer;
+import org.gradle.samples.test.normalizer.GradleOutputNormalizer;
+import org.gradle.samples.test.normalizer.JavaObjectSerializationOutputNormalizer;
+import org.junit.runner.RunWith;
 
 @RunWith(GradleSamplesRunner.class)
 @SamplesRoot("src/test/samples/gradle")
-@SamplesOutputNormalizers([JavaObjectSerializationOutputNormalizer.class, FileSeparatorOutputNormalizer.class, GradleOutputNormalizer.class])
-class GradleSamplesRunnerIntegrationTest {
+// tag::sample-output-normalizers[]
+@SamplesOutputNormalizers({JavaObjectSerializationOutputNormalizer.class, FileSeparatorOutputNormalizer.class, GradleOutputNormalizer.class})
+// end::sample-output-normalizers[]
+public class GradleSamplesRunnerIntegrationTest {
 }

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.samples.test.runner
+package org.gradle.samples.test.runner;
 
-import org.junit.runner.RunWith
+import org.junit.runner.RunWith;
 
 @RunWith(EmbeddedSamplesRunner.class)
 @AsciidocSourcesRoot("src/test/docs")
-class EmbeddedSamplesRunnerIntegrationTest {
+public class EmbeddedSamplesRunnerIntegrationTest {
 }
