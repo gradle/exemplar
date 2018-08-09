@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.samples
+package org.gradle.samples.loader
 
-import org.gradle.samples.loader.SamplesDiscovery
 import org.gradle.samples.model.Sample
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -34,7 +33,7 @@ class SamplesDiscoveryTest extends Specification {
 //        tmpDir.newFile("advanced-sample/nested/crazy.sample.conf") << "commands: [{executable: build}, {executable: cleanup}]"
 
         when:
-        Collection<Sample> samples = SamplesDiscovery.allSamples(tmpDir.root)
+        Collection<Sample> samples = SamplesDiscovery.independentSamples(tmpDir.root)
 
         then:
         samples.size() == 2
@@ -48,7 +47,7 @@ class SamplesDiscoveryTest extends Specification {
         tmpDir.newFile("src/play/bogus.conf") << "I'm not a sample file"
 
         when:
-        Collection<Sample> samples = SamplesDiscovery.filteredSamples(tmpDir.root, ["sample"].toArray() as String[], true)
+        Collection<Sample> samples = SamplesDiscovery.filteredIndependentSamples(tmpDir.root, ["sample"].toArray() as String[], true)
 
         then:
         samples.size() == 1

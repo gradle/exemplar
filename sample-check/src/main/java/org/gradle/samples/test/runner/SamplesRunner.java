@@ -87,7 +87,7 @@ public class SamplesRunner extends ParentRunner<Sample> {
             if (!samplesRootDir.exists()) {
                 throw new InitializationError("Samples root directory " + samplesRootDir.getAbsolutePath() + " does not exist");
             }
-            return SamplesDiscovery.allSamples(samplesRootDir);
+            return SamplesDiscovery.independentSamples(samplesRootDir);
         } catch (InitializationError e) {
             throw new RuntimeException("Could not initialize SamplesRunner", e);
         }
