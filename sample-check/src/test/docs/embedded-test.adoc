@@ -79,7 +79,7 @@ class CustomEventLogger extends BuildAdapter implements TaskExecutionListener {
 
 [.sample-command,allow-disordered-output=true]
 ----
-$ gradle --no-daemon --no-parallel -I init.gradle build
+$ gradle -I init.gradle build
 
 > Task :compile
 [compile]

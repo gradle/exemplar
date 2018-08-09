@@ -17,7 +17,7 @@ package org.gradle.samples.test.runner;
 
 import org.junit.runner.RunWith;
 
-@RunWith(EmbeddedSamplesRunner.class)
+@RunWith(GradleEmbeddedSamplesRunner.class)
 @SamplesRoot("src/test/docs")
 public class EmbeddedSamplesRunnerIntegrationTest {
 }
