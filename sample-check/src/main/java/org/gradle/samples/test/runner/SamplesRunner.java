@@ -16,6 +16,7 @@
 package org.gradle.samples.test.runner;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.samples.executor.CliCommandExecutor;
 import org.gradle.samples.executor.CommandExecutionResult;
 import org.gradle.samples.executor.ExecutionMetadata;
@@ -117,9 +118,9 @@ public class SamplesRunner extends ParentRunner<Sample> {
                     CommandExecutionResult result = execute(testSpecificSample.getProjectDir(), command);
 
                     if (result.getExitCode() != 0 && !command.isExpectFailure()) {
-                        Assert.fail("Expected sample invocation to succeed but it failed. Output was:\n" + result.getOutput());
+                        Assert.fail(String.format("Expected sample invocation to succeed but it failed.%nCommand was: '%s %s'%nOutput was:%n%s", command.getExecutable(), StringUtils.join(command.getArgs(), " "), result.getOutput()));
                     } else if (result.getExitCode() == 0 && command.isExpectFailure()) {
-                        Assert.fail("Expected sample invocation to fail but it succeeded. Output was:\n" + result.getOutput());
+                        Assert.fail(String.format("Expected sample invocation to fail but it succeeded.%nCommand was: '%s %s'%nOutput was:%n%s", command.getExecutable(), StringUtils.join(command.getArgs(), " "), result.getOutput()));
                     }
 
                     verifyOutput(command, result);
