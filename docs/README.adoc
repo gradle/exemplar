@@ -1,0 +1,188 @@
+= Exemplar - check and present samples for CLI tools
+:toc:
+:toc-placement!:
+
+Given a collection of sample projects, this library allows you to verify the samples' output.
+
+It does this by discovering, executing, then verifying output of sample projects in a separate directory or embedded within asciidoctor. In fact, the samples embedded here are verified by `ReadmeTest`.
+
+toc::[]
+
+== Use cases
+
+The intent of sample-check is to ensure that users of your command-line tool see what you expect them to see.
+It handles sample discovery, normalization (semantically equivalent output in different environments), and flexible output verification.
+It allows any command-line executable on the `PATH` to be invoked. You are not limited to Gradle or Java.
+
+While this has an element of integration testing, it is not meant to replace your integration tests unless the logging output is the only result of executing your tool.
+One cannot verify other side effects of invoking the samples, such as files created or their contents, unless that is explicitly configured.
+
+This library is used to verify the functionality of samples in https://docs.gradle.org[Gradle documentation].
+
+== Installation
+
+First things first, you can pull this library down from Gradle's artifactory repository. This https://github.com/gradle/kotlin-dsl[Gradle Kotlin DSL] script shows one way to do just that.
+
+.Installing with Gradle
+====
+[.testable-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+    id("java-library")
+}
+
+repositories {
+    maven {
+        url = uri("https://repo.gradle.org/gradle/libs")
+        // `url "https://repo.gradle.org/gradle/libs"` will do for Groovy scripts
+    }
+}
+
+dependencies {
+    implementation("org.gradle:sample-check:0.4.2")
+}
+----
+
+[.sample-command,allow-additional-output=true]
+----
+$ gradle -q build
+----
+=====
+====
+
+== Usage
+
+=== Configuring external samples
+
+*NOTE:* There are a bunch of (tested) samples under `sample-check/src/test/samples` of this repository you can use to understand ways to configure samples.
+
+You can configure a sample to be tested by creating a file ending with `.sample.conf` (e.g. `hello-world.sample.conf`) in a sample project dir.
+This is a file in https://github.com/lightbend/config/blob/master/HOCON.md[HOCON format] that might look something like this:
+
+.sample-check/src/test/samples/cli/quickstart/quickstart.sample.conf
+[source,hocon]
+----
+include::sample-check/src/test/samples/cli/quickstart/quickstart.sample.conf[]
+----
+
+or maybe a more complex, multi-step sample:
+
+.sample-check/src/test/samples/gradle/multi-step-sample/incrementalTaskRemovedOutput.sample.conf
+[source,hocon]
+----
+include::sample-check/src/test/samples/gradle/multi-step-sample/incrementalTaskRemovedOutput.sample.conf[]
+----
+
+_See <<sample-conf-fields,Sample Conf fields>> for a detailed description of all the possible options._
+
+=== Configuring embedded samples
+
+You can test samples embedded within https://asciidoctor.org/[asciidoctor] docs.
+Use this syntax to allow sample-discovery to extract your sources from the doc, execute the `sample-command`, and verify the output matches what is declared in the doc.
+
+[source,adoc]
+----
+.Sample title
+====
+[.testable-sample]       // <1>
+=====
+.hello.rb                // <2>
+[source,ruby]            // <3>
+-----
+puts "hello, #{ARGV[0]}" // <4>
+-----
+
+[.sample-command]        // <5>
+-----
+$ ruby hello.rb world    // <6>
+hello, world             // <7>
+-----
+=====
+====
+----
+<1> Mark blocks containing your source files with the role `testable-sample`
+<2> The title of each source block should be the name of the source file
+<3> All source blocks with a title are extracted to a temporary directory
+<4> Source code. This can be `include::`d
+<5> Exemplar will execute the commands in a block with role `sample-command`
+<6> Terminal commands should start with "$ ". Everything afterward is executed
+<7> One or more lines of expected output
+
+[NOTE] All sources have to be under the same block, and you must set the title of source blocks to a valid file name.
+
+=== Verify samples
+
+You can verify samples either through one of the <<verifying-using-a-junit-runner,JUnit Test Runners>> or use the API.
+
+==== Verifying using a JUnit Runner
+
+This library provides 2 JUnit runners link:src/main/java/org/gradle/samples/test/runner/SamplesRunner.java[`SamplesRunner`] (executes via CLI) and link:src/main/java/org/gradle/samples/test/runner/GradleSamplesRunner.java[`GradleSamplesRunner`] (executes samples using https://docs.gradle.org/current/userguide/test_kit.html[Gradle TestKit]). If you are using `GradleSamplesRunner`, you will need to add `gradleTestKit()` as a dependency as well:
+
+[source,kotlin]
+----
+dependencies {
+    testImplementation(gradleTestKit())
+}
+----
+
+*NOTE:* `GradleSamplesRunner` supports Java 8 and above and ignores tests when running on Java 7 or lower.
+
+To use them, just create a JUnit test class in your test sources (maybe something like `src/integTest/com/example/SamplesIntegrationTest.java`, https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests[keeping these slow tests separate] from your fast unit tests.) and annotate it with which JUnit runner implementation you'd like and where to find samples.
+Like this:
+
+// NOTE: inception bites us if we try to turn this into a testable sample.
+.SamplesRunnerIntegrationTest.java
+[source,java]
+----
+include::../sample-check/src/test/java/org/gradle/samples/test/runner/CliSamplesRunnerIntegrationTest.java[tags=source]
+----
+
+When you run this test, it will search recursively under the samples root directory (`src/docs/samples` in this example) for any file with a `*.sample.conf` suffix.
+Any directory found to have one of these will be treated as a sample project dir (nesting sample projects is allowed).
+The test runner will copy each sample project to a temporary location, invoke the configured commands, and capture and verify logging output.
+
+==== Verifying using the API
+
+Use of the JUnit runners is preferred, as discovery, output normalization, and reporting are handled for you. If you want to write custom samples verification or you're using a different test framework, by all means go ahead :) -- please contribute back runners or normalizers you find useful!
+
+You can get some inspiration for API use from link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/runner/SamplesRunner.java[SamplesRunner] and link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/runner/GradleSamplesRunner.java[GradleSamplesRunner].
+
+Command execution is handled in the `org.gradle.samples.executor.*` classes, some output normalizers are provided in the `org.gradle.samples.test.normalizer` package, and output verification is handled by classes in the `org.gradle.samples.test.verifier` package.
+
+=== Sample conf fields
+
+One of `executable` or `commands` are required at the root.
+If `executable` is found, the sample will be considered a single-command sample.
+Otherwise, `commands` is expected to be an Array of link:https://github.com/gradle/exemplar/blob/master/sample-discovery/src/main/java/org/gradle/samples/model/Command.java[Commands]:
+
+* repeated Command `commands` -- An array of commands to run, in order.
+
+A link:https://github.com/gradle/exemplar/blob/master/sample-discovery/src/main/java/org/gradle/samples/model/Command.java[Command] is specified with these fields.
+
+* required string `executable` -- Executable to invoke.
+* optional string `execution-subdirectory` -- Working directory in which to invoke the executable. _If not specified, the API assumes `./` (the directory the sample config file is in)._
+* optional string `args` -- Arguments for executable. Default is `""`.
+* optional string `flags` -- CLI flags (separated for tools that require these be provided in a certain order). Default is `""`.
+* optional string `expected-output-file` -- Relative path from sample config file to a readable file to compare actual output to. Default is `null`. _If not specified, output verification is not performed._
+* optional boolean `expect-failure` -- Invoking this command is expected to produce a non-zero exit code. Default: `false`.
+* optional boolean `allow-additional-output` -- Allow extra lines in actual output. Default: `false`.
+* optional boolean `allow-disordered-output` -- Allow output lines to be in any sequence. Default: `false`.
+
+=== Output normalization
+
+sample-check allows actual output to be normalized in cases where output is semantically equivalent.
+You can use normalizers by annotating your JUnit test class with `@SamplesOutputNormalizers` and specifying which normalizers (in order) you'd like to use.
+
+[source,java]
+----
+include::../sample-check/src/test/java/org/gradle/samples/test/runner/GradleSamplesRunnerIntegrationTest.java[tags=sample-output-normalizers]
+----
+
+Custom normalizers must implement the link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/normalizer/OutputNormalizer.java[`OutputNormalizer`] interface. The two above are included in sample-check.
+
+=== Custom Gradle installation
+
+To allow Gradle itself to run using test versions of Gradle, the `GradleSamplesRunner` allows a custom installation to be injected using the system property "integTest.gradleHomeDir".

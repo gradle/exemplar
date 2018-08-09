@@ -1,14 +1,10 @@
 plugins {
     `build-scan`
+    java
 }
 
-subprojects {
+allprojects {
     apply(plugin = "java-library")
-    apply(plugin = "maven-publish")
-
-    group = "org.gradle"
-    version = "0.4.2"
-
     configure<JavaPluginConvention> {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
@@ -20,6 +16,13 @@ subprojects {
         }
         jcenter()
     }
+}
+
+subprojects {
+    apply(plugin = "maven-publish")
+
+    group = "org.gradle"
+    version = "0.4.2"
 
     configure<PublishingExtension> {
         publications.create<MavenPublication>("mavenJava") {
@@ -42,6 +45,10 @@ subprojects {
     }
 }
 
+dependencies {
+    implementation(project(":sample-check"))
+}
+
 buildScan {
     setTermsOfServiceUrl("https://gradle.com/terms-of-service")
     setTermsOfServiceAgree("yes")
@@ -50,3 +57,5 @@ buildScan {
         tag("CI")
     }
 }
+
+java.sourceSets["test"].resources.srcDirs("docs")
