@@ -18,6 +18,6 @@ package org.gradle.samples.test.runner;
 import org.junit.runner.RunWith;
 
 @RunWith(EmbeddedSamplesRunner.class)
-@AsciidocSourcesRoot("src/test/docs")
+@SamplesRoot("src/test/docs")
 public class EmbeddedSamplesRunnerIntegrationTest {
 }

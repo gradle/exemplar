@@ -33,7 +33,7 @@ class SamplesDiscoveryTest extends Specification {
 //        tmpDir.newFile("advanced-sample/nested/crazy.sample.conf") << "commands: [{executable: build}, {executable: cleanup}]"
 
         when:
-        Collection<Sample> samples = SamplesDiscovery.independentSamples(tmpDir.root)
+        Collection<Sample> samples = SamplesDiscovery.externalSamples(tmpDir.root)
 
         then:
         samples.size() == 2
@@ -47,7 +47,7 @@ class SamplesDiscoveryTest extends Specification {
         tmpDir.newFile("src/play/bogus.conf") << "I'm not a sample file"
 
         when:
-        Collection<Sample> samples = SamplesDiscovery.filteredIndependentSamples(tmpDir.root, ["sample"].toArray() as String[], true)
+        Collection<Sample> samples = SamplesDiscovery.filteredExternalSamples(tmpDir.root, ["sample"].toArray() as String[], true)
 
         then:
         samples.size() == 1

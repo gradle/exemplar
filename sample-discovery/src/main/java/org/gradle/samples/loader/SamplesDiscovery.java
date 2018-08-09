@@ -28,12 +28,12 @@ import java.util.Collection;
 import java.util.List;
 
 public class SamplesDiscovery {
-    public static List<Sample> independentSamples(File rootSamplesDir) {
+    public static List<Sample> externalSamples(File rootSamplesDir) {
         // The .sample.conf suffix makes it clear that this is a HOCON file specifically for samples
-        return filteredIndependentSamples(rootSamplesDir, new String[]{"sample.conf"}, true);
+        return filteredExternalSamples(rootSamplesDir, new String[]{"sample.conf"}, true);
     }
 
-    public static List<Sample> filteredIndependentSamples(File rootSamplesDir, String[] fileExtensions, boolean recursive) {
+    public static List<Sample> filteredExternalSamples(File rootSamplesDir, String[] fileExtensions, boolean recursive) {
         Collection<File> sampleConfigFiles = FileUtils.listFiles(rootSamplesDir, fileExtensions, recursive);
 
         List<Sample> samples = new ArrayList<>();

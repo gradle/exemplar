@@ -20,7 +20,6 @@ import org.gradle.api.JavaVersion;
 import org.gradle.samples.executor.CommandExecutionResult;
 import org.gradle.samples.executor.CommandExecutor;
 import org.gradle.samples.executor.ExecutionMetadata;
-import org.gradle.samples.loader.SamplesDiscovery;
 import org.gradle.samples.model.Command;
 import org.gradle.samples.model.Sample;
 import org.gradle.testkit.runner.BuildResult;
@@ -45,9 +44,7 @@ public class GradleSamplesRunner extends SamplesRunner {
     private File customGradleInstallation = null;
 
     /**
-     * Constructs a new {@code ParentRunner} that will run {@code @TestClass}
-     *
-     * @param testClass reference to test class being run
+     * {@inheritDoc}
      */
     public GradleSamplesRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
@@ -62,7 +59,45 @@ public class GradleSamplesRunner extends SamplesRunner {
     }
 
     @Override
-    protected List<Sample> getChildren() {
+    public CommandExecutionResult execute(final File tempSampleOutputDir, final Command command) {
+        File workingDir = tempSampleOutputDir;
+        if (command.getExecutionSubdirectory() != null) {
+            workingDir = new File(tempSampleOutputDir, command.getExecutionSubdirectory());
+        }
+
+        boolean expectFailure = command.isExpectFailure();
+        ExecutionMetadata executionMetadata = getExecutionMetadata(tempSampleOutputDir);
+        return new GradleRunnerCommandExecutor(workingDir, customGradleInstallation, expectFailure).execute(command, executionMetadata);
+    }
+
+    @Override
+    protected File getSamplesRootDir() {
+        final String gradleHomeDir = getCustomGradleInstallationFromSystemProperty();
+        SamplesRoot samplesRoot = getTestClass().getAnnotation(SamplesRoot.class);
+        File samplesRootDir;
+        try {
+            if (samplesRoot != null) {
+                samplesRootDir = new File(samplesRoot.value());
+            } else if (System.getProperty("integTest.samplesdir") != null) {
+                String samplesRootProperty = System.getProperty("integTest.samplesdir", gradleHomeDir + "/samples");
+                samplesRootDir = new File(samplesRootProperty);
+            } else if (customGradleInstallation != null) {
+                samplesRootDir = new File(customGradleInstallation, "samples");
+            } else {
+                throw new InitializationError("Samples root directory is not declared. Please annotate your test class with @SamplesRoot(\"path/to/samples\")");
+            }
+
+            if (!samplesRootDir.exists()) {
+                throw new InitializationError("Samples root directory " + samplesRootDir.getAbsolutePath() + " does not exist");
+            }
+        } catch (InitializationError e) {
+            throw new RuntimeException("Could not initialize GradleSamplesRunner", e);
+        }
+
+        return samplesRootDir;
+    }
+
+    private String getCustomGradleInstallationFromSystemProperty() {
         // Allow Gradle installation and samples root dir to be set from a system property
         // This is to allow Gradle to test Gradle installations during integration testing
         final String gradleHomeDirProperty = System.getProperty("integTest.gradleHomeDir");
@@ -74,41 +109,7 @@ public class GradleSamplesRunner extends SamplesRunner {
                 throw new RuntimeException(String.format("Custom Gradle installation dir at %s was not found", gradleHomeDirProperty));
             }
         }
-
-        File samplesRootDir;
-        SamplesRoot samplesRoot = getTestClass().getAnnotation(SamplesRoot.class);
-        try {
-
-            if (samplesRoot != null) {
-                samplesRootDir = new File(samplesRoot.value());
-            } else if (System.getProperty("integTest.samplesdir") != null) {
-                String samplesRootProperty = System.getProperty("integTest.samplesdir", gradleHomeDirProperty + "/samples");
-                samplesRootDir = new File(samplesRootProperty);
-            } else if (customGradleInstallation != null) {
-                samplesRootDir = new File(customGradleInstallation, "samples");
-            } else {
-                throw new InitializationError("Samples root directory is not declared. Please annotate your test class with @SamplesRoot(\"path/to/samples\")");
-            }
-
-            if (!samplesRootDir.exists()) {
-                throw new InitializationError("Samples root directory " + samplesRootDir.getAbsolutePath() + " does not exist");
-            }
-            return SamplesDiscovery.independentSamples(samplesRootDir);
-        } catch (InitializationError e) {
-            throw new RuntimeException("Could not initialize GradleSamplesRunner", e);
-        }
-    }
-
-    @Override
-    public CommandExecutionResult execute(final File tempSampleOutputDir, final Command command) {
-        File workingDir = tempSampleOutputDir;
-        if (command.getExecutionSubdirectory() != null) {
-            workingDir = new File(tempSampleOutputDir, command.getExecutionSubdirectory());
-        }
-
-        boolean expectFailure = command.isExpectFailure();
-        ExecutionMetadata executionMetadata = getExecutionMetadata(tempSampleOutputDir);
-        return new GradleRunnerCommandExecutor(workingDir, customGradleInstallation, expectFailure).execute(command, executionMetadata);
+        return gradleHomeDirProperty;
     }
 
     private static class GradleRunnerCommandExecutor extends CommandExecutor {

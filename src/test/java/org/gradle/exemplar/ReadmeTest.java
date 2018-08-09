@@ -15,11 +15,11 @@
  */
 package org.gradle.exemplar;
 
-import org.gradle.samples.test.runner.AsciidocSourcesRoot;
-import org.gradle.samples.test.runner.EmbeddedSamplesRunner;
+import org.gradle.samples.test.runner.GradleEmbeddedSamplesRunner;
+import org.gradle.samples.test.runner.SamplesRoot;
 import org.junit.runner.RunWith;
 
-@RunWith(EmbeddedSamplesRunner.class)
-@AsciidocSourcesRoot("docs")
+@RunWith(GradleEmbeddedSamplesRunner.class)
+@SamplesRoot("docs")
 public class ReadmeTest {
 }

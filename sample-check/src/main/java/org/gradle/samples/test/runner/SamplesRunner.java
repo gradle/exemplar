@@ -75,6 +75,10 @@ public class SamplesRunner extends ParentRunner<Sample> {
 
     @Override
     protected List<Sample> getChildren() {
+        return SamplesDiscovery.externalSamples(getSamplesRootDir());
+    }
+
+    protected File getSamplesRootDir() {
         SamplesRoot samplesRoot = getTestClass().getAnnotation(SamplesRoot.class);
         File samplesRootDir;
         try {
@@ -87,10 +91,10 @@ public class SamplesRunner extends ParentRunner<Sample> {
             if (!samplesRootDir.exists()) {
                 throw new InitializationError("Samples root directory " + samplesRootDir.getAbsolutePath() + " does not exist");
             }
-            return SamplesDiscovery.independentSamples(samplesRootDir);
         } catch (InitializationError e) {
             throw new RuntimeException("Could not initialize SamplesRunner", e);
         }
+        return samplesRootDir;
     }
 
     @Override
@@ -155,6 +159,7 @@ public class SamplesRunner extends ParentRunner<Sample> {
     }
 
     public CommandExecutionResult execute(final File tempSampleOutputDir, final Command command) throws IOException {
+        // TODO: get executor
         return new CliCommandExecutor(tempSampleOutputDir).execute(command, getExecutionMetadata(tempSampleOutputDir));
     }
 

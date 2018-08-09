@@ -19,28 +19,26 @@ import org.gradle.samples.loader.SamplesDiscovery;
 import org.gradle.samples.model.Sample;
 import org.junit.runners.model.InitializationError;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class EmbeddedSamplesRunner extends SamplesRunner {
-
+/**
+ * A custom implementation of {@link SamplesRunner} that uses the Gradle Tooling API to execute sample builds.
+ */
+public class GradleEmbeddedSamplesRunner extends GradleSamplesRunner {
     /**
-     * Constructs a new {@code ParentRunner} that will run {@code @TestClass}
-     *
-     * @param testClass reference to test class being run
+     * {@inheritDoc}
      */
-    public EmbeddedSamplesRunner(Class<?> testClass) throws InitializationError {
+    public GradleEmbeddedSamplesRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
     }
 
     @Override
     protected List<Sample> getChildren() {
-        File samplesRootDir = getSamplesRootDir();
         try {
-            return SamplesDiscovery.embeddedSamples(samplesRootDir);
+            return SamplesDiscovery.embeddedSamples(getSamplesRootDir());
         } catch (IOException e) {
-            throw new RuntimeException("Could not extract samples from " + samplesRootDir, e);
+            throw new RuntimeException("Could not extract embedded samples", e);
         }
     }
 }
