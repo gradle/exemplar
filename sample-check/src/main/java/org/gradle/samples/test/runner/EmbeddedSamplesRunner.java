@@ -54,7 +54,7 @@ public class EmbeddedSamplesRunner extends SamplesRunner {
             }
 
             if (!asciidocSourcesRootDir.exists()) {
-                throw new InitializationError("Document " + asciidocSourcesRoot.value() + " does not exist");
+                throw new InitializationError("Directory " + asciidocSourcesRoot.value() + " does not exist. NOTE: it is relative to the Gradle (sub)project rootDir.");
             }
             return SamplesDiscovery.embeddedSamples(asciidocSourcesRootDir);
         } catch (InitializationError e) {
