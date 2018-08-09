@@ -118,9 +118,9 @@ public class SamplesRunner extends ParentRunner<Sample> {
                     CommandExecutionResult result = execute(testSpecificSample.getProjectDir(), command);
 
                     if (result.getExitCode() != 0 && !command.isExpectFailure()) {
-                        Assert.fail(String.format("Expected sample invocation to succeed but it failed.%nCommand was: '%s %s'%nOutput was:%n%s", command.getExecutable(), StringUtils.join(command.getArgs(), " "), result.getOutput()));
+                        Assert.fail(String.format("Expected sample invocation to succeed but it failed.%nCommand was: '%s %s'%n[BEGIN OUTPUT]%n%s%n[END OUTPUT]%n", command.getExecutable(), StringUtils.join(command.getArgs(), " "), result.getOutput()));
                     } else if (result.getExitCode() == 0 && command.isExpectFailure()) {
-                        Assert.fail(String.format("Expected sample invocation to fail but it succeeded.%nCommand was: '%s %s'%nOutput was:%n%s", command.getExecutable(), StringUtils.join(command.getArgs(), " "), result.getOutput()));
+                        Assert.fail(String.format("Expected sample invocation to fail but it succeeded.%nCommand was: '%s %s'%n[BEGIN OUTPUT]%n%s%n[END OUTPUT]%n", command.getExecutable(), StringUtils.join(command.getArgs(), " "), result.getOutput()));
                     }
 
                     verifyOutput(command, result);
