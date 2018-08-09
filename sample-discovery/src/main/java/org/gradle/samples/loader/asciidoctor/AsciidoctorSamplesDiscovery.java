@@ -57,7 +57,14 @@ public class AsciidoctorSamplesDiscovery {
         queue.add(rootNode);
         while (!queue.isEmpty()) {
             StructuralNode node = queue.poll();
-            for (StructuralNode child : node.getBlocks()) {
+
+            List<StructuralNode> blocks = node.getBlocks();
+            // Some asciidoctor AST types return null instead of an empty list
+            if (blocks == null) {
+                continue;
+            }
+
+            for (StructuralNode child : blocks) {
                 if (child.isBlock() && child.hasRole("testable-sample")) {
                     List<Command> commands = extractAsciidocCommands((Block) node);
                     // Nothing to verify, skip this sample
