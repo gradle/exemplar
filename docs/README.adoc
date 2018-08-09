@@ -65,7 +65,9 @@ This is a file in https://github.com/lightbend/config/blob/master/HOCON.md[HOCON
 .sample-check/src/test/samples/cli/quickstart/quickstart.sample.conf
 [source,hocon]
 ----
-include::sample-check/src/test/samples/cli/quickstart/quickstart.sample.conf[]
+executable: bash
+args: sample.sh
+expected-output-file: quickstart.sample.out
 ----
 
 or maybe a more complex, multi-step sample:
@@ -73,7 +75,18 @@ or maybe a more complex, multi-step sample:
 .sample-check/src/test/samples/gradle/multi-step-sample/incrementalTaskRemovedOutput.sample.conf
 [source,hocon]
 ----
-include::sample-check/src/test/samples/gradle/multi-step-sample/incrementalTaskRemovedOutput.sample.conf[]
+commands: [{
+  executable: gradle
+  args: originalInputs incrementalReverse
+  expected-output-file: originalInputs.out
+  allow-additional-output: true
+}, {
+  executable: gradle
+  args: removeOutput incrementalReverse
+  flags: --quiet
+  expected-output-file: incrementalTaskRemovedOutput.out
+  allow-disordered-output: true
+}]
 ----
 
 _See <<sample-conf-fields,Sample Conf fields>> for a detailed description of all the possible options._
@@ -137,7 +150,16 @@ Like this:
 .SamplesRunnerIntegrationTest.java
 [source,java]
 ----
-include::../sample-check/src/test/java/org/gradle/samples/test/runner/CliSamplesRunnerIntegrationTest.java[tags=source]
+package com.example;
+
+import org.junit.runner.RunWith;
+import org.gradle.samples.test.runner.GradleSamplesRunner;
+import org.gradle.samples.test.runner.SamplesRoot;
+
+@RunWith(GradleSamplesRunner.class)
+@SamplesRoot("src/docs/samples")
+public class SamplesIntegrationTest {
+}
 ----
 
 When you run this test, it will search recursively under the samples root directory (`src/docs/samples` in this example) for any file with a `*.sample.conf` suffix.
@@ -178,7 +200,7 @@ You can use normalizers by annotating your JUnit test class with `@SamplesOutput
 
 [source,java]
 ----
-include::../sample-check/src/test/java/org/gradle/samples/test/runner/GradleSamplesRunnerIntegrationTest.java[tags=sample-output-normalizers]
+@SamplesOutputNormalizers({JavaObjectSerializationOutputNormalizer.class, FileSeparatorOutputNormalizer.class, GradleOutputNormalizer.class})
 ----
 
 Custom normalizers must implement the link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/normalizer/OutputNormalizer.java[`OutputNormalizer`] interface. The two above are included in sample-check.
