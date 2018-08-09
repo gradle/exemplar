@@ -25,26 +25,40 @@ public class StrictOrderLineSegmentedOutputVerifier implements OutputVerifier {
         List<String> expectedLines = Arrays.asList(expected.split("\\r?\\n"));
         List<String> actualLines = Arrays.asList(actual.split("\\r?\\n"));
 
-        int index = 0;
-        for (; index < actualLines.size() && index < expectedLines.size(); index++) {
-            final String expectedLine = expectedLines.get(index);
-            final String actualLine = actualLines.get(index);
+        int expectedIndex = 0;
+        int actualIndex = 0;
+        if (allowAdditionalOutput) {
+            actualIndex = findFirstMatchingLine(actualLines, expectedLines.get(expectedIndex));
+        }
+        for (; actualIndex < actualLines.size() && expectedIndex < expectedLines.size(); actualIndex++, expectedIndex++) {
+            final String expectedLine = expectedLines.get(expectedIndex);
+            final String actualLine = actualLines.get(actualIndex);
             if (!expectedLine.equals(actualLine)) {
                 if (expectedLine.contains(actualLine)) {
-                    Assert.fail(String.format("Missing text at line %d.%nExpected: %s%nActual: %s%nActual output:%n%s%n", index + 1, expectedLine, actualLine, actual));
+                    Assert.fail(String.format("Missing text at line %d.%nExpected: %s%nActual: %s%nActual output:%n%s%n", actualIndex + 1, expectedLine, actualLine, actual));
                 }
                 if (actualLine.contains(expectedLine)) {
-                    Assert.fail(String.format("Extra text at line %d.%nExpected: %s%nActual: %s%nActual output:%n%s%n", index + 1, expectedLine, actualLine, actual));
+                    Assert.fail(String.format("Extra text at line %d.%nExpected: %s%nActual: %s%nActual output:%n%s%n", actualIndex + 1, expectedLine, actualLine, actual));
                 }
-                Assert.fail(String.format("Unexpected value at line %d.%nExpected: %s%nActual: %s%nActual output:%n%s%n", index + 1, expectedLine, actualLine, actual));
+                Assert.fail(String.format("Unexpected value at line %d.%nExpected: %s%nActual: %s%nActual output:%n%s%n", actualIndex + 1, expectedLine, actualLine, actual));
             }
         }
 
-        if (index == actualLines.size() && index < expectedLines.size()) {
-            Assert.fail(String.format("Lines missing from actual result, starting at line %d.%nExpected: %s%nActual output:%n%s%n", index + 1, expectedLines.get(index), actual));
+        if (actualIndex == actualLines.size() && expectedIndex < expectedLines.size()) {
+            Assert.fail(String.format("Lines missing from actual result, starting at expected line %d.%nExpected: %s%nActual output:%n%s%n", expectedIndex, expectedLines.get(expectedIndex), actual));
         }
-        if (!allowAdditionalOutput && index < actualLines.size() && index == expectedLines.size()) {
-            Assert.fail(String.format("Extra lines in actual result, starting at line %d.%nActual: %s%nActual output:%n%s%n", index + 1, actualLines.get(index), actual));
+        if (!allowAdditionalOutput && actualIndex < actualLines.size() && expectedIndex == expectedLines.size()) {
+            Assert.fail(String.format("Extra lines in actual result, starting at line %d.%nActual: %s%nActual output:%n%s%n", actualIndex + 1, actualLines.get(actualIndex), actual));
         }
+    }
+
+    private int findFirstMatchingLine(List<String> actualLines, String expected) {
+        int index = 0;
+        for (; index < actualLines.size(); index++) {
+            if (actualLines.get(index).equals(expected)) {
+                return index;
+            }
+        }
+        return actualLines.size();
     }
 }

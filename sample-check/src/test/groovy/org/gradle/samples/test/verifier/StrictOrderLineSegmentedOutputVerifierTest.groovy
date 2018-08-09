@@ -21,23 +21,22 @@ class StrictOrderLineSegmentedOutputVerifierTest extends Specification {
     private static final String NL = System.getProperty("line.separator")
     OutputVerifier verifier = new StrictOrderLineSegmentedOutputVerifier()
 
-    def "checks all expected lines exist in sequential order with no extra output"() {
+    def "checks all expected lines exist in sequential order disallowing extra output"() {
         given:
         String expected = """
 message 1
 message 2
 """
         String actual = """
-message 2
 message 1
+message 2
 """
 
         when:
         verifier.verify(expected, actual, false)
 
         then:
-        AssertionError assertionError = thrown(AssertionError)
-        assertionError.message.contains("""Unexpected value at line 2.${NL}Expected: message 1${NL}Actual: message 2""")
+        notThrown(AssertionError)
     }
 
     def "checks all expected lines exist in sequential order with extra output"() {
@@ -58,5 +57,86 @@ extra logs
 
         then:
         notThrown(AssertionError)
+    }
+
+    def "checks all expected lines exist in sequential order with extra output at the beginning"() {
+        given:
+        String expected = """message 1
+message 2
+"""
+        String actual = """
+extra logs
+
+message 1
+message 2
+"""
+
+        when:
+        verifier.verify(expected, actual, true)
+
+        then:
+        notThrown(AssertionError)
+    }
+
+    def "fails when expected lines not found while disallowing extra output"() {
+        given:
+        String expected = """
+message 1
+message 2
+"""
+        String actual = """
+message 2
+message 1
+"""
+
+        when:
+        verifier.verify(expected, actual, false)
+
+        then:
+        AssertionError assertionError = thrown(AssertionError)
+        assertionError.message.contains("""Unexpected value at line 2.${NL}Expected: message 1${NL}Actual: message 2""")
+    }
+
+    def "fails with extra output while disallowing extra output"() {
+        given:
+        String expected = """
+message 1
+message 2
+"""
+        String actual = """
+message 1
+message 2
+
+extra logs
+"""
+
+        when:
+        verifier.verify(expected, actual, false)
+
+        then:
+        AssertionError assertionError = thrown(AssertionError)
+        assertionError.message.contains('Extra lines in actual result, starting at line 4.')
+    }
+
+    def "fails when expected lines not found while allowing extra output"() {
+        given:
+        String expected = """message 1
+message 2
+"""
+        String actual = """
+extra logs
+
+message 3
+message 4
+
+extra logs 2
+"""
+
+        when:
+        verifier.verify(expected, actual, true)
+
+        then:
+        def error = thrown(AssertionError)
+        error.message.contains('Lines missing from actual result, starting at expected line 0.')
     }
 }
