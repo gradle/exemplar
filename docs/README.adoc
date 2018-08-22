@@ -185,7 +185,7 @@ You might want to verify more than just log output, so this library includes lin
 
 .BasicSampleTest.java
 [source,java]
-====
+----
 package com.example;
 
 import org.junit.Rule;
@@ -219,7 +219,7 @@ public class BasicSampleTest {
         // TODO(You): Utilize sample project under samples/composite-sample/basic
     }
 }
-====
+----
 
 === External sample.conf reference
 
