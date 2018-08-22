@@ -58,4 +58,4 @@ buildScan {
     }
 }
 
-java.sourceSets["test"].resources.srcDirs("docs")
+sourceSets["test"].resources.srcDirs("docs")

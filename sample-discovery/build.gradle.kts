@@ -9,5 +9,5 @@ dependencies {
     implementation(Libraries.COMMONS_IO)
     implementation(Libraries.COMMONS_LANG3)
     implementation(Libraries.TYPESAFE_CONFIG)
-    testCompile(Libraries.SPOCK_CORE)
+    testImplementation(Libraries.SPOCK_CORE)
 }
