@@ -17,7 +17,6 @@
 package org.gradle.samples.test.rule;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
