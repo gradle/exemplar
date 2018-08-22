@@ -57,7 +57,8 @@ $ gradle -q build
 
 === Configuring external samples
 
-*NOTE:* There are a bunch of (tested) samples under `sample-check/src/test/samples` of this repository you can use to understand ways to configure samples.
+An external sample consists of a directory containing all the files required to run that sample.
+It may include link:https://asciidoctor.org/docs/user-manual/#include-partial[tagged content regions] that can be extracted into documentation.
 
 You can configure a sample to be tested by creating a file ending with `.sample.conf` (e.g. `hello-world.sample.conf`) in a sample project dir.
 This is a file in https://github.com/lightbend/config/blob/master/HOCON.md[HOCON format] that might look something like this:
@@ -91,9 +92,12 @@ commands: [{
 
 _See <<sample-conf-fields,Sample Conf fields>> for a detailed description of all the possible options._
 
+*NOTE:* There are a bunch of (tested) samples under `sample-check/src/test/samples` of this repository you can use to understand ways to configure samples.
+
 === Configuring embedded samples
 
-You can test samples embedded within https://asciidoctor.org/[asciidoctor] docs.
+An embedded sample is one in which the source for the sample is written directly within an link:https://asciidoctor.org/[Asciidoctor] source file.
+
 Use this syntax to allow sample-discovery to extract your sources from the doc, execute the `sample-command`, and verify the output matches what is declared in the doc.
 
 [source,adoc]
@@ -132,12 +136,13 @@ You can verify samples either through one of the <<verifying-using-a-junit-runne
 
 ==== Verifying using a JUnit Runner
 
-This library provides 2 JUnit runners link:src/main/java/org/gradle/samples/test/runner/SamplesRunner.java[`SamplesRunner`] (executes via CLI) and link:src/main/java/org/gradle/samples/test/runner/GradleSamplesRunner.java[`GradleSamplesRunner`] (executes samples using https://docs.gradle.org/current/userguide/test_kit.html[Gradle TestKit]). If you are using `GradleSamplesRunner`, you will need to add `gradleTestKit()` as a dependency as well:
+This library provides 2 JUnit runners link:src/main/java/org/gradle/samples/test/runner/SamplesRunner.java[`SamplesRunner`] (executes via CLI) and link:src/main/java/org/gradle/samples/test/runner/GradleSamplesRunner.java[`GradleSamplesRunner`] (executes samples using https://docs.gradle.org/current/userguide/test_kit.html[Gradle TestKit]). If you are using `GradleSamplesRunner`, you will need to add `gradleTestKit()` and SLF4J binding dependencies as well:
 
 [source,kotlin]
 ----
 dependencies {
     testImplementation(gradleTestKit())
+    testRuntime("org.slf4j:slf4j-simple:1.7.16")
 }
 ----
 
@@ -174,7 +179,49 @@ You can get some inspiration for API use from link:https://github.com/gradle/exe
 
 Command execution is handled in the `org.gradle.samples.executor.*` classes, some output normalizers are provided in the `org.gradle.samples.test.normalizer` package, and output verification is handled by classes in the `org.gradle.samples.test.verifier` package.
 
-=== Sample conf fields
+=== Using Samples for other integration tests
+
+You might want to verify more than just log output, so this library includes link:https://github.com/junit-team/junit4/wiki/rules[JUnit rules] that allow you to easily copy sample projects to a temporarily location for other verification. Here is an example of a test that demonstrates use of the `@Sample` and `@UsesSample` rules.
+
+.BasicSampleTest.java
+[source,java]
+====
+package com.example;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.gradle.samples.test.rule.Sample;
+import org.gradle.samples.test.rule.UsesSample;
+
+public class BasicSampleTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @Rule
+    public Sample sample = Sample.from("src/test/samples/gradle")
+            .into(temporaryFolder)
+            .withDefaultSample("basic-sample");
+
+    @Test
+    void verifyDefaultSample() {
+        assert sample.getDir() == new File(temporaryFolder.getRoot(), "samples/basic-sample");
+        assert sample.getDir().isDirectory();
+        assert new File(sample.getDir(), "build.gradle").isFile();
+
+        // TODO(You): Execute what you wish in the sample project
+        // TODO(You): Verify file contents or whatever you want
+    }
+
+    @Test
+    @UsesSample("composite-sample/basic")
+    void verifyOtherSample() {
+        // TODO(You): Utilize sample project under samples/composite-sample/basic
+    }
+}
+====
+
+=== External sample.conf reference
 
 One of `executable` or `commands` are required at the root.
 If `executable` is found, the sample will be considered a single-command sample.
