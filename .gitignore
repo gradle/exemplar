@@ -10,8 +10,10 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 
+# IDEA
 .idea/
 *.iml
 *.ipr
 *.iws
+out/
 

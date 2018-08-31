@@ -17,13 +17,17 @@ package org.gradle.samples.test.runner;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.gradle.api.Transformer;
 import org.gradle.samples.executor.CliCommandExecutor;
 import org.gradle.samples.executor.CommandExecutionResult;
+import org.gradle.samples.executor.CommandExecutor;
+import org.gradle.samples.executor.CustomizationCommandExecutor;
 import org.gradle.samples.executor.ExecutionMetadata;
 import org.gradle.samples.loader.SamplesDiscovery;
 import org.gradle.samples.model.Command;
 import org.gradle.samples.model.Sample;
 import org.gradle.samples.test.normalizer.OutputNormalizer;
+import org.gradle.samples.test.customizer.CommandCustomizer;
 import org.gradle.samples.test.verifier.AnyOrderLineSegmentedOutputVerifier;
 import org.gradle.samples.test.verifier.StrictOrderLineSegmentedOutputVerifier;
 import org.junit.Assert;
@@ -37,13 +41,21 @@ import org.junit.runners.model.InitializationError;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SamplesRunner extends ParentRunner<Sample> {
     // See https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
     public static final List<String> SAFE_SYSTEM_PROPERTIES = Arrays.asList("file.separator", "java.home", "java.vendor", "java.version", "line.separator", "os.arch", "os.name", "os.version", "path.separator", "user.dir", "user.home", "user.name");
 
-    private List<OutputNormalizer> normalizers = new ArrayList<>();
+    private final List<? extends OutputNormalizer> normalizers;
+
+    private final List<CommandCustomizer> customizers;
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
@@ -56,22 +68,39 @@ public class SamplesRunner extends ParentRunner<Sample> {
     public SamplesRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
 
-        SamplesOutputNormalizers samplesOutputNormalizers = testClass.getAnnotation(SamplesOutputNormalizers.class);
-        if (samplesOutputNormalizers != null) {
-            try {
-                for (Class<? extends OutputNormalizer> clazz : samplesOutputNormalizers.value()) {
-                    normalizers.add(clazz.newInstance());
-                }
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException("Could not instantiate samples output normalizers", e);
+        normalizers = this.instantiateAnnotationClasses(testClass, SamplesOutputNormalizers.class, new Transformer<Class<OutputNormalizer>[], SamplesOutputNormalizers>() {
+            @Override
+            public Class<OutputNormalizer>[] transform(SamplesOutputNormalizers samplesOutputNormalizers) {
+                return (Class<OutputNormalizer>[]) samplesOutputNormalizers.value();
             }
-        }
+        });
+        customizers = instantiateAnnotationClasses(testClass, CommandCustomizers.class, new Transformer<Class<CommandCustomizer>[], CommandCustomizers>() {
+            @Override
+            public Class<CommandCustomizer>[] transform(CommandCustomizers executionCustomizers) {
+                return (Class<CommandCustomizer>[]) executionCustomizers.value();
+            }
+        });
 
         try {
             tmpDir.create();
         } catch (IOException e) {
             throw new RuntimeException("Could not create temporary folder " + tmpDir.getRoot().getAbsolutePath(), e);
         }
+    }
+
+    private <T, A extends Annotation> List<T> instantiateAnnotationClasses(Class testClass, Class<A> annoClass, Transformer<Class<T>[], A> transformer) {
+        A annotation = (A) testClass.getAnnotation(annoClass);
+        List<T> ret = new ArrayList<>();
+        if (annotation != null) {
+            for (Class<T> clazz : transformer.transform(annotation)) {
+                try {
+                    ret.add(clazz.getConstructor().newInstance());
+                } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+                    throw new RuntimeException("Could not instantiate " + clazz.getName(), e);
+                }
+            }
+        }
+        return ret;
     }
 
     @Override
@@ -161,7 +190,11 @@ public class SamplesRunner extends ParentRunner<Sample> {
 
     public CommandExecutionResult execute(final File tempSampleOutputDir, final Command command) throws IOException {
         // TODO: get executor
-        return new CliCommandExecutor(tempSampleOutputDir).execute(command, getExecutionMetadata(tempSampleOutputDir));
+        return decorateExecutor(new CliCommandExecutor(tempSampleOutputDir)).execute(command, getExecutionMetadata(tempSampleOutputDir));
+    }
+
+    protected CommandExecutor decorateExecutor(CommandExecutor executor) {
+        return new CustomizationCommandExecutor(executor, customizers);
     }
 
     protected ExecutionMetadata getExecutionMetadata(final File tempSampleOutputDir) {

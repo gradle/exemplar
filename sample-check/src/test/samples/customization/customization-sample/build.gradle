@@ -1,0 +1,11 @@
+task hello {
+    doLast {
+        println("hello")
+    }
+}
+
+task printProperty {
+    doLast {
+        println("myProp: ${System.getProperty("myProp")}")
+    }
+}
