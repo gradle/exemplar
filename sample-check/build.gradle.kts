@@ -13,6 +13,8 @@ dependencies {
     implementation(Libraries.COMMONS_LANG3)
     implementation(gradleTestKit())
     testImplementation(Libraries.SPOCK_CORE)
+    testImplementation(Libraries.CGLIB)
+    testImplementation(Libraries.OBJENESIS)
 }
 
 // Add samples as inputs for testing
