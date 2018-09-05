@@ -7,6 +7,8 @@ object Versions {
     val SLF4J = "1.7.16"
     val SPOCK_CORE = "1.1-groovy-2.4"
     val TYPESAFE_CONFIG = "1.2.1"
+    val CGLIB = "3.2.7"
+    val OBJENESIS = "2.6"
 }
 
 object Libraries {
@@ -19,4 +21,6 @@ object Libraries {
     val SLF4J = "org.slf4j:slf4j-simple:${Versions.SLF4J}"
     val SPOCK_CORE = "org.spockframework:spock-core:${Versions.SPOCK_CORE}"
     val TYPESAFE_CONFIG = "com.typesafe:config:${Versions.TYPESAFE_CONFIG}"
+    val CGLIB = "cglib:cglib-nodep:${Versions.CGLIB}"
+    val OBJENESIS = "org.objenesis:objenesis:${Versions.OBJENESIS}"
 }

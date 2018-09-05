@@ -252,6 +252,17 @@ You can use normalizers by annotating your JUnit test class with `@SamplesOutput
 
 Custom normalizers must implement the link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/normalizer/OutputNormalizer.java[`OutputNormalizer`] interface. The two above are included in sample-check.
 
+=== Common command modification
+
+sample-check supports modifying all sample commands before they are executed by implementing the link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/runner/SampleModifier.java[`SampleModifier`] interface and declaring link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/runner/SampleModifiers.java[`SampleModifiers`].
+This allows you to do things like set environment properties, change the executable or arguments, and even conditionally change verification based on some logic.
+For example, you might prepend a `Command` that sets up some environment before other commands are run or change `expect-failure` to `true` if you know verification conditionally won't work on Windows.
+
+[source,java]
+----
+@SampleModifiers({SetupEnvironmentSampleModifier.class, ExtraCommandArgumentsSampleModifier.class})
+----
+
 === Custom Gradle installation
 
 To allow Gradle itself to run using test versions of Gradle, the `GradleSamplesRunner` allows a custom installation to be injected using the system property "integTest.gradleHomeDir".

@@ -17,9 +17,7 @@ package org.gradle.samples.test.runner;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.samples.executor.CliCommandExecutor;
-import org.gradle.samples.executor.CommandExecutionResult;
-import org.gradle.samples.executor.ExecutionMetadata;
+import org.gradle.samples.executor.*;
 import org.gradle.samples.loader.SamplesDiscovery;
 import org.gradle.samples.model.Command;
 import org.gradle.samples.model.Sample;
@@ -37,13 +35,17 @@ import org.junit.runners.model.InitializationError;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class SamplesRunner extends ParentRunner<Sample> {
     // See https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
     public static final List<String> SAFE_SYSTEM_PROPERTIES = Arrays.asList("file.separator", "java.home", "java.vendor", "java.version", "line.separator", "os.arch", "os.name", "os.version", "path.separator", "user.dir", "user.home", "user.name");
 
-    private List<OutputNormalizer> normalizers = new ArrayList<>();
+    private final List<? extends OutputNormalizer> normalizers;
+
+    private final List<SampleModifier> sampleModifiers;
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
@@ -56,22 +58,39 @@ public class SamplesRunner extends ParentRunner<Sample> {
     public SamplesRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
 
-        SamplesOutputNormalizers samplesOutputNormalizers = testClass.getAnnotation(SamplesOutputNormalizers.class);
-        if (samplesOutputNormalizers != null) {
-            try {
-                for (Class<? extends OutputNormalizer> clazz : samplesOutputNormalizers.value()) {
-                    normalizers.add(clazz.newInstance());
-                }
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException("Could not instantiate samples output normalizers", e);
+        normalizers = this.instantiateAnnotationClasses(testClass, SamplesOutputNormalizers.class, new Transformer<Class<OutputNormalizer>[], SamplesOutputNormalizers>() {
+            @Override
+            public Class<OutputNormalizer>[] transform(SamplesOutputNormalizers samplesOutputNormalizers) {
+                return (Class<OutputNormalizer>[]) samplesOutputNormalizers.value();
             }
-        }
+        });
+        sampleModifiers = instantiateAnnotationClasses(testClass, SampleModifiers.class, new Transformer<Class<SampleModifier>[], SampleModifiers>() {
+            @Override
+            public Class<SampleModifier>[] transform(SampleModifiers modifiers) {
+                return (Class<SampleModifier>[]) modifiers.value();
+            }
+        });
 
         try {
             tmpDir.create();
         } catch (IOException e) {
             throw new RuntimeException("Could not create temporary folder " + tmpDir.getRoot().getAbsolutePath(), e);
         }
+    }
+
+    private <T, A extends Annotation> List<T> instantiateAnnotationClasses(Class testClass, Class<A> annotationClass, Transformer<Class<T>[], A> transformer) {
+        A annotation = (A) testClass.getAnnotation(annotationClass);
+        List<T> ret = new ArrayList<>();
+        if (annotation != null) {
+            for (Class<T> clazz : transformer.transform(annotation)) {
+                try {
+                    ret.add(clazz.getConstructor().newInstance());
+                } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+                    throw new RuntimeException("Could not instantiate " + clazz.getName(), e);
+                }
+            }
+        }
+        return ret;
     }
 
     @Override
@@ -133,11 +152,15 @@ public class SamplesRunner extends ParentRunner<Sample> {
         }
     }
 
-    private Sample initSample(final Sample sample) throws IOException {
-        File tmpProjectDir = new File(tmpDir.getRoot(), sample.getId());
+    private Sample initSample(final Sample sampleIn) throws IOException {
+        File tmpProjectDir = new File(tmpDir.getRoot(), sampleIn.getId());
         tmpProjectDir.mkdirs();
-        FileUtils.copyDirectory(sample.getProjectDir(), tmpProjectDir);
-        return new Sample(sample.getId(), tmpProjectDir, sample.getCommands());
+        FileUtils.copyDirectory(sampleIn.getProjectDir(), tmpProjectDir);
+        Sample sample = new Sample(sampleIn.getId(), tmpProjectDir, sampleIn.getCommands());
+        for (SampleModifier sampleModifier : sampleModifiers) {
+            sample = sampleModifier.modify(sample);
+        }
+        return sample;
     }
 
     private void verifyOutput(final Command command, final CommandExecutionResult executionResult) {
