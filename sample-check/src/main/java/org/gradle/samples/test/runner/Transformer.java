@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.samples.test.customizer;
-
-import org.gradle.samples.model.Command;
+package org.gradle.samples.test.runner;
 
 /**
- * Customize the command before the execution runs.
+ * <p>A {@code Transformer} transforms objects of type.</p>
+ *
+ * <p>Implementations are free to return new objects or mutate the incoming value.</p>
+ *
+ * @param <OUT> The type the value is transformed to.
+ * @param <IN> The type of the value to be transformed.
  */
-
-public interface CommandCustomizer {
+public interface Transformer<OUT, IN> {
     /**
-     * @param command  the command to be executed
-     * @return the customized command
+     * Transforms the given object, and returns the transformed value.
+     *
+     * @param in The object to update.
+     * @return The transformed object.
      */
-    Command customize(Command command);
+    OUT transform(IN in);
 }

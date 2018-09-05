@@ -15,22 +15,15 @@
  */
 package org.gradle.samples.test.runner;
 
-import org.gradle.samples.test.customizer.CommandCustomizer;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.gradle.samples.model.Command;
 
 /**
- * Specifies execution customizer classes to invoke before the execution
+ * Modifies a given {@link Command} before the execution runs.
  */
-@Documented
-@Inherited
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface CommandCustomizers {
-    Class<? extends CommandCustomizer>[] value();
+public interface CommandModifier {
+    /**
+     * @param command the command to be executed
+     * @return transformed command
+     */
+    Command update(Command command);
 }

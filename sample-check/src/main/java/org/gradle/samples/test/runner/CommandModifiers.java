@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,20 @@
  */
 package org.gradle.samples.test.runner;
 
-import org.gradle.samples.test.customizer.ExtraSystemPropertyCustomizer;
-import org.gradle.samples.test.customizer.ExtraTaskRequestCustomizer;
-import org.junit.runner.RunWith;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@RunWith(GradleSamplesRunner.class)
-@SamplesRoot("src/test/samples/customization")
-@CommandCustomizers({ExtraTaskRequestCustomizer.class, ExtraSystemPropertyCustomizer.class})
-public class CustomizedExecutionIntegrationTest {
+/**
+ * Specifies execution update classes to invoke before the execution.
+ */
+@Documented
+@Inherited
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface CommandModifiers {
+    Class<? extends CommandModifier>[] value();
 }

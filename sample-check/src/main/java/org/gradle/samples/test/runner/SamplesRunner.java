@@ -17,17 +17,11 @@ package org.gradle.samples.test.runner;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.Transformer;
-import org.gradle.samples.executor.CliCommandExecutor;
-import org.gradle.samples.executor.CommandExecutionResult;
-import org.gradle.samples.executor.CommandExecutor;
-import org.gradle.samples.executor.CustomizationCommandExecutor;
-import org.gradle.samples.executor.ExecutionMetadata;
+import org.gradle.samples.executor.*;
 import org.gradle.samples.loader.SamplesDiscovery;
 import org.gradle.samples.model.Command;
 import org.gradle.samples.model.Sample;
 import org.gradle.samples.test.normalizer.OutputNormalizer;
-import org.gradle.samples.test.customizer.CommandCustomizer;
 import org.gradle.samples.test.verifier.AnyOrderLineSegmentedOutputVerifier;
 import org.gradle.samples.test.verifier.StrictOrderLineSegmentedOutputVerifier;
 import org.junit.Assert;
@@ -43,11 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SamplesRunner extends ParentRunner<Sample> {
     // See https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
@@ -55,7 +45,7 @@ public class SamplesRunner extends ParentRunner<Sample> {
 
     private final List<? extends OutputNormalizer> normalizers;
 
-    private final List<CommandCustomizer> customizers;
+    private final List<CommandModifier> commandModifiers;
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
@@ -74,10 +64,10 @@ public class SamplesRunner extends ParentRunner<Sample> {
                 return (Class<OutputNormalizer>[]) samplesOutputNormalizers.value();
             }
         });
-        customizers = instantiateAnnotationClasses(testClass, CommandCustomizers.class, new Transformer<Class<CommandCustomizer>[], CommandCustomizers>() {
+        commandModifiers = instantiateAnnotationClasses(testClass, CommandModifiers.class, new Transformer<Class<CommandModifier>[], CommandModifiers>() {
             @Override
-            public Class<CommandCustomizer>[] transform(CommandCustomizers executionCustomizers) {
-                return (Class<CommandCustomizer>[]) executionCustomizers.value();
+            public Class<CommandModifier>[] transform(CommandModifiers commandModifiers) {
+                return (Class<CommandModifier>[]) commandModifiers.value();
             }
         });
 
@@ -88,8 +78,8 @@ public class SamplesRunner extends ParentRunner<Sample> {
         }
     }
 
-    private <T, A extends Annotation> List<T> instantiateAnnotationClasses(Class testClass, Class<A> annoClass, Transformer<Class<T>[], A> transformer) {
-        A annotation = (A) testClass.getAnnotation(annoClass);
+    private <T, A extends Annotation> List<T> instantiateAnnotationClasses(Class testClass, Class<A> annotationClass, Transformer<Class<T>[], A> transformer) {
+        A annotation = (A) testClass.getAnnotation(annotationClass);
         List<T> ret = new ArrayList<>();
         if (annotation != null) {
             for (Class<T> clazz : transformer.transform(annotation)) {
@@ -194,7 +184,7 @@ public class SamplesRunner extends ParentRunner<Sample> {
     }
 
     protected CommandExecutor decorateExecutor(CommandExecutor executor) {
-        return new CustomizationCommandExecutor(executor, customizers);
+        return new ModifyingCommandExecutor(executor, commandModifiers);
     }
 
     protected ExecutionMetadata getExecutionMetadata(final File tempSampleOutputDir) {

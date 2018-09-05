@@ -83,4 +83,81 @@ public class Command {
     public boolean isAllowDisorderedOutput() {
         return allowDisorderedOutput;
     }
+
+    public Builder toBuilder() {
+        return new Builder(getExecutable(),
+                getExecutionSubdirectory(),
+                getArgs(),
+                getFlags(),
+                getExpectedOutput(),
+                isExpectFailure(),
+                isAllowAdditionalOutput(),
+                isAllowDisorderedOutput());
+    }
+
+    public static class Builder {
+        private String executable;
+        private String executionSubdirectory;
+        private List<String> args;
+        private List<String> flags;
+        private String expectedOutput;
+        private boolean expectFailure;
+        private boolean allowAdditionalOutput;
+        private boolean allowDisorderedOutput;
+
+        private Builder(String executable, String executionDirectory, List<String> args, List<String> flags, String expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput) {
+            this.executable = executable;
+            this.executionSubdirectory = executionDirectory;
+            this.args = args;
+            this.flags = flags;
+            this.expectedOutput = expectedOutput;
+            this.expectFailure = expectFailure;
+            this.allowAdditionalOutput = allowAdditionalOutput;
+            this.allowDisorderedOutput = allowDisorderedOutput;
+        }
+
+        public Builder setExecutable(String executable) {
+            this.executable = executable;
+            return this;
+        }
+
+        public Builder setExecutionSubdirectory(String executionSubdirectory) {
+            this.executionSubdirectory = executionSubdirectory;
+            return this;
+        }
+
+        public Builder setArgs(List<String> args) {
+            this.args = args;
+            return this;
+        }
+
+        public Builder setFlags(List<String> flags) {
+            this.flags = flags;
+            return this;
+        }
+
+        public Builder setExpectedOutput(String expectedOutput) {
+            this.expectedOutput = expectedOutput;
+            return this;
+        }
+
+        public Builder setExpectFailure(boolean expectFailure) {
+            this.expectFailure = expectFailure;
+            return this;
+        }
+
+        public Builder setAllowAdditionalOutput(boolean allowAdditionalOutput) {
+            this.allowAdditionalOutput = allowAdditionalOutput;
+            return this;
+        }
+
+        public Builder setAllowDisorderedOutput(boolean allowDisorderedOutput) {
+            this.allowDisorderedOutput = allowDisorderedOutput;
+            return this;
+        }
+
+        public Command build() {
+            return new Command(executable, executionSubdirectory, args, flags, expectedOutput, expectFailure, allowAdditionalOutput, allowDisorderedOutput);
+        }
+    }
 }
