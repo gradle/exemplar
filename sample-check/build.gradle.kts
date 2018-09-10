@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     constraints {
-        compile("org.codehaus.groovy:groovy-all:2.4.15")
+        testImplementation("org.codehaus.groovy:groovy-all:2.4.15")
     }
     api(project(":sample-discovery"))
     api(Libraries.JUNIT)
