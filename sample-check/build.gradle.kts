@@ -12,6 +12,7 @@ dependencies {
     implementation(Libraries.COMMONS_IO)
     implementation(Libraries.COMMONS_LANG3)
     implementation(gradleTestKit())
+    testImplementation(project(":sample-discovery-asciidoctor"))
     testImplementation(Libraries.SPOCK_CORE)
     testImplementation(Libraries.CGLIB)
     testImplementation(Libraries.OBJENESIS)

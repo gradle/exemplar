@@ -15,7 +15,7 @@
  */
 package org.gradle.samples.test.runner;
 
-import org.gradle.samples.loader.SamplesDiscovery;
+import org.gradle.samples.loader.EmbeddedSamplesDiscovery;
 import org.gradle.samples.model.Sample;
 import org.junit.runners.model.InitializationError;
 
@@ -36,7 +36,7 @@ public class GradleEmbeddedSamplesRunner extends GradleSamplesRunner {
     @Override
     protected List<Sample> getChildren() {
         try {
-            return SamplesDiscovery.embeddedSamples(getSamplesRootDir());
+            return EmbeddedSamplesDiscovery.embeddedSamples(getSamplesRootDir());
         } catch (IOException e) {
             throw new RuntimeException("Could not extract embedded samples", e);
         }

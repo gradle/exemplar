@@ -6,8 +6,8 @@ plugins {
 allprojects {
     apply(plugin = "java-library")
     configure<JavaPluginConvention> {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     repositories {
@@ -47,6 +47,7 @@ subprojects {
 
 dependencies {
     implementation(project(":sample-check"))
+    testImplementation(project(":sample-discovery-asciidoctor"))
 }
 
 buildScan {

@@ -15,7 +15,6 @@
  */
 package org.gradle.exemplar;
 
-import org.gradle.samples.test.runner.GradleEmbeddedSamplesRunner;
 import org.gradle.samples.test.runner.SamplesRoot;
 import org.junit.runner.RunWith;
 

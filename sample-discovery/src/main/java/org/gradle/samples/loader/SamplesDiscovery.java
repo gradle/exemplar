@@ -17,12 +17,10 @@ package org.gradle.samples.loader;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.gradle.samples.loader.asciidoctor.AsciidoctorSamplesDiscovery;
 import org.gradle.samples.model.Command;
 import org.gradle.samples.model.Sample;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,21 +42,6 @@ public class SamplesDiscovery {
             // This causes Gradle project names to differ when one is not explicitly set in settings.gradle. This should be preserved.
             final File sampleProjectDir = sampleConfigFile.getParentFile();
             samples.add(new Sample(id, sampleProjectDir, commands));
-        }
-
-        return samples;
-    }
-
-    public static List<Sample> embeddedSamples(File asciidocSrcDir) throws IOException {
-        return filteredEmbeddedSamples(asciidocSrcDir, new String[]{"adoc", "asciidoc"}, true);
-    }
-
-    public static List<Sample> filteredEmbeddedSamples(File rootSamplesDir, String[] fileExtensions, boolean recursive) throws IOException {
-        Collection<File> sampleConfigFiles = FileUtils.listFiles(rootSamplesDir, fileExtensions, recursive);
-
-        List<Sample> samples = new ArrayList<>();
-        for (File sampleConfigFile : sampleConfigFiles) {
-            samples.addAll(AsciidoctorSamplesDiscovery.extractFromAsciidoctorFile(sampleConfigFile));
         }
 
         return samples;
