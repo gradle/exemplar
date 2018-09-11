@@ -1,0 +1,7 @@
+[source,kotlin]
+====
+exemplar {
+    minVersion = "4.0"
+    maxVersion = "4.10"
+}
+====
