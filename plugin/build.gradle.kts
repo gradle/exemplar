@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.2.71"
     `java-gradle-plugin`
+    id("com.gradle.plugin-publish") version "0.10.0"
 }
 
 dependencies {
@@ -18,6 +19,19 @@ gradlePlugin {
         create("exemplar") {
             id = "org.gradle.exemplar"
             implementationClass = "org.gradle.exemplar.ExemplarPlugin"
+        }
+    }
+}
+
+pluginBundle {
+    website = "https://github.com/gradle/exemplar"
+    vcsUrl = "https://github.com/gradle/exemplar"
+    description = "Helps you to streamline the process of using Exemplar"
+    tags = listOf("exemplar", "test", "testing", "samples", "sample-tests")
+
+    plugins {
+        getByName("exemplar") {
+            displayName = "Exemplar plugin"
         }
     }
 }
