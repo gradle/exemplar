@@ -3,6 +3,14 @@ package org.gradle.exemplar
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+/**
+ * This plugin will by default:
+ * * add the `org.gradle.exemplar` dependency to the `testImplementation` configuration
+ *
+ * It will also provide a extension function which you can call inside the `dependencies {}` block
+ * to add additional dependencies when you want to run the tests with the **Gradle TestKit**.
+ * Call either `gradleExemplar()` or `DependencyHandlerExtensionKt.gradleExemplar(this)`.
+ */
 class ExemplarPlugin : Plugin<Project> {
 
     override fun apply(project: Project) = project.runWhenJavaPluginAvailable {
