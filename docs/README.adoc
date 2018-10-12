@@ -142,7 +142,7 @@ This library provides 2 JUnit runners link:src/main/java/org/gradle/samples/test
 ----
 dependencies {
     testImplementation(gradleTestKit())
-    testRuntime("org.slf4j:slf4j-simple:1.7.16")
+    testRuntimeOnly("org.slf4j:slf4j-simple:1.7.16")
 }
 ----
 
