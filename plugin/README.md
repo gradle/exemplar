@@ -15,16 +15,14 @@ dependencies {
     gradleExemplar()
 }
 ```  
-
-> **Note:** This is obviously only possible with the [Kotlin DSL](https://github.com/gradle/kotlin-dsl).
-When you use the Groovy DSL you have to manually add the following dependencies:
+or resp. for the Groovy DSL:
 ```groovy
+import org.gradle.exemplar.DependencyHandlerExtensionKt
+
 dependencies {
-    testImplementation(gradleTestKit())
-    testRuntimeOnly("org.slf4j:slf4j-simple:1.7.16")
+    DependencyHandlerExtensionKt.gradleExemplar(this)
 }
 ```
-> Also please check out the [main README](../docs/README.adoc) for it...
 
 ## How to use
 Simply apply the plugin inside the `plugins {}` block and you are done:
@@ -34,6 +32,5 @@ plugins {
 }
 ```
 
-As mentioned above - when you want to execute the tests with the **Gradle TestKit** call
-either the `gradleExemplar()` extension function inside the `dependencies {}`block (with the Kotlin DSL)
-or add the dependencies manually (with the Groovy DSL).
+As mentioned above - when you want to execute the tests with the **Gradle TestKit** simply call
+the `gradleExemplar()` extension function inside the `dependencies {}` block.
