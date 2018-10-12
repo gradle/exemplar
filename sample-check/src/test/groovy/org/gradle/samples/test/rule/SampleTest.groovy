@@ -1,31 +1,58 @@
 package org.gradle.samples.test.rule
 
+import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
+import org.junit.experimental.runners.Enclosed
+import org.junit.rules.RuleChain
 import org.junit.rules.TemporaryFolder
+import org.junit.rules.TestRule
+import org.junit.runner.RunWith
 
+@RunWith(Enclosed.class)
 class SampleTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder()
+    static class WithTemporaryFolderRule extends SampleTestCases {
 
-    @Rule
-    public Sample sample = Sample.from("src/test/samples/gradle")
+        public TemporaryFolder temporaryFolder = new TemporaryFolder()
+        public Sample sample = Sample.from("src/test/samples/gradle")
             .into(temporaryFolder)
             .withDefaultSample("basic-sample")
 
-    @Test
-    void "copies default sample"() {
-        assert sample.dir == new File(temporaryFolder.getRoot(), "samples/basic-sample")
-        assert sample.dir.directory
-        assert new File(sample.dir, "build.gradle").file
+        @Rule
+        public TestRule ruleChain = RuleChain.outerRule(temporaryFolder).around(sample)
     }
 
-    @UsesSample("composite-sample/basic")
-    @Test
-    void "copies sample from annotation"() {
-        assert sample.dir == new File(temporaryFolder.getRoot(), "samples/composite-sample/basic")
-        assert sample.dir.directory
-        assert new File(sample.dir, "compositeBuildsBasicCli.sample.out").file
+    static class WithImplicitTemporaryFolder extends SampleTestCases {
+        @Rule
+        public Sample sample = Sample.from("src/test/samples/gradle")
+            .withDefaultSample("basic-sample")
     }
+
+    static class WithExplicitTemporaryFolder extends SampleTestCases {
+        @ClassRule
+        public static TemporaryFolder temporaryFolder = new TemporaryFolder()
+        @Rule
+        public Sample sample = Sample.from("src/test/samples/gradle")
+            .intoTemporaryFolder(temporaryFolder.getRoot())
+            .withDefaultSample("basic-sample")
+    }
+
+    static abstract class SampleTestCases {
+        @Test
+        void "copies default sample"() {
+            File sampleDir = sample.dir
+            assert sampleDir.directory
+            assert new File(sampleDir, "build.gradle").file
+        }
+
+        @UsesSample("composite-sample/basic")
+        @Test
+        void "copies sample from annotation"() {
+            File sampleDir = sample.dir
+            assert sample.dir.directory
+            assert new File(sampleDir, "compositeBuildsBasicCli.sample.out").file
+        }
+    }
+
 }

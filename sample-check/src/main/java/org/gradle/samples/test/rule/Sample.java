@@ -22,6 +22,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 
@@ -59,6 +60,12 @@ public class Sample implements TestRule {
         this.sourceSampleDirSupplier = sourceSampleDirSupplier;
     }
 
+    /**
+     * Copy the samples into the supplied {@link TemporaryFolder}.
+     *
+     * @deprecated please use {@link #intoTemporaryFolder()} or {@link #intoTemporaryFolder(File)}
+     */
+    @Deprecated
     public Sample into(final TemporaryFolder temporaryFolder) {
         return into(new TargetBaseDirSupplier() {
             @Override
@@ -72,6 +79,27 @@ public class Sample implements TestRule {
         });
     }
 
+    /**
+     * Copy the samples into a temporary folder that is attempted to be deleted afterwards.
+     */
+    public Sample intoTemporaryFolder() {
+        return intoTemporaryFolder(null);
+    }
+
+    /**
+     * Copy the samples into a temporary folder that is attempted to be deleted afterwards.
+     *
+     * @param parentFolder The parent folder of the created temporary folder
+     */
+    public Sample intoTemporaryFolder(File parentFolder) {
+        return into(new ManagedTemporaryFolder(parentFolder));
+    }
+
+    /**
+     * Copy the samples into a folder returned by the supplied {@link TargetBaseDirSupplier}.
+     *
+     * @see TargetBaseDirSupplier
+     */
     public Sample into(TargetBaseDirSupplier targetBaseDirSupplier) {
         this.targetBaseDirSupplier = targetBaseDirSupplier;
         return this;
@@ -86,21 +114,34 @@ public class Sample implements TestRule {
         File getDir(String sampleName);
     }
 
+    /**
+     * Supplier for the base directory into which samples are copied.
+     *
+     * May optionally implement {@link Closeable} in which case it will be called after test execution to clean up.
+     */
     public interface TargetBaseDirSupplier {
         File getDir();
     }
 
     @Override
     public Statement apply(final Statement base, Description description) {
+        if (targetBaseDirSupplier == null) {
+            intoTemporaryFolder();
+        }
         sampleName = getSampleName(description);
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
                 assertNotNull("No sample selected. Please use @UsesSample or withDefaultSample()", sampleName);
-                assertNotNull("TargetBaseDirSupplier must not be null. Please use into() to set one.", targetBaseDirSupplier);
-                File srcDir = sourceSampleDirSupplier.getDir(sampleName);
-                FileUtils.copyDirectory(srcDir, getDir());
-                base.evaluate();
+                try {
+                    File srcDir = sourceSampleDirSupplier.getDir(sampleName);
+                    FileUtils.copyDirectory(srcDir, getDir());
+                    base.evaluate();
+                } finally {
+                    if (targetBaseDirSupplier instanceof Closeable) {
+                        ((Closeable) targetBaseDirSupplier).close();
+                    }
+                }
             }
         };
     }
@@ -129,5 +170,28 @@ public class Sample implements TestRule {
             throw new IllegalStateException("This rule hasn't been applied, yet.");
         }
         return sampleName;
+    }
+
+    private static class ManagedTemporaryFolder implements TargetBaseDirSupplier, Closeable {
+        private final TemporaryFolder temporaryFolder;
+
+        public ManagedTemporaryFolder(File parentFolder) {
+            this.temporaryFolder = new TemporaryFolder(parentFolder);
+        }
+
+        @Override
+        public File getDir() {
+            try {
+                temporaryFolder.create();
+                return temporaryFolder.getRoot();
+            } catch (IOException e) {
+                throw new RuntimeException("Could not create samples target base dir", e);
+            }
+        }
+
+        @Override
+        public void close() {
+            temporaryFolder.delete();
+        }
     }
 }
