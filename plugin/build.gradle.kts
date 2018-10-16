@@ -5,7 +5,6 @@ plugins {
 }
 
 dependencies {
-    implementation(gradleApi())
     implementation(kotlin("stdlib-jdk8"))
 
     testImplementation("org.assertj:assertj-core:3.11.1")
