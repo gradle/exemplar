@@ -1,51 +1,55 @@
 package org.gradle.exemplar
 
 import org.assertj.core.api.Assertions.assertThat
-import org.gradle.exemplar.internal.AbstractTest
+import org.gradle.api.Project
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
 
-class ExemplarPluginTest : AbstractTest {
-
-    override val tempDir = createTempDir()
+class ExemplarPluginTest {
 
     @Test
-    fun `applied plugin add sample-check dependency`() {
-        val buildScript =
-            """
-                plugins {
-                    id("org.gradle.exemplar")
-                    `java-library`
-                }
-            """.trimIndent()
+    fun `apply plugin should add repository`() {
+        withProjectBuilder {
+            pluginManager.apply("org.gradle.exemplar")
+            pluginManager.apply("java-library")
 
-        withGradleRunner(buildScript, "dependencies") {
-            // TODO: Is there a better way to test this? 🤔
-            // We could also check that it is inside the `testRuntimeClasspath`
-            assertThat(output).contains("org.gradle:sample-check:0.6.1")
+            val gradleArtifactoryRepo = repositories.find {
+                (it as MavenArtifactRepository).url == uri("https://repo.gradle.org/gradle/libs")
+            }
+            assertThat(gradleArtifactoryRepo).isNotNull
         }
     }
 
     @Test
-    fun `applied plugin add gradleExemplar to DependencyHandler`() {
-        val buildScript =
-            """
-                import org.gradle.exemplar.gradleExemplar
+    fun `apply plugin should add dependencies`() {
+        withProjectBuilder {
+            pluginManager.apply("org.gradle.exemplar")
+            pluginManager.apply("java-library")
 
-                plugins {
-                    id("org.gradle.exemplar")
-                    `java-library`
-                }
+            val sampleCheckDependency = dependenciesForConfiguration("testImplementation").find {
+                it.group == "org.gradle" && it.name == "sample-check" && it.version == "0.6.1"
+            }
+            assertThat(sampleCheckDependency).isNotNull
 
-                dependencies {
-                    gradleExemplar()
-                }
-            """.trimIndent()
+            // Check for gradleTestKit
+            assertThat(dependenciesForConfiguration("testImplementation").size).isEqualTo(2)
 
-        withGradleRunner(buildScript, "dependencies") {
-            // TODO: Is there a better way to test this? 🤔
-            // We could also check that it is inside the `testRuntimeClasspath`
-            assertThat(output).contains("org.slf4j:slf4j-simple:1.7.16")
-            // FIXME: Also gradleTestKit() should be checked
+            val slf4jDependency = dependenciesForConfiguration("testRuntimeOnly").find {
+                it.group == "org.slf4j" && it.name == "slf4j-simple" && it.version == "1.7.16"
+            }
+            assertThat(slf4jDependency).isNotNull
         }
     }
 }
+
+private fun withProjectBuilder(
+    block: Project.() -> Unit
+) {
+    ProjectBuilder.builder()
+        .build()
+        .also { block(it) }
+}
+
+private fun Project.dependenciesForConfiguration(configuration: String) =
+    configurations.getByName(configuration).dependencies
