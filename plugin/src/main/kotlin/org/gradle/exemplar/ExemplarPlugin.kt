@@ -16,7 +16,7 @@ class ExemplarPlugin : Plugin<Project> {
     override fun apply(project: Project) = project.runWhenJavaPluginAvailable {
         with(project) {
             addGradleArtifactoryRepo()
-            addSampleCheckDependency()
+            addDependencies()
         }
     }
 
@@ -31,6 +31,6 @@ class ExemplarPlugin : Plugin<Project> {
     private fun Project.addGradleArtifactoryRepo() =
         repositories.gradleArtifactory()
 
-    private fun Project.addSampleCheckDependency() =
-        dependencies.sampleCheck()
+    private fun Project.addDependencies() =
+        dependencies.addExemplarDependencies()
 }
