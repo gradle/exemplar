@@ -7,12 +7,8 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import java.net.URI
 
 /**
- * This plugin will by default:
- * * add the `org.gradle.exemplar` dependency to the `testImplementation` configuration
- *
- * It will also provide a extension function which you can call inside the `dependencies {}` block
- * to add additional dependencies when you want to run the tests with the **Gradle TestKit**.
- * Call either `gradleExemplar()` or `DependencyHandlerExtensionKt.gradleExemplar(this)`.
+ * This plugin will add all necessary dependencies to the project.
+ * So you can direct start using Exemplar.
  */
 class ExemplarPlugin : Plugin<Project> {
 
