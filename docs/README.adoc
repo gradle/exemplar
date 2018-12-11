@@ -195,10 +195,13 @@ import org.gradle.samples.test.rule.Sample;
 import org.gradle.samples.test.rule.UsesSample;
 
 public class BasicSampleTest {
-    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder()
     public Sample sample = Sample.from("src/test/samples/gradle")
-            .withDefaultSample("basic-sample");  // Setting default sample is optional
-    // NOTE: You can change the temp folder using `.intoTemporaryFolder(dir)`
+            .into(temporaryFolder)
+            .withDefaultSample("basic-sample")
+
+    @Rule
+    public TestRule ruleChain = RuleChain.outerRule(temporaryFolder).around(sample)
 
     @Test
     void verifyDefaultSample() {
