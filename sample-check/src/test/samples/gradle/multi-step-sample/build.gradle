@@ -62,9 +62,11 @@ class IncrementalReverseTask extends DefaultTask {
 
         // START SNIPPET out-of-date-inputs
         inputs.outOfDate { change ->
-            println "out of date: ${change.file.name}"
-            def targetFile = new File(outputDir, change.file.name)
-            targetFile.text = change.file.text.reverse()
+            if (change.file.file) {
+                println "out of date: ${change.file.name}"
+                def targetFile = new File(outputDir, change.file.name)
+                targetFile.text = change.file.text.reverse()
+            }
         }
         // END SNIPPET out-of-date-inputs
 
