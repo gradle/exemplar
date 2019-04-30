@@ -39,22 +39,26 @@ public class CommandsParser {
     private static final String EXPECTED_OUTPUT_FILE = "expected-output-file";
 
     public static List<Command> parse(final File sampleConfigFile) {
-        final Config sampleConfig = ConfigFactory.parseFile(sampleConfigFile, ConfigParseOptions.defaults().setAllowMissing(false)).resolve();
-        final File sampleProjectDir = sampleConfigFile.getParentFile();
+        try {
+            final Config sampleConfig = ConfigFactory.parseFile(sampleConfigFile, ConfigParseOptions.defaults().setAllowMissing(false)).resolve();
+            final File sampleProjectDir = sampleConfigFile.getParentFile();
 
-        List<Command> commands = new ArrayList<>();
-        // Allow a single command to be specified without an enclosing list
-        if (sampleConfig.hasPath(EXECUTABLE)) {
-            commands.add(parseCommand(sampleConfig, sampleProjectDir));
-        } else if (sampleConfig.hasPath(COMMANDS)) {
-            for (Config stepConfig : sampleConfig.getConfigList(COMMANDS)) {
-                commands.add(parseCommand(stepConfig, sampleProjectDir));
+            List<Command> commands = new ArrayList<>();
+            // Allow a single command to be specified without an enclosing list
+            if (sampleConfig.hasPath(EXECUTABLE)) {
+                commands.add(parseCommand(sampleConfig, sampleProjectDir));
+            } else if (sampleConfig.hasPath(COMMANDS)) {
+                for (Config stepConfig : sampleConfig.getConfigList(COMMANDS)) {
+                    commands.add(parseCommand(stepConfig, sampleProjectDir));
+                }
+            } else {
+                throw new InvalidSampleException("A sample must be defined with an 'executable' or 'commands'");
             }
-        } else {
-            throw new InvalidSampleException("A sample must be defined with an 'executable' or 'commands'");
-        }
 
-        return commands;
+            return commands;
+        } catch (Exception e) {
+            throw new InvalidSampleException(String.format("Could not read sample definition from %s.", sampleConfigFile), e);
+        }
     }
 
     private static Command parseCommand(final Config commandConfig, final File sampleProjectDir) {
@@ -63,7 +67,7 @@ public class CommandsParser {
         try {
             executable = commandConfig.getString(EXECUTABLE);
         } catch (ConfigException e) {
-            throw new InvalidSampleException("executable field cannot be empty", e);
+            throw new InvalidSampleException("'executable' field cannot be empty", e);
         }
         final String executionDirectory = ConfigUtil.string(commandConfig, EXECUTION_SUBDIRECTORY, null);
         final List<String> commands = ConfigUtil.strings(commandConfig, ARGS, new ArrayList<String>());

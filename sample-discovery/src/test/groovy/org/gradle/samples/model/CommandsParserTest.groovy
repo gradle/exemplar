@@ -24,14 +24,26 @@ import spock.lang.Specification
 class CommandsParserTest extends Specification {
     @Rule
     TemporaryFolder tmpDir = new TemporaryFolder()
-
     File sampleConfigFile
 
     def setup() {
         sampleConfigFile = tmpDir.newFile("default.sample.conf")
     }
 
-    def "fails fast given no executable"() {
+    def "fails fast when config file is badly formed"() {
+        given:
+        sampleConfigFile << "broken!"
+
+        when:
+        CommandsParser.parse(sampleConfigFile)
+
+        then:
+        def e = thrown(InvalidSampleException)
+        e.message == "Could not read sample definition from ${sampleConfigFile}."
+        e.cause != null
+    }
+
+    def "fails fast given no executable or commands array specified"() {
         given:
         sampleConfigFile << "bogus { unexpected: true }"
         tmpDir.newFile("bogus.sample.out").createNewFile()
@@ -40,7 +52,24 @@ class CommandsParserTest extends Specification {
         CommandsParser.parse(sampleConfigFile)
 
         then:
-        thrown(InvalidSampleException)
+        def e = thrown(InvalidSampleException)
+        e.message == "Could not read sample definition from ${sampleConfigFile}."
+        e.cause.message == "A sample must be defined with an 'executable' or 'commands'"
+    }
+
+    def "fails fast when no executable for command specified"() {
+        given:
+        sampleConfigFile << """
+            commands: [{ }, { }]
+        """
+
+        when:
+        CommandsParser.parse(sampleConfigFile)
+
+        then:
+        def e = thrown(InvalidSampleException)
+        e.message == "Could not read sample definition from ${sampleConfigFile}."
+        e.cause.message == "'executable' field cannot be empty"
     }
 
     def "provides reasonable defaults for command config"() {
