@@ -142,7 +142,7 @@ public class AsciidoctorSamplesDiscovery {
             args = Arrays.asList(Arrays.copyOfRange(commandLineWords, 1, commandLineWords.length));
         }
 
-        String expectedOutput = null;
+        String expectedOutput = "";
         if (commandLineAndOutput.length > 1) {
             expectedOutput = commandLineAndOutput[1];
         }

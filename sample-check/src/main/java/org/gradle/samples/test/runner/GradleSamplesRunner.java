@@ -61,12 +61,7 @@ public class GradleSamplesRunner extends SamplesRunner {
     }
 
     @Override
-    public CommandExecutionResult execute(final File tempSampleOutputDir, final Command command) {
-        File workingDir = tempSampleOutputDir;
-        if (command.getExecutionSubdirectory() != null) {
-            workingDir = new File(tempSampleOutputDir, command.getExecutionSubdirectory());
-        }
-
+    public CommandExecutionResult execute(File tempSampleOutputDir, File workingDir, Command command) {
         boolean expectFailure = command.isExpectFailure();
         ExecutionMetadata executionMetadata = getExecutionMetadata(tempSampleOutputDir);
         return new GradleRunnerCommandExecutor(workingDir, customGradleInstallation, expectFailure).execute(command, executionMetadata);

@@ -63,6 +63,7 @@ hello, world
         command.executable == "ruby"
         command.args == ["hello.rb"]
         command.allowDisorderedOutput
+        command.expectedOutput == "hello, world"
     }
 
     def "discovers samples inside an asciidoctor file with sources included"() {
@@ -108,5 +109,52 @@ Hello world
         def command = commands.get(0)
         command.executable == "bash"
         command.args == ["script.sh"]
+        command.expectedOutput == "Hello world"
+    }
+
+    def "discovers samples inside an asciidoctor file with multiple commands"() {
+        given:
+        def file = tmpDir.newFile("sample.adoc") << """
+= Document Title
+
+.Sample title
+====
+[.testable-sample]
+
+Run this first:
+
+[.sample-command]
+----
+\$ ruby hello.rb
+hello, world
+----
+
+Then do this:
+
+[.sample-command]
+----
+\$ mkdir some-dir
+----
+====
+"""
+
+        when:
+        Collection<Sample> samples = AsciidoctorSamplesDiscovery.extractFromAsciidoctorFile(file)
+
+        then:
+        samples.size() == 1
+        def commands = samples.get(0).commands
+
+        and:
+        commands.size() == 2
+        def command = commands.get(0)
+        command.executable == "ruby"
+        command.args == ["hello.rb"]
+        command.expectedOutput == "hello, world"
+
+        def command2 = commands.get(1)
+        command2.executable == "mkdir"
+        command2.args == ["some-dir"]
+        command2.expectedOutput.empty
     }
 }
