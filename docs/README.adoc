@@ -90,6 +90,8 @@ commands: [{
 }]
 ----
 
+When there are multiple steps specified for a sample, they are run one after the other, in the order specified. The 'executable' can be either a command on the `$PATH`, or `gradle` (to run Gradle), or `cd` (to change the working directory for subsequent steps).
+
 _See <<sample-conf-fields,Sample Conf fields>> for a detailed description of all the possible options._
 
 *NOTE:* There are a bunch of (tested) samples under `sample-check/src/test/samples` of this repository you can use to understand ways to configure samples.

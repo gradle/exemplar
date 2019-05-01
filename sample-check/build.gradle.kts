@@ -3,9 +3,6 @@ plugins {
 }
 
 dependencies {
-    constraints {
-        testImplementation("org.codehaus.groovy:groovy-all:2.4.15")
-    }
     api(project(":sample-discovery"))
     api(Libraries.JUNIT)
     compileOnly(Libraries.JSR305)
@@ -15,6 +12,7 @@ dependencies {
     testImplementation(Libraries.SPOCK_CORE)
     testImplementation(Libraries.CGLIB)
     testImplementation(Libraries.OBJENESIS)
+    testImplementation(Libraries.GROOVY)
 }
 
 // Add samples as inputs for testing

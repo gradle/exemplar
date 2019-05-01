@@ -10,4 +10,5 @@ dependencies {
     implementation(Libraries.COMMONS_LANG3)
     implementation(Libraries.TYPESAFE_CONFIG)
     testImplementation(Libraries.SPOCK_CORE)
+    testImplementation(Libraries.GROOVY)
 }

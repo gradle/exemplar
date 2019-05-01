@@ -17,7 +17,9 @@ package org.gradle.samples.test.runner;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.samples.executor.*;
+import org.gradle.samples.executor.CliCommandExecutor;
+import org.gradle.samples.executor.CommandExecutionResult;
+import org.gradle.samples.executor.ExecutionMetadata;
 import org.gradle.samples.loader.SamplesDiscovery;
 import org.gradle.samples.model.Command;
 import org.gradle.samples.model.Sample;
@@ -131,10 +133,21 @@ public class SamplesRunner extends ParentRunner<Sample> {
             notifier.fireTestStarted(childDescription);
             try {
                 final Sample testSpecificSample = initSample(sample);
+                File workingDir = testSpecificSample.getProjectDir();
 
                 // Execute and verify each command
                 for (Command command : testSpecificSample.getCommands()) {
-                    CommandExecutionResult result = execute(testSpecificSample.getProjectDir(), command);
+                    if (command.getExecutionSubdirectory() != null) {
+                        workingDir = new File(workingDir, command.getExecutionSubdirectory());
+                    }
+
+                    // This should be some kind of plugable executor rather than hard-coded here
+                    if (command.getExecutable().equals("cd")) {
+                        workingDir = new File(workingDir, command.getArgs().get(0)).getCanonicalFile();
+                        continue;
+                    }
+
+                    CommandExecutionResult result = execute(testSpecificSample.getProjectDir(), workingDir, command);
 
                     if (result.getExitCode() != 0 && !command.isExpectFailure()) {
                         Assert.fail(String.format("Expected sample invocation to succeed but it failed.%nCommand was: '%s %s'%n[BEGIN OUTPUT]%n%s%n[END OUTPUT]%n", command.getExecutable(), StringUtils.join(command.getArgs(), " "), result.getOutput()));
@@ -182,9 +195,9 @@ public class SamplesRunner extends ParentRunner<Sample> {
         }
     }
 
-    public CommandExecutionResult execute(final File tempSampleOutputDir, final Command command) throws IOException {
+    public CommandExecutionResult execute(File tempSampleOutputDir, File workingDir, Command command) {
         // TODO: get executor
-        return new CliCommandExecutor(tempSampleOutputDir).execute(command, getExecutionMetadata(tempSampleOutputDir));
+        return new CliCommandExecutor(workingDir).execute(command, getExecutionMetadata(tempSampleOutputDir));
     }
 
     protected ExecutionMetadata getExecutionMetadata(final File tempSampleOutputDir) {

@@ -15,7 +15,7 @@ class SampleTest {
     static class WithTemporaryFolderRule extends SampleTestCases {
 
         public TemporaryFolder temporaryFolder = new TemporaryFolder()
-        public Sample sample = Sample.from("src/test/samples/gradle")
+        Sample sample = Sample.from("src/test/samples/gradle")
             .into(temporaryFolder)
             .withDefaultSample("basic-sample")
 
@@ -27,6 +27,11 @@ class SampleTest {
         @Rule
         public Sample sample = Sample.from("src/test/samples/gradle")
             .withDefaultSample("basic-sample")
+
+        @Override
+        Sample getSample() {
+            return this.sample
+        }
     }
 
     static class WithExplicitTemporaryFolder extends SampleTestCases {
@@ -36,9 +41,16 @@ class SampleTest {
         public Sample sample = Sample.from("src/test/samples/gradle")
             .intoTemporaryFolder(temporaryFolder.getRoot())
             .withDefaultSample("basic-sample")
+
+        @Override
+        Sample getSample() {
+            return this.sample
+        }
     }
 
     static abstract class SampleTestCases {
+        abstract Sample getSample()
+
         @Test
         void "copies default sample"() {
             File sampleDir = sample.dir
