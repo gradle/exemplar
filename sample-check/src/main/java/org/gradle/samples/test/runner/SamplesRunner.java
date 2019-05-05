@@ -41,6 +41,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+/**
+ * A JUnit test runner that verifies all samples discovered in the directory specified by the {@link SamplesRoot} annotation.
+ */
 public class SamplesRunner extends ParentRunner<Sample> {
     // See https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
     public static final List<String> SAFE_SYSTEM_PROPERTIES = Arrays.asList("file.separator", "java.home", "java.vendor", "java.version", "line.separator", "os.arch", "os.name", "os.version", "path.separator", "user.dir", "user.home", "user.name");
@@ -107,13 +110,13 @@ public class SamplesRunner extends ParentRunner<Sample> {
             if (samplesRoot != null) {
                 samplesRootDir = new File(samplesRoot.value());
             } else {
-                throw new InitializationError("Samples root directory is not declared. Please annotate your test class with @SamplesRoot(\"path/to/samples\")");
+                throw new IllegalArgumentException("Samples root directory is not declared. Please annotate your test class with @SamplesRoot(\"path/to/samples\")");
             }
 
             if (!samplesRootDir.exists()) {
-                throw new InitializationError("Samples root directory " + samplesRootDir.getAbsolutePath() + " does not exist");
+                throw new IllegalArgumentException("Samples root directory " + samplesRootDir.getAbsolutePath() + " does not exist");
             }
-        } catch (InitializationError e) {
+        } catch (Exception e) {
             throw new RuntimeException("Could not initialize SamplesRunner", e);
         }
         return samplesRootDir;
