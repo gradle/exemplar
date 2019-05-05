@@ -256,10 +256,20 @@ For example, you might prepend a `Command` that sets up some environment before 
 
 To allow Gradle itself to run using test versions of Gradle, the `GradleSamplesRunner` allows a custom installation to be injected using the system property "integTest.gradleHomeDir".
 
-=== Contributing
+== Contributing
 
 [link=https://builds.gradle.org/viewType.html?buildTypeId=Build_Tool_Services_Exemplar]
 image::https://builds.gradle.org/guestAuth/app/rest/builds/buildType:(id:Build_Tool_Services_Exemplar)/statusIcon.svg[Build status]
 
 [link=https://gradle.org/conduct/]
 image::https://img.shields.io/badge/code%20of-conduct-lightgrey.svg?style=flat&colorB=ff69b4[code of conduct]
+
+== Changes
+
+=== Next release
+
+- Allow multiple commands to be defined in a `[.sample-command]` block.
+
+=== 0.8
+
+- Handle `cd <dir>` commands, to keep track of the user's working directory and apply it to later commands in the same sample.
