@@ -5,8 +5,6 @@ import org.junit.experimental.categories.Category
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.Request
 import org.junit.runner.RunWith
-import org.junit.runner.notification.Failure
-import org.junit.runner.notification.RunNotifier
 import spock.lang.Specification
 
 class SamplesRunnerSadDayIntegrationTest extends Specification {
@@ -20,9 +18,12 @@ class SamplesRunnerSadDayIntegrationTest extends Specification {
         Request.aClass(HasBadCommand.class).runner.run(notifier)
 
         then:
+        notifier.tests.size() == 1
+        notifier.tests[0].methodName == '_broken-command.sample'
+        notifier.tests[0].className == HasBadCommand.class.name
+
         notifier.failures.size() == 1
-        notifier.failures[0].description.methodName == '_broken-command.sample'
-        notifier.failures[0].description.className == HasBadCommand.class.name
+        notifier.failures[0].description == notifier.tests[0]
         notifier.failures[0].message.trim() == """
             Expected sample invocation to succeed but it failed.
             Command was: 'bash broken'
@@ -40,9 +41,12 @@ class SamplesRunnerSadDayIntegrationTest extends Specification {
         Request.aClass(HasBadOutput.class).runner.run(notifier)
 
         then:
+        notifier.tests.size() == 1
+        notifier.tests[0].methodName == '_broken-output.sample'
+        notifier.tests[0].className == HasBadOutput.class.name
+
         notifier.failures.size() == 1
-        notifier.failures[0].description.methodName == '_broken-output.sample'
-        notifier.failures[0].description.className == HasBadOutput.class.name
+        notifier.failures[0].description == notifier.tests[0]
         notifier.failures[0].message.trim() == """
             Missing text at line 1.
             Expected: not a thing
@@ -61,13 +65,4 @@ class SamplesRunnerSadDayIntegrationTest extends Specification {
     @RunWith(SamplesRunner)
     @Category(CoveredByTests)
     static class HasBadOutput {}
-
-    static class CollectingNotifier extends RunNotifier {
-        final List<Failure> failures = []
-
-        @Override
-        void fireTestFailure(Failure failure) {
-            failures.add(failure)
-        }
-    }
 }
