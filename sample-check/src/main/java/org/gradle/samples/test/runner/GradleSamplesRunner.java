@@ -76,6 +76,7 @@ public class GradleSamplesRunner extends SamplesRunner {
         }
     }
 
+    @Nullable
     private String getCustomGradleInstallationFromSystemProperty() {
         // Allow Gradle installation and samples root dir to be set from a system property
         // This is to allow Gradle to test Gradle installations during integration testing

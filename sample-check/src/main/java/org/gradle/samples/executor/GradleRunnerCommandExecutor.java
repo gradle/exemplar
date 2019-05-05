@@ -4,6 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -16,7 +17,7 @@ public class GradleRunnerCommandExecutor extends CommandExecutor {
     private final File customGradleInstallation;
     private final boolean expectFailure;
 
-    public GradleRunnerCommandExecutor(File workingDir, File customGradleInstallation, boolean expectFailure) {
+    public GradleRunnerCommandExecutor(File workingDir, @Nullable File customGradleInstallation, boolean expectFailure) {
         this.workingDir = workingDir;
         this.customGradleInstallation = customGradleInstallation;
         this.expectFailure = expectFailure;
