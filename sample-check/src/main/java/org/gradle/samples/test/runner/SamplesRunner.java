@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.samples.executor.CliCommandExecutor;
 import org.gradle.samples.executor.CommandExecutionResult;
+import org.gradle.samples.executor.CommandExecutor;
 import org.gradle.samples.executor.ExecutionMetadata;
 import org.gradle.samples.loader.SamplesDiscovery;
 import org.gradle.samples.model.Command;
@@ -35,6 +36,7 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -110,9 +112,11 @@ public class SamplesRunner extends ParentRunner<Sample> {
             if (samplesRoot != null) {
                 samplesRootDir = new File(samplesRoot.value());
             } else {
+                samplesRootDir = getImplicitSamplesRootDir();
+            }
+            if (samplesRootDir == null) {
                 throw new IllegalArgumentException("Samples root directory is not declared. Please annotate your test class with @SamplesRoot(\"path/to/samples\")");
             }
-
             if (!samplesRootDir.exists()) {
                 throw new IllegalArgumentException("Samples root directory " + samplesRootDir.getAbsolutePath() + " does not exist");
             }
@@ -120,6 +124,14 @@ public class SamplesRunner extends ParentRunner<Sample> {
             throw new RuntimeException("Could not initialize SamplesRunner", e);
         }
         return samplesRootDir;
+    }
+
+    /**
+     * Allows a subclass to provide an implicit samples root dir when one is not explicitly defined using {@link SamplesRoot}.
+     */
+    @Nullable
+    protected File getImplicitSamplesRootDir() {
+        return null;
     }
 
     @Override
@@ -150,7 +162,7 @@ public class SamplesRunner extends ParentRunner<Sample> {
                         continue;
                     }
 
-                    CommandExecutionResult result = execute(testSpecificSample.getProjectDir(), workingDir, command);
+                    CommandExecutionResult result = execute(getExecutionMetadata(testSpecificSample.getProjectDir()), workingDir, command);
 
                     if (result.getExitCode() != 0 && !command.isExpectFailure()) {
                         Assert.fail(String.format("Expected sample invocation to succeed but it failed.%nCommand was: '%s %s'%n[BEGIN OUTPUT]%n%s%n[END OUTPUT]%n", command.getExecutable(), StringUtils.join(command.getArgs(), " "), result.getOutput()));
@@ -198,12 +210,18 @@ public class SamplesRunner extends ParentRunner<Sample> {
         }
     }
 
-    public CommandExecutionResult execute(File tempSampleOutputDir, File workingDir, Command command) {
-        // TODO: get executor
-        return new CliCommandExecutor(workingDir).execute(command, getExecutionMetadata(tempSampleOutputDir));
+    private CommandExecutionResult execute(ExecutionMetadata executionMetadata, File workingDir, Command command) {
+        return selectExecutor(executionMetadata, workingDir, command).execute(command, executionMetadata);
     }
 
-    protected ExecutionMetadata getExecutionMetadata(final File tempSampleOutputDir) {
+    /**
+     * Allows a subclass to provide a custom {@link CommandExecutor}.
+     */
+    protected CommandExecutor selectExecutor(ExecutionMetadata executionMetadata, File workingDir, Command command) {
+        return new CliCommandExecutor(workingDir);
+    }
+
+    private ExecutionMetadata getExecutionMetadata(final File tempSampleOutputDir) {
         Map<String, String> systemProperties = new HashMap<>();
         for (String systemPropertyKey : SAFE_SYSTEM_PROPERTIES) {
             systemProperties.put(systemPropertyKey, System.getProperty(systemPropertyKey));
