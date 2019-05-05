@@ -44,7 +44,10 @@ puts "hello, #{target}"
 [.sample-command,allow-disordered-output=true]
 ----
 \$ ruby hello.rb
+
 hello, world
+
+some more output
 ----
 =====
 ====
@@ -63,7 +66,10 @@ hello, world
         command.executable == "ruby"
         command.args == ["hello.rb"]
         command.allowDisorderedOutput
-        command.expectedOutput == "hello, world"
+        command.expectedOutput == """
+hello, world
+
+some more output"""
     }
 
     def "discovers samples inside an asciidoctor file with sources included"() {
@@ -112,14 +118,14 @@ Hello world
         command.expectedOutput == "Hello world"
     }
 
-    def "discovers samples inside an asciidoctor file with multiple commands"() {
+    def "sample may include multiple sample-command blocks"() {
         given:
         def file = tmpDir.newFile("sample.adoc") << """
 = Document Title
 
 .Sample title
-====
 [.testable-sample]
+====
 
 Run this first:
 
@@ -156,5 +162,55 @@ Then do this:
         command2.executable == "mkdir"
         command2.args == ["some-dir"]
         command2.expectedOutput.empty
+    }
+
+    def "sample-command block may include multiple commands"() {
+        given:
+        def file = tmpDir.newFile("sample.adoc") << """
+= Document Title
+
+.Sample title
+[.testable-sample]
+====
+
+Run this first:
+
+[.sample-command]
+----
+\$ ruby hello.rb
+
+hello, world
+
+\$ mkdir some-dir
+\$ cd some-dir
+----
+====
+"""
+
+        when:
+        Collection<Sample> samples = AsciidoctorSamplesDiscovery.extractFromAsciidoctorFile(file)
+
+        then:
+        samples.size() == 1
+        def commands = samples.get(0).commands
+
+        and:
+        commands.size() == 3
+        def command = commands.get(0)
+        command.executable == "ruby"
+        command.args == ["hello.rb"]
+        command.expectedOutput == """
+hello, world
+"""
+
+        def command2 = commands.get(1)
+        command2.executable == "mkdir"
+        command2.args == ["some-dir"]
+        command2.expectedOutput.empty
+
+        def command3 = commands.get(2)
+        command3.executable == "cd"
+        command3.args == ["some-dir"]
+        command3.expectedOutput.empty
     }
 }

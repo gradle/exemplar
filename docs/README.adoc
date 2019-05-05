@@ -24,9 +24,9 @@ This library is used to verify the functionality of samples in https://docs.grad
 First things first, you can pull this library down from Gradle's artifactory repository. This https://github.com/gradle/kotlin-dsl[Gradle Kotlin DSL] script shows one way to do just that.
 
 .Installing with Gradle
-====
 [.testable-sample]
-=====
+====
+
 .build.gradle.kts
 [source,kotlin]
 ----
@@ -48,9 +48,9 @@ dependencies {
 
 [.sample-command,allow-additional-output=true]
 ----
-$ gradle -q build
+$ gradle check
 ----
-=====
+
 ====
 
 == Usage
@@ -63,31 +63,18 @@ It may include link:https://asciidoctor.org/docs/user-manual/#include-partial[ta
 You can configure a sample to be tested by creating a file ending with `.sample.conf` (e.g. `hello-world.sample.conf`) in a sample project dir.
 This is a file in https://github.com/lightbend/config/blob/master/HOCON.md[HOCON format] that might look something like this:
 
-.sample-check/src/test/samples/cli/quickstart/quickstart.sample.conf
+.quickstart.sample.conf
 [source,hocon]
 ----
-executable: bash
-args: sample.sh
-expected-output-file: quickstart.sample.out
+include::../sample-check/src/test/samples/cli/quickstart/quickstart.sample.conf[]
 ----
 
 or maybe a more complex, multi-step sample:
 
-.sample-check/src/test/samples/gradle/multi-step-sample/incrementalTaskRemovedOutput.sample.conf
+.incrementalTaskRemovedOutput.sample.conf
 [source,hocon]
 ----
-commands: [{
-  executable: gradle
-  args: originalInputs incrementalReverse
-  expected-output-file: originalInputs.out
-  allow-additional-output: true
-}, {
-  executable: gradle
-  args: removeOutput incrementalReverse
-  flags: --quiet
-  expected-output-file: incrementalTaskRemovedOutput.out
-  allow-disordered-output: true
-}]
+include::../sample-check/src/test/samples/gradle/multi-step-sample/incrementalTaskRemovedOutput.sample.conf[]
 ----
 
 When there are multiple steps specified for a sample, they are run one after the other, in the order specified. The 'executable' can be either a command on the `$PATH`, or `gradle` (to run Gradle), or `cd` (to change the working directory for subsequent steps).
@@ -105,9 +92,9 @@ Use this syntax to allow sample-discovery to extract your sources from the doc, 
 [source,adoc]
 ----
 .Sample title
-====
 [.testable-sample]       // <1>
-=====
+====
+
 .hello.rb                // <2>
 [source,ruby]            // <3>
 -----
@@ -119,15 +106,15 @@ puts "hello, #{ARGV[0]}" // <4>
 $ ruby hello.rb world    // <6>
 hello, world             // <7>
 -----
-=====
+
 ====
 ----
 <1> Mark blocks containing your source files with the role `testable-sample`
 <2> The title of each source block should be the name of the source file
 <3> All source blocks with a title are extracted to a temporary directory
 <4> Source code. This can be `include::`d
-<5> Exemplar will execute the commands in a block with role `sample-command`
-<6> Terminal commands should start with "$ ". Everything afterward is executed
+<5> Exemplar will execute the commands in a block with role `sample-command`. There can be multiple blocks.
+<6> Terminal commands should start with "$ ". Everything after the "$ " is treated as a command to run. There can be multiple commands in a block.
 <7> One or more lines of expected output
 
 [NOTE] All sources have to be under the same block, and you must set the title of source blocks to a valid file name.
