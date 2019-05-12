@@ -66,7 +66,9 @@ This is a file in https://github.com/lightbend/config/blob/master/HOCON.md[HOCON
 .quickstart.sample.conf
 [source,hocon]
 ----
-include::../sample-check/src/test/samples/cli/quickstart/quickstart.sample.conf[]
+executable: bash
+args: sample.sh
+expected-output-file: quickstart.sample.out
 ----
 
 or maybe a more complex, multi-step sample:
@@ -74,7 +76,18 @@ or maybe a more complex, multi-step sample:
 .incrementalTaskRemovedOutput.sample.conf
 [source,hocon]
 ----
-include::../sample-check/src/test/samples/gradle/multi-step-sample/incrementalTaskRemovedOutput.sample.conf[]
+commands: [{
+  executable: gradle
+  args: originalInputs incrementalReverse
+  expected-output-file: originalInputs.out
+  allow-additional-output: true
+}, {
+  executable: gradle
+  args: removeOutput incrementalReverse
+  flags: --quiet
+  expected-output-file: incrementalTaskRemovedOutput.out
+  allow-disordered-output: true
+}]
 ----
 
 When there are multiple steps specified for a sample, they are run one after the other, in the order specified. The 'executable' can be either a command on the `$PATH`, or `gradle` (to run Gradle), or `cd` (to change the working directory for subsequent steps).
