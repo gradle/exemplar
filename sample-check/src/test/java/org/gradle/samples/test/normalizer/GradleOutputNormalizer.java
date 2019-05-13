@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class GradleOutputNormalizer implements OutputNormalizer {
-    private static final String NORMALIZED_SAMPLES_PATH = "/home/user/gradle/samples";
     private static final Pattern STACK_TRACE_ELEMENT = Pattern.compile("\\s+(at\\s+)?([\\w.$_]+/)?[\\w.$_]+\\.[\\w$_ =+\'-<>]+\\(.+?\\)(\\x1B\\[0K)?");
     private static final Pattern BUILD_RESULT_PATTERN = Pattern.compile("BUILD (SUCCESSFUL|FAILED) in( \\d+[smh])+");
 

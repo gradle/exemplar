@@ -17,3 +17,9 @@ dependencies {
 
 // Add samples as inputs for testing
 sourceSets["test"].resources.srcDirs("src/test/samples")
+
+tasks.test {
+    useJUnit {
+        excludeCategories.add("org.gradle.samples.test.runner.CoveredByTests")
+    }
+}

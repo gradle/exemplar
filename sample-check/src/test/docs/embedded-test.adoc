@@ -6,10 +6,10 @@ This doc demonstrates how one can declare embedded commands instead of using `.s
 
 Here we see sources that are `include`d, and inline commands and output.
 
+[.testable-sample,dir="src/test/samples/cli/quickstart"]
 .CLI quickstart sample
 ====
-[.testable-sample,dir="src/test/samples/cli/quickstart"]
-=====
+
 .sample.sh
 [source,bash]
 ----
@@ -21,17 +21,17 @@ include::src/test/samples/cli/quickstart/sample.sh[]
 $ bash sample.sh
 hello, world
 ----
-=====
+
 ====
 
 == Embedded sources and commands example
 
 This example embeds all the things.
 
+[.testable-sample]
 .Gradle custom logging example
 ====
-[.testable-sample]
-=====
+
 .build.gradle
 [source,groovy]
 ----
@@ -102,5 +102,36 @@ running unit tests
 build completed
 3 actionable tasks: 3 executed
 ----
-=====
+
+====
+
+== Multi-step sample
+
+[.testable-sample]
+====
+
+.sample.sh
+[source]
+----
+#!/usr/bin/env bash
+
+echo "dir = `basename $PWD`"
+----
+
+Create a directory:
+
+[.sample-command]
+----
+$ mkdir demo
+$ cd demo
+----
+
+Run the script:
+
+[.sample-command]
+----
+$ bash ../sample.sh
+dir = demo
+----
+
 ====

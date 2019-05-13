@@ -31,6 +31,9 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class AsciidoctorSamplesDiscovery {
+
+    private static final String COMMAND_PREFIX = "$ ";
+
     public static List<Sample> extractFromAsciidoctorFile(File documentFile) throws IOException {
         Asciidoctor asciidoctor = Asciidoctor.Factory.create();
         Document document = asciidoctor.loadFile(documentFile, new HashMap<String, Object>());
@@ -40,7 +43,7 @@ public class AsciidoctorSamplesDiscovery {
     /**
      * Perform an pre-order traversal of the tree under the given search root, and process testable-sample nodes
      * and their descendant sample-command blocks.
-     *
+     * <p>
      * Asciidoctor renders content as it parses it, which prevents us from collecting nodes to process separately.
      * If we do not process as we discover samples, they will already be rendered as HTML (default backend)
      * and the contents are no longer parsable.
@@ -66,7 +69,7 @@ public class AsciidoctorSamplesDiscovery {
 
             for (StructuralNode child : blocks) {
                 if (child.isBlock() && child.hasRole("testable-sample")) {
-                    List<Command> commands = extractAsciidocCommands((Block) node);
+                    List<Command> commands = extractAsciidocCommands(node);
                     // Nothing to verify, skip this sample
                     if (commands.isEmpty()) {
                         // TODO: print a warning here as this is probably a user mistake
@@ -84,8 +87,8 @@ public class AsciidoctorSamplesDiscovery {
     /**
      * "testable-sample"s that declare a "dir" attribute have the sample sources living there.
      *
-     * @param node Asciidoctor StructuralNode
-     * @param tempDir Path to create any temporary dirs/files
+     * @param node     Asciidoctor StructuralNode
+     * @param tempDir  Path to create any temporary dirs/files
      * @param commands Pre-extracted commands
      * @return new Sample
      */
@@ -108,7 +111,7 @@ public class AsciidoctorSamplesDiscovery {
         return new Sample(sampleId, sampleDir, commands);
     }
 
-    private static List<Command> extractAsciidocCommands(Block testableSampleBlock) {
+    private static List<Command> extractAsciidocCommands(StructuralNode testableSampleBlock) {
         List<Command> commands = new ArrayList<>();
         Queue<StructuralNode> queue = new ArrayDeque<>();
         queue.add(testableSampleBlock);
@@ -116,7 +119,7 @@ public class AsciidoctorSamplesDiscovery {
             StructuralNode node = queue.poll();
             for (StructuralNode child : node.getBlocks()) {
                 if (child.isBlock() && child.hasRole("sample-command")) {
-                    commands.add(parseEmbeddedCommand((Block) child, "$ "));
+                    parseEmbeddedCommand((Block) child, commands);
                 } else {
                     queue.offer(child);
                 }
@@ -126,41 +129,55 @@ public class AsciidoctorSamplesDiscovery {
         return commands;
     }
 
-    private static Command parseEmbeddedCommand(Block block, String commandPrefix) {
-        String[] commandLineAndOutput = block.getSource().split("\r?\n", 2);
+    private static void parseEmbeddedCommand(Block block, List<Command> commands) {
+        Map<String, Object> attributes = block.getAttributes();
+        String[] lines = block.getSource().split("\r?\n");
+        int pos = 0;
 
-        String commandLine = commandLineAndOutput[0];
-        if (!commandLine.startsWith(commandPrefix)) {
+        do {
+            pos = parseOneCommand(lines, pos, attributes, commands);
+        } while (pos < lines.length);
+    }
+
+    private static int parseOneCommand(String[] lines, int pos, Map<String, Object> attributes, List<Command> commands) {
+        String commandLine = lines[pos];
+        if (!commandLine.startsWith(COMMAND_PREFIX)) {
             throw new InvalidSampleException("Inline sample command " + commandLine);
         }
 
-        String[] commandLineWords = commandLine.substring(commandPrefix.length()).split("\\s+");
+        String[] commandLineWords = commandLine.substring(COMMAND_PREFIX.length()).split("\\s+");
         String executable = commandLineWords[0];
 
-        List<String> args = new ArrayList<>();
+        List<String> args = Collections.emptyList();
         if (commandLineWords.length > 1) {
             args = Arrays.asList(Arrays.copyOfRange(commandLineWords, 1, commandLineWords.length));
         }
 
-        String expectedOutput = "";
-        if (commandLineAndOutput.length > 1) {
-            expectedOutput = commandLineAndOutput[1];
+        StringBuilder expectedOutput = new StringBuilder();
+        int nextCommand = pos + 1;
+        while (nextCommand < lines.length && !lines[nextCommand].startsWith(COMMAND_PREFIX)) {
+            if (nextCommand > pos + 1) {
+                expectedOutput.append("\n");
+            }
+            expectedOutput.append(lines[nextCommand]);
+            nextCommand++;
         }
 
-        Map<String, Object> attributes = block.getAttributes();
-        return new Command(executable,
-                null,
-                args,
-                new ArrayList<String>(),
-                expectedOutput,
-                attributes.containsKey("expect-failure"),
-                attributes.containsKey("allow-additional-output"),
-                attributes.containsKey("allow-disordered-output"));
+        Command command = new Command(executable,
+            null,
+            args,
+            Collections.<String>emptyList(),
+            expectedOutput.toString(),
+            attributes.containsKey("expect-failure"),
+            attributes.containsKey("allow-additional-output"),
+            attributes.containsKey("allow-disordered-output"));
+        commands.add(command);
+        return nextCommand;
     }
 
     private static void extractEmbeddedSampleSources(Block sampleBlock, File tempSampleDir) {
         for (StructuralNode block : sampleBlock.getBlocks()) {
-            if (block.getStyle().equals("source") && block.getTitle() != null) {
+            if (block.getStyle() != null && block.getStyle().equals("source") && block.getTitle() != null) {
                 File sampleFile = new File(tempSampleDir, block.getTitle());
                 File sampleSubfolder = sampleFile.getParentFile();
                 if (!sampleSubfolder.exists() && !sampleSubfolder.mkdirs()) {
