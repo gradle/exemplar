@@ -5,7 +5,6 @@ import org.junit.runner.Request
 import org.junit.runner.RunWith
 import spock.lang.Specification
 
-
 class SamplesRunnerIntegrationTest extends Specification {
     def "runs samples-check CLI samples"() {
         def notifier = new CollectingNotifier()

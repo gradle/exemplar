@@ -23,9 +23,7 @@ import org.gradle.samples.model.Sample;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class SamplesDiscovery {
     public static List<Sample> externalSamples(File rootSamplesDir) {
@@ -45,6 +43,8 @@ public class SamplesDiscovery {
             final File sampleProjectDir = sampleConfigFile.getParentFile();
             samples.add(new Sample(id, sampleProjectDir, commands));
         }
+        // Always return (and test) samples in a fixed order
+        sortSamples(samples);
 
         return samples;
     }
@@ -60,6 +60,7 @@ public class SamplesDiscovery {
         for (File sampleConfigFile : sampleConfigFiles) {
             samples.addAll(AsciidoctorSamplesDiscovery.extractFromAsciidoctorFile(sampleConfigFile));
         }
+        sortSamples(samples);
 
         return samples;
     }
@@ -71,5 +72,16 @@ public class SamplesDiscovery {
                 .toString()
                 .replaceAll("[/\\\\]", "_");
         return prefix + "_" + FilenameUtils.removeExtension(scenarioFile.getName());
+    }
+
+    private static void sortSamples(List<Sample> samples) {
+        Collections.sort(samples, new SampleComparator());
+    }
+
+    private static class SampleComparator implements Comparator<Sample> {
+        @Override
+        public int compare(Sample s1, Sample s2) {
+            return s1.getId().compareTo(s2.getId());
+        }
     }
 }
