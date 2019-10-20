@@ -47,4 +47,17 @@ message 2
 BUILD FAILED in 0s
 """
     }
+
+    def "can support multiple time unit characters"() {
+        given:
+        OutputNormalizer normalizer = new GradleOutputNormalizer()
+        String input = """
+BUILD FAILED in 512ms
+"""
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        normalizer.normalize(input, executionMetadata) == """
+BUILD FAILED in 0s"""
+    }
 }
