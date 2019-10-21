@@ -24,14 +24,17 @@ class SamplesRunnerSadDayIntegrationTest extends Specification {
 
         notifier.failures.size() == 1
         notifier.failures[0].description == notifier.tests[0]
-        notifier.failures[0].message.trim() == """
+
+        def expectedOutput = """
             Expected sample invocation to succeed but it failed.
             Command was: 'bash broken'
-            [BEGIN OUTPUT]
+            Working directory: '.+/_broken-command.sample'
+            \\[BEGIN OUTPUT\\]
             bash: broken: No such file or directory
             
-            [END OUTPUT]
+            \\[END OUTPUT\\]
         """.stripIndent().trim()
+        notifier.failures[0].message.trim() ==~ /${expectedOutput}/
     }
 
     def "tests fail when command produces unexpected output"() {

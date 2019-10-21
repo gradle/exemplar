@@ -165,9 +165,9 @@ public class SamplesRunner extends ParentRunner<Sample> {
                     CommandExecutionResult result = execute(getExecutionMetadata(testSpecificSample.getProjectDir()), workingDir, command);
 
                     if (result.getExitCode() != 0 && !command.isExpectFailure()) {
-                        Assert.fail(String.format("Expected sample invocation to succeed but it failed.%nCommand was: '%s %s'%n[BEGIN OUTPUT]%n%s%n[END OUTPUT]%n", command.getExecutable(), StringUtils.join(command.getArgs(), " "), result.getOutput()));
+                        Assert.fail(String.format("Expected sample invocation to succeed but it failed.%nCommand was: '%s %s'%nWorking directory: '%s'%n[BEGIN OUTPUT]%n%s%n[END OUTPUT]%n", command.getExecutable(), StringUtils.join(command.getArgs(), " "), workingDir.getAbsolutePath(), result.getOutput()));
                     } else if (result.getExitCode() == 0 && command.isExpectFailure()) {
-                        Assert.fail(String.format("Expected sample invocation to fail but it succeeded.%nCommand was: '%s %s'%n[BEGIN OUTPUT]%n%s%n[END OUTPUT]%n", command.getExecutable(), StringUtils.join(command.getArgs(), " "), result.getOutput()));
+                        Assert.fail(String.format("Expected sample invocation to fail but it succeeded.%nCommand was: '%s %s'%nWorking directory: '%s'%n[BEGIN OUTPUT]%n%s%n[END OUTPUT]%n", command.getExecutable(), StringUtils.join(command.getArgs(), " "), workingDir.getAbsolutePath(), result.getOutput()));
                     }
 
                     verifyOutput(command, result);
