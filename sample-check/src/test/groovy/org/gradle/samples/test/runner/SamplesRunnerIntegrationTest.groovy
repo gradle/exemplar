@@ -26,6 +26,5 @@ class SamplesRunnerIntegrationTest extends Specification {
     @RunWith(SamplesRunner.class)
     @SamplesRoot("src/test/samples/cli")
     @Category(CoveredByTests)
-    static class HappyDaySamples {
-    }
+    static class HappyDaySamples {}
 }
