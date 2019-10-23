@@ -27,4 +27,42 @@ class SamplesRunnerIntegrationTest extends Specification {
     @SamplesRoot("src/test/samples/cli")
     @Category(CoveredByTests)
     static class HappyDaySamples {}
+
+    def "can use multi-steps with working directory inside sample"() {
+        def notifier = new CollectingNotifier()
+
+        when:
+        Request.aClass(HappyDayWithWorkingDirectorySamples.class).runner.run(notifier)
+
+        then:
+        notifier.tests.size() == 1
+        notifier.tests[0].methodName == 'multi-step_multi-step.sample'
+        notifier.tests[0].className == HappyDayWithWorkingDirectorySamples.class.name
+
+        notifier.failures.empty
+    }
+
+    @RunWith(SamplesRunner.class)
+    @SamplesRoot("src/test/samples/cli-with-working-directory")
+    @Category(CoveredByTests)
+    static class HappyDayWithWorkingDirectorySamples {}
+
+    def "warn when using working directory after change directory command instruction"() {
+        def notifier = new CollectingNotifier()
+
+        when:
+        Request.aClass(HappyDayWithWorkingDirectoryAndChangeDirectoryCommandSamples.class).runner.run(notifier)
+
+        then:
+        notifier.tests.size() == 1
+        notifier.tests[0].methodName == 'multi-step_multi-step.sample'
+        notifier.tests[0].className == HappyDayWithWorkingDirectoryAndChangeDirectoryCommandSamples.class.name
+
+        notifier.failures.empty
+    }
+
+    @RunWith(SamplesRunner.class)
+    @SamplesRoot("src/test/samples/cli-with-working-directory-and-change-directory")
+    @Category(CoveredByTests)
+    static class HappyDayWithWorkingDirectoryAndChangeDirectoryCommandSamples {}
 }

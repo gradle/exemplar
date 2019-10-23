@@ -148,17 +148,19 @@ public class SamplesRunner extends ParentRunner<Sample> {
             notifier.fireTestStarted(childDescription);
             try {
                 final Sample testSpecificSample = initSample(sample);
-                File workingDir = testSpecificSample.getProjectDir();
+                File baseWorkingDir = testSpecificSample.getProjectDir();
 
                 // Execute and verify each command
                 for (Command command : testSpecificSample.getCommands()) {
+                    File workingDir = baseWorkingDir;
+
                     if (command.getExecutionSubdirectory() != null) {
                         workingDir = new File(workingDir, command.getExecutionSubdirectory());
                     }
 
                     // This should be some kind of plugable executor rather than hard-coded here
                     if (command.getExecutable().equals("cd")) {
-                        workingDir = new File(workingDir, command.getArgs().get(0)).getCanonicalFile();
+                        baseWorkingDir = new File(baseWorkingDir, command.getArgs().get(0)).getCanonicalFile();
                         continue;
                     }
 
