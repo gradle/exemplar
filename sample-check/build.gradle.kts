@@ -1,5 +1,6 @@
 plugins {
     groovy
+    `java-library`
 }
 
 dependencies {
