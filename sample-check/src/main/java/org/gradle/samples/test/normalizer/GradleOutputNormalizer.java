@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 public class GradleOutputNormalizer implements OutputNormalizer {
     private static final Pattern STACK_TRACE_ELEMENT = Pattern.compile("\\s+(at\\s+)?([\\w.$_]+/)?[\\w.$_]+\\.[\\w$_ =+\'-<>]+\\(.+?\\)(\\x1B\\[0K)?");
-    private static final Pattern BUILD_RESULT_PATTERN = Pattern.compile("BUILD (SUCCESSFUL|FAILED) in( \\d+[smh]+)+");
+    private static final Pattern BUILD_RESULT_PATTERN = Pattern.compile("BUILD (SUCCESSFUL|FAILED)( in \\d+(ms|s|m|h))?");
 
     public static final String DOWNLOAD_MESSAGE_PREFIX = "Download ";
     public static final String GENERATING_JAR_PREFIX = "Generating JAR file 'gradle-api-";
