@@ -17,6 +17,7 @@ package org.gradle.samples.test.normalizer
 
 import org.gradle.samples.executor.ExecutionMetadata
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class GradleOutputNormalizerTest extends Specification {
     def "removes Gradle logs unrelated to the sample itself"() {
@@ -48,16 +49,35 @@ BUILD FAILED in 0s
 """
     }
 
-    def "can support multiple time unit characters"() {
+    @Unroll
+    def "can normalize time units [#timeUnit]"(String timeUnit) {
         given:
         OutputNormalizer normalizer = new GradleOutputNormalizer()
         String input = """
-BUILD FAILED in 512ms
-"""
+            |BUILD FAILED in 512${timeUnit}
+            |""".stripMargin()
         ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
 
         expect:
-        normalizer.normalize(input, executionMetadata) == """
-BUILD FAILED in 0s"""
+        def result = normalizer.normalize(input, executionMetadata)
+        result.contains('BUILD FAILED in 0s')
+        !result.contains("BUILD FAILED in 512${timeUnit}")
+
+        where:
+        timeUnit << ['ms', 's', 'm', 'h']
+    }
+
+    def "can support normalized output without timing"() {
+        given:
+        OutputNormalizer normalizer = new GradleOutputNormalizer()
+        String input = """
+            |BUILD SUCCESSFUL
+            |Dummy output after result for easy assertion""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        result.contains('BUILD SUCCESSFUL in 0s')
+        !result.contains('BUILD SUCCESSFUL\n')
     }
 }
