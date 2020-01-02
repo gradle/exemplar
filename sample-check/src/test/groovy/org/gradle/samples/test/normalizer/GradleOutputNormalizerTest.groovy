@@ -72,12 +72,48 @@ BUILD FAILED in 0s
         OutputNormalizer normalizer = new GradleOutputNormalizer()
         String input = """
             |BUILD SUCCESSFUL
-            |Dummy output after result for easy assertion""".stripMargin()
+            |2 actionable tasks: 2 executed""".stripMargin()
         ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
 
         expect:
         def result = normalizer.normalize(input, executionMetadata)
         result.contains('BUILD SUCCESSFUL in 0s')
         !result.contains('BUILD SUCCESSFUL\n')
+    }
+
+    @Unroll
+    def "can normalize docs.gradle.org URLs [#displayName]"(String displayName, String version, String documentationPath) {
+        given:
+        OutputNormalizer normalizer = new GradleOutputNormalizer()
+        String input = """
+            |> Task :documentationUrl
+            |Get more help with your project: https://docs.gradle.org/${version}/${documentationPath}
+            |
+            |BUILD SUCCESSFUL
+            |2 actionable tasks: 2 executed""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        result.contains("https://docs.gradle.org/0.0.0/${documentationPath}")
+        !result.contains("https://docs.gradle.org/${version}/${documentationPath}")
+
+        where:
+        displayName               | version   | documentationPath
+        'versioned User Manual'   | '5.5.1'   | 'userguide/userguide.html'
+        'versioned API Reference' | '5.5.1'   | 'dsl/index.html'
+        'versioned Javadoc'       | '5.5.1'   | 'javadoc/index.html?overview-summary.html'
+        'versioned Release Notes' | '5.5.1'   | 'release-notes.html'
+        'versioned Samples'       | '5.5.1'   | 'samples/index.html'
+        'current User Manual'     | 'current' | 'userguide/userguide.html'
+        'current API Reference'   | 'current' | 'dsl/index.html'
+        'current Javadoc'         | 'current' | 'javadoc/index.html?overview-summary.html'
+        'current Release Notes'   | 'current' | 'release-notes.html'
+        'current Samples'         | 'current' | 'samples/index.html'
+        'nightly User Manual'     | 'nightly' | 'userguide/userguide.html'
+        'nightly API Reference'   | 'nightly' | 'dsl/index.html'
+        'nightly Javadoc'         | 'nightly' | 'javadoc/index.html?overview-summary.html'
+        'nightly Release Notes'   | 'nightly' | 'release-notes.html'
+        'nightly Samples'         | 'nightly' | 'samples/index.html'
     }
 }

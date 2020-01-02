@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 public class GradleOutputNormalizer implements OutputNormalizer {
     private static final Pattern STACK_TRACE_ELEMENT = Pattern.compile("\\s+(at\\s+)?([\\w.$_]+/)?[\\w.$_]+\\.[\\w$_ =+\'-<>]+\\(.+?\\)(\\x1B\\[0K)?");
     private static final Pattern BUILD_RESULT_PATTERN = Pattern.compile("BUILD (SUCCESSFUL|FAILED)( in \\d+(ms|s|m|h))?");
+    private static final Pattern DOCUMENTATION_URL_PATTERN = Pattern.compile("https://docs.gradle.org/((\\d+.\\d+(.\\d+)?)|current|nightly)/");
 
     public static final String DOWNLOAD_MESSAGE_PREFIX = "Download ";
     public static final String GENERATING_JAR_PREFIX = "Generating JAR file 'gradle-api-";
@@ -71,6 +72,9 @@ public class GradleOutputNormalizer implements OutputNormalizer {
                 result.add(BUILD_RESULT_PATTERN.matcher(line).replaceFirst("BUILD $1 in 0s"));
                 i++;
             } else {
+                if (DOCUMENTATION_URL_PATTERN.matcher(line).find()) {
+                    line = DOCUMENTATION_URL_PATTERN.matcher(line).replaceFirst("https://docs.gradle.org/0.0.0/");
+                }
                 result.add(line);
                 i++;
             }
