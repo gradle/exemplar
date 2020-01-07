@@ -17,3 +17,6 @@ gradle-app.setting
 *.iws
 out/
 
+# macOS
+.DS_Store
+
