@@ -15,7 +15,8 @@
  */
 package org.gradle.samples.loader.asciidoctor
 
-
+import org.asciidoctor.AttributesBuilder
+import org.asciidoctor.SafeMode
 import org.gradle.samples.model.Sample
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -212,5 +213,71 @@ hello, world
         command3.executable == "cd"
         command3.args == ["some-dir"]
         command3.expectedOutput.empty
+    }
+
+    def "can include data from attributes"() {
+        given:
+        def file = tmpDir.newFile("sample.adoc") << """
+            |= Document Title
+            |
+            |.Sample title
+            |[.testable-sample]
+            |====
+            |
+            |Run this first:
+            |
+            |[listing.terminal.sample-command]
+            |----
+            |\$ pwd
+            |include::{sampleoutputdir}/pwd-output.txt[]
+            |----
+            |====
+            |""".stripMargin()
+        def outputDir = tmpDir.newFolder('output')
+        tmpDir.newFile('output/pwd-output.txt').text = "${tmpDir.root.getAbsolutePath()}\n"
+
+        when:
+        Collection<Sample> samples = AsciidoctorSamplesDiscovery.extractFromAsciidoctorFile(file) {
+            it.attributes(AttributesBuilder.attributes().attribute('sampleoutputdir', outputDir.getAbsolutePath())).safe(SafeMode.UNSAFE)
+        }
+
+        then:
+        samples.size() == 1
+        def commands = samples.get(0).commands
+
+        and:
+        commands.size() == 1
+        def command = commands.get(0)
+        command.executable == "pwd"
+        command.args == []
+        command.expectedOutput == tmpDir.root.getAbsolutePath()
+    }
+
+    def "can extract commands when using Asciidoctor callout"() {
+        given:
+        def file = tmpDir.newFile("sample.adoc") << '''
+            |= Document Title
+            |
+            |[listing.terminal.testable-sample.sample-command]
+            |----
+            |$ ./command
+            |Some output // <1>
+            |----
+            |<1> Some callout
+            |'''.stripMargin()
+
+        when:
+        Collection<Sample> samples = AsciidoctorSamplesDiscovery.extractFromAsciidoctorFile(file)
+
+        then:
+        samples.size() == 1
+        def commands = samples.get(0).commands
+
+        and:
+        commands.size() == 1
+        def command = commands.get(0)
+        command.executable == "./command"
+        command.args == []
+        command.expectedOutput == 'Some output // <1>'
     }
 }

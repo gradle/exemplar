@@ -17,9 +17,11 @@ package org.gradle.samples.loader.asciidoctor;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.OptionsBuilder;
 import org.asciidoctor.ast.Block;
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.StructuralNode;
+import org.asciidoctor.ast.impl.ListImpl;
 import org.gradle.samples.InvalidSampleException;
 import org.gradle.samples.model.Command;
 import org.gradle.samples.model.Sample;
@@ -28,15 +30,32 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.function.Consumer;
+
+import static org.asciidoctor.OptionsBuilder.options;
 
 public class AsciidoctorSamplesDiscovery {
 
     private static final String COMMAND_PREFIX = "$ ";
 
     public static List<Sample> extractFromAsciidoctorFile(File documentFile) throws IOException {
+        return extractFromAsciidoctorFile(documentFile, it -> {});
+    }
+
+    public static List<Sample> extractFromAsciidoctorFile(File documentFile, Consumer<OptionsBuilder> action) throws IOException {
         Asciidoctor asciidoctor = Asciidoctor.Factory.create();
-        Document document = asciidoctor.loadFile(documentFile, new HashMap<String, Object>());
+
+        OptionsBuilder options = options();
+        action.accept(options);
+
+        Document document = asciidoctor.loadFile(documentFile, options.asMap());
         return processAsciidocSampleBlocks(document);
     }
 
@@ -117,11 +136,15 @@ public class AsciidoctorSamplesDiscovery {
         queue.add(testableSampleBlock);
         while (!queue.isEmpty()) {
             StructuralNode node = queue.poll();
-            for (StructuralNode child : node.getBlocks()) {
-                if (child.isBlock() && child.hasRole("sample-command")) {
-                    parseEmbeddedCommand((Block) child, commands);
-                } else {
-                    queue.offer(child);
+            if (node instanceof ListImpl) {
+                queue.addAll(((ListImpl) node).getItems());
+            } else {
+                for (StructuralNode child : node.getBlocks()) {
+                    if (child.isBlock() && child.hasRole("sample-command")) {
+                        parseEmbeddedCommand((Block) child, commands);
+                    } else {
+                        queue.offer(child);
+                    }
                 }
             }
         }
