@@ -67,6 +67,20 @@ BUILD FAILED in 0s
         timeUnit << ['ms', 's', 'm', 'h']
     }
 
+    def "can normalize a long timing"() {
+        given:
+        OutputNormalizer normalizer = new GradleOutputNormalizer()
+        String input = """
+            |BUILD FAILED in 5m 3s
+            |""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        result.contains('BUILD FAILED in 0s')
+        !result.contains("BUILD FAILED in 5m 3s")
+    }
+
     def "can support normalized output without timing"() {
         given:
         OutputNormalizer normalizer = new GradleOutputNormalizer()
