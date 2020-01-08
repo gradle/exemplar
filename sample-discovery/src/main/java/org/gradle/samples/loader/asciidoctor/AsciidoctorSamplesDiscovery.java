@@ -19,7 +19,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.OptionsBuilder;
 import org.asciidoctor.ast.AbstractBlock;
-import org.asciidoctor.ast.AbstractNode;
 import org.asciidoctor.ast.Block;
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.ListImpl;
