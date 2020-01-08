@@ -18,10 +18,11 @@ package org.gradle.samples.loader.asciidoctor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.OptionsBuilder;
+import org.asciidoctor.ast.AbstractBlock;
+import org.asciidoctor.ast.AbstractNode;
 import org.asciidoctor.ast.Block;
 import org.asciidoctor.ast.Document;
-import org.asciidoctor.ast.StructuralNode;
-import org.asciidoctor.ast.impl.ListImpl;
+import org.asciidoctor.ast.ListImpl;
 import org.gradle.samples.InvalidSampleException;
 import org.gradle.samples.model.Command;
 import org.gradle.samples.model.Sample;
@@ -71,22 +72,22 @@ public class AsciidoctorSamplesDiscovery {
      * @return extracted list of {@link Sample}s
      * @throws IOException if any temporary directory or file could not be created
      */
-    private static List<Sample> processAsciidocSampleBlocks(StructuralNode rootNode) throws IOException {
+    private static List<Sample> processAsciidocSampleBlocks(AbstractBlock rootNode) throws IOException {
         List<Sample> samples = new ArrayList<>();
         Path tempDir = Files.createTempDirectory("exemplar-testable-samples");
 
-        Queue<StructuralNode> queue = new ArrayDeque<>();
+        Queue<AbstractBlock> queue = new ArrayDeque<>();
         queue.add(rootNode);
         while (!queue.isEmpty()) {
-            StructuralNode node = queue.poll();
+            AbstractBlock node = queue.poll();
 
-            List<StructuralNode> blocks = node.getBlocks();
+            List<AbstractBlock> blocks = node.getBlocks();
             // Some asciidoctor AST types return null instead of an empty list
             if (blocks == null) {
                 continue;
             }
 
-            for (StructuralNode child : blocks) {
+            for (AbstractBlock child : blocks) {
                 if (child.isBlock() && child.hasRole("testable-sample")) {
                     List<Command> commands = extractAsciidocCommands(node);
                     // Nothing to verify, skip this sample
@@ -111,11 +112,11 @@ public class AsciidoctorSamplesDiscovery {
      * @param commands Pre-extracted commands
      * @return new Sample
      */
-    private static Sample processSampleNode(StructuralNode node, Path tempDir, List<Command> commands) {
+    private static Sample processSampleNode(AbstractBlock node, Path tempDir, List<Command> commands) {
         String sampleId;
         File sampleDir;
-        if (node.hasAttribute("dir")) {
-            String dir = node.getAttribute("dir").toString();
+        if (node.getAttr("dir") != null) {
+            String dir = node.getAttr("dir").toString();
             sampleId = dir.replaceAll("[/\\\\]", "_");
             sampleDir = new File(dir);
         } else {
@@ -130,16 +131,16 @@ public class AsciidoctorSamplesDiscovery {
         return new Sample(sampleId, sampleDir, commands);
     }
 
-    private static List<Command> extractAsciidocCommands(StructuralNode testableSampleBlock) {
+    private static List<Command> extractAsciidocCommands(AbstractBlock testableSampleBlock) {
         List<Command> commands = new ArrayList<>();
-        Queue<StructuralNode> queue = new ArrayDeque<>();
+        Queue<AbstractBlock> queue = new ArrayDeque<>();
         queue.add(testableSampleBlock);
         while (!queue.isEmpty()) {
-            StructuralNode node = queue.poll();
+            AbstractBlock node = queue.poll();
             if (node instanceof ListImpl) {
                 queue.addAll(((ListImpl) node).getItems());
             } else {
-                for (StructuralNode child : node.getBlocks()) {
+                for (AbstractBlock child : node.getBlocks()) {
                     if (child.isBlock() && child.hasRole("sample-command")) {
                         parseEmbeddedCommand((Block) child, commands);
                     } else {
@@ -154,7 +155,7 @@ public class AsciidoctorSamplesDiscovery {
 
     private static void parseEmbeddedCommand(Block block, List<Command> commands) {
         Map<String, Object> attributes = block.getAttributes();
-        String[] lines = block.getSource().split("\r?\n");
+        String[] lines = block.source().split("\r?\n");
         int pos = 0;
 
         do {
@@ -199,7 +200,7 @@ public class AsciidoctorSamplesDiscovery {
     }
 
     private static void extractEmbeddedSampleSources(Block sampleBlock, File tempSampleDir) {
-        for (StructuralNode block : sampleBlock.getBlocks()) {
+        for (AbstractBlock block : sampleBlock.getBlocks()) {
             if (block.getStyle() != null && block.getStyle().equals("source") && block.getTitle() != null) {
                 File sampleFile = new File(tempSampleDir, block.getTitle());
                 File sampleSubfolder = sampleFile.getParentFile();
