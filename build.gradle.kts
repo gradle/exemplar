@@ -21,7 +21,7 @@ subprojects {
     apply(plugin = "maven-publish")
 
     group = "org.gradle"
-    version = "0.11.0"
+    version = "0.11.1"
 
     configure<PublishingExtension> {
         publications.create<MavenPublication>("mavenJava") {
