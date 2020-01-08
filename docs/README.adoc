@@ -283,6 +283,18 @@ image::https://img.shields.io/badge/code%20of-conduct-lightgrey.svg?style=flat&c
 
 - Allow multiple commands to be defined in a `[.sample-command]` block.
 
+=== 0.11
+
+- Downgraded AsciidoctorJ to 1.5.8.1 to play nice with Asciidoctor extension used by Gradle documentation.
+
+Note: The upgrade of AsciidoctorJ will need to be cross-cutting.
+
+=== 0.10
+
+- Fixes to the `AsciidoctorSamplesDiscovery` classes
+- Allow configuring the underlying `Asciidoctor` instance used by `AsciidoctorSamplesDiscovery`
+- A bunch of out-of-the-box `OutputNormalizer`
+
 === 0.8
 
 - Handle `cd <dir>` commands, to keep track of the user's working directory and apply it to later commands in the same sample.
