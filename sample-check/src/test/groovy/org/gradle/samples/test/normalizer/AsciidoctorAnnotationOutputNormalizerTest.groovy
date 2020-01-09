@@ -2,11 +2,13 @@ package org.gradle.samples.test.normalizer
 
 import org.gradle.samples.executor.ExecutionMetadata
 import spock.lang.Specification
+import spock.lang.Subject
 
-class AsciidoctorAnnotationNormalizerTest extends Specification {
+@Subject(AsciidoctorAnnotationOutputNormalizer)
+class AsciidoctorAnnotationOutputNormalizerTest extends Specification {
     def "removes Asciidoctor annotation"() {
         given:
-        OutputNormalizer normalizer = new AsciidoctorAnnotationNormalizer()
+        OutputNormalizer normalizer = new AsciidoctorAnnotationOutputNormalizer()
         String input = """
             |./build/install
             |├── main
@@ -31,7 +33,7 @@ class AsciidoctorAnnotationNormalizerTest extends Specification {
 
     def "strip trailing whitespace for aligning Asciidoctor annotation"() {
         given:
-        OutputNormalizer normalizer = new AsciidoctorAnnotationNormalizer()
+        OutputNormalizer normalizer = new AsciidoctorAnnotationOutputNormalizer()
         String input = """
             |./build/install
             |├── main

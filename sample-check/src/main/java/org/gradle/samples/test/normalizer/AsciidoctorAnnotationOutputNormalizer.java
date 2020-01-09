@@ -6,13 +6,13 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class AsciidoctorAnnotationNormalizer implements OutputNormalizer {
+public class AsciidoctorAnnotationOutputNormalizer implements OutputNormalizer {
     private static final Pattern ASCIIDOCTOR_ANNOTATION_PATTERN = Pattern.compile("\\s+// <\\d+>$");
 
     @Override
     public String normalize(String commandOutput, ExecutionMetadata executionMetadata) {
         return Arrays.stream(commandOutput.split("\\r?\\n"))
-                .map(AsciidoctorAnnotationNormalizer::stripAsciidoctorAnnotation)
+                .map(AsciidoctorAnnotationOutputNormalizer::stripAsciidoctorAnnotation)
                 .collect(Collectors.joining("\n"));
     }
 
