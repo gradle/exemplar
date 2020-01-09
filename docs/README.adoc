@@ -283,6 +283,10 @@ image::https://img.shields.io/badge/code%20of-conduct-lightgrey.svg?style=flat&c
 
 - Allow multiple commands to be defined in a `[.sample-command]` block.
 
+=== 0.12.1
+
+- `GradleOutputNormalizer` can normalize build scan urls
+
 === 0.12
 
 - Rename `AsciidoctorAnnotationNormalizer` to `AsciidoctorAnnotationOutputNormalizer`
