@@ -27,6 +27,7 @@ public class GradleOutputNormalizer implements OutputNormalizer {
     private static final Pattern STACK_TRACE_ELEMENT = Pattern.compile("\\s+(at\\s+)?([\\w.$_]+/)?[\\w.$_]+\\.[\\w$_ =+\'-<>]+\\(.+?\\)(\\x1B\\[0K)?");
     private static final Pattern BUILD_RESULT_PATTERN = Pattern.compile("BUILD (SUCCESSFUL|FAILED)( in \\d+(ms|s|m|h)( \\d+(ms|s|m|h))*)?");
     private static final Pattern DOCUMENTATION_URL_PATTERN = Pattern.compile("https://docs.gradle.org/((\\d+.\\d+(.\\d+)?)|current|nightly)/");
+    private static final Pattern BUILD_SCAN_URL_PATTERN = Pattern.compile("https://gradle.com/s/([a-z0-9]+)");
 
     public static final String DOWNLOAD_MESSAGE_PREFIX = "Download ";
     public static final String GENERATING_JAR_PREFIX = "Generating JAR file 'gradle-api-";
@@ -74,6 +75,8 @@ public class GradleOutputNormalizer implements OutputNormalizer {
             } else {
                 if (DOCUMENTATION_URL_PATTERN.matcher(line).find()) {
                     line = DOCUMENTATION_URL_PATTERN.matcher(line).replaceFirst("https://docs.gradle.org/0.0.0/");
+                } else if (BUILD_SCAN_URL_PATTERN.matcher(line).find()) {
+                    line = BUILD_SCAN_URL_PATTERN.matcher(line).replaceFirst("https://gradle.com/s/feeedfooc00de");
                 }
                 result.add(line);
                 i++;

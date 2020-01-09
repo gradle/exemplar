@@ -130,4 +130,21 @@ BUILD FAILED in 0s
         'nightly Release Notes'   | 'nightly' | 'release-notes.html'
         'nightly Samples'         | 'nightly' | 'samples/index.html'
     }
+
+    def "can normalize public build scan URL"() {
+        given:
+        OutputNormalizer normalizer = new GradleOutputNormalizer()
+        String input = """
+            |BUILD SUCCESSFUL in 6s
+            |
+            |Publishing build scan...
+            |https://gradle.com/s/czajmbyg73t62
+            |""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        !result.contains('https://gradle.com/s/czajmbyg73t62')
+        result.contains('https://gradle.com/s/feeedfooc00de')
+    }
 }
