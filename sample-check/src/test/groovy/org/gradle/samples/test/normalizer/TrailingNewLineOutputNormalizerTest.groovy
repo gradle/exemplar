@@ -9,10 +9,10 @@ class TrailingNewLineOutputNormalizerTest extends Specification {
     def "can remove empty line at the end of the output"() {
         given:
         OutputNormalizer normalizer = new TrailingNewLineOutputNormalizer()
-        String input = """
+        String input = '''
             |BUILD SUCCESSFUL
             |2 actionable tasks: 2 executed
-            |""".stripMargin()
+            |'''.stripMargin()
         ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
 
         expect:
@@ -23,16 +23,48 @@ class TrailingNewLineOutputNormalizerTest extends Specification {
     def "can remove multiple empty line at the end of the output"() {
         given:
         OutputNormalizer normalizer = new TrailingNewLineOutputNormalizer()
-        String input = """
+        String input = '''
             |BUILD SUCCESSFUL
             |2 actionable tasks: 2 executed
             |
             |
-            |""".stripMargin()
+            |'''.stripMargin()
         ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
 
         expect:
         def result = normalizer.normalize(input, executionMetadata)
         !result.endsWith('\n')
+    }
+
+    def "can normalize empty output"() {
+        given:
+        OutputNormalizer normalizer = new TrailingNewLineOutputNormalizer()
+        String input = ''
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        when:
+        def result = normalizer.normalize(input, executionMetadata)
+
+        then:
+        noExceptionThrown()
+
+        and:
+        result == ''
+    }
+
+    def "can normalize one line of output"() {
+        given:
+        OutputNormalizer normalizer = new TrailingNewLineOutputNormalizer()
+        String input = 'Some output'
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        when:
+        def result = normalizer.normalize(input, executionMetadata)
+
+        then:
+        noExceptionThrown()
+
+        and:
+        result == 'Some output'
     }
 }

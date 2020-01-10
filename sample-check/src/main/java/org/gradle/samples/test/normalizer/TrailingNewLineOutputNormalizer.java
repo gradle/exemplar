@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 public class TrailingNewLineOutputNormalizer implements OutputNormalizer {
     @Override
     public String normalize(String commandOutput, ExecutionMetadata executionMetadata) {
+        if (commandOutput.isEmpty()) {
+            return commandOutput;
+        }
         List<String> lines = Arrays.asList(commandOutput.split("\\r?\\n"));
 
         while (lines.get(lines.size() - 1).isEmpty()) {
