@@ -113,22 +113,27 @@ BUILD FAILED in 0s
         !result.contains("https://docs.gradle.org/${version}/${documentationPath}")
 
         where:
-        displayName               | version   | documentationPath
-        'versioned User Manual'   | '5.5.1'   | 'userguide/userguide.html'
-        'versioned API Reference' | '5.5.1'   | 'dsl/index.html'
-        'versioned Javadoc'       | '5.5.1'   | 'javadoc/index.html?overview-summary.html'
-        'versioned Release Notes' | '5.5.1'   | 'release-notes.html'
-        'versioned Samples'       | '5.5.1'   | 'samples/index.html'
-        'current User Manual'     | 'current' | 'userguide/userguide.html'
-        'current API Reference'   | 'current' | 'dsl/index.html'
-        'current Javadoc'         | 'current' | 'javadoc/index.html?overview-summary.html'
-        'current Release Notes'   | 'current' | 'release-notes.html'
-        'current Samples'         | 'current' | 'samples/index.html'
-        'nightly User Manual'     | 'nightly' | 'userguide/userguide.html'
-        'nightly API Reference'   | 'nightly' | 'dsl/index.html'
-        'nightly Javadoc'         | 'nightly' | 'javadoc/index.html?overview-summary.html'
-        'nightly Release Notes'   | 'nightly' | 'release-notes.html'
-        'nightly Samples'         | 'nightly' | 'samples/index.html'
+        displayName                         | version                   | documentationPath
+        'versioned User Manual'             | '5.5.1'                   | 'userguide/userguide.html'
+        'versioned API Reference'           | '5.5.1'                   | 'dsl/index.html'
+        'versioned Javadoc'                 | '5.5.1'                   | 'javadoc/index.html?overview-summary.html'
+        'versioned Release Notes'           | '5.5.1'                   | 'release-notes.html'
+        'versioned Samples'                 | '5.5.1'                   | 'samples/index.html'
+        'current User Manual'               | 'current'                 | 'userguide/userguide.html'
+        'current API Reference'             | 'current'                 | 'dsl/index.html'
+        'current Javadoc'                   | 'current'                 | 'javadoc/index.html?overview-summary.html'
+        'current Release Notes'             | 'current'                 | 'release-notes.html'
+        'current Samples'                   | 'current'                 | 'samples/index.html'
+        'nightly User Manual'               | 'nightly'                 | 'userguide/userguide.html'
+        'nightly API Reference'             | 'nightly'                 | 'dsl/index.html'
+        'nightly Javadoc'                   | 'nightly'                 | 'javadoc/index.html?overview-summary.html'
+        'nightly Release Notes'             | 'nightly'                 | 'release-notes.html'
+        'nightly Samples'                   | 'nightly'                 | 'samples/index.html'
+        'snapshot versioned User Manual'    | '6.2-20191223165223+0000' | 'userguide/userguide.html'
+        'snapshot versioned API Reference'  | '6.2-20191223165223+0000' | 'dsl/index.html'
+        'snapshot versioned Javadoc'        | '6.2-20191223165223+0000' | 'javadoc/index.html?overview-summary.html'
+        'snapshot versioned Release Notes'  | '6.2-20191223165223+0000' | 'release-notes.html'
+        'snapshot versioned Samples'        | '6.2-20191223165223+0000' | 'samples/index.html'
     }
 
     def "can normalize public build scan URL"() {
