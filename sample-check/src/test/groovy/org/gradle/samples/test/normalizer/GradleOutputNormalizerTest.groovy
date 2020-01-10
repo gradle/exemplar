@@ -147,4 +147,46 @@ BUILD FAILED in 0s
         !result.contains('https://gradle.com/s/czajmbyg73t62')
         result.contains('https://gradle.com/s/feeedfooc00de')
     }
+
+    def "can normalize wrapper download message and progress for official distribution"() {
+        given:
+        OutputNormalizer normalizer = new GradleOutputNormalizer()
+        String input = """
+            |Downloading https://services.gradle.org/distributions/gradle-6.0.1-bin.zip
+            |.........10%.........20%.........30%..........40%.........50%.........60%..........70%.........80%.........90%..........100%
+            |
+            |> Task :app:check
+            |> Task :app:build
+            |
+            |BUILD SUCCESSFUL in 0s
+            |55 actionable tasks: 1 executed, 54 up-to-date
+            |""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        !result.contains('Downloading https://services.gradle.org/distributions/gradle-6.0.1-bin.zip')
+        !result.contains('.........10%')
+    }
+
+    def "can normalize wrapper download message and progress for snapshot distribution"() {
+        given:
+        OutputNormalizer normalizer = new GradleOutputNormalizer()
+        String input = """
+            |Downloading https://services.gradle.org/distributions-snapshots/gradle-6.2-20191223165223+0000-bin.zip
+            |.........10%.........20%.........30%..........40%.........50%.........60%..........70%.........80%.........90%..........100%
+            |
+            |> Task :app:check
+            |> Task :app:build
+            |
+            |BUILD SUCCESSFUL in 0s
+            |55 actionable tasks: 1 executed, 54 up-to-date
+            |""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        !result.contains('Downloading https://services.gradle.org/distributions-snapshots/gradle-6.2-20191223165223+0000-bin.zip')
+        !result.contains('.........10%')
+    }
 }

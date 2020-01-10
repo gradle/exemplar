@@ -32,6 +32,9 @@ public class GradleOutputNormalizer implements OutputNormalizer {
     public static final String DOWNLOAD_MESSAGE_PREFIX = "Download ";
     public static final String GENERATING_JAR_PREFIX = "Generating JAR file 'gradle-api-";
 
+    public static final String DOWNLOADING_WRAPPER_MESSAGE_PREFIX = "Downloading https://services.gradle.org/distributions";
+    public static final String DOWNLOADING_WRAPPER_PROGRESS_PREFIX = ".........10%";
+
     // Duplicating here to avoid use of Gradle's internal API
     public static final String STARTING_A_GRADLE_DAEMON_MESSAGE = "Starting a Gradle Daemon";
     public static final String DAEMON_WILL_BE_STOPPED_MESSAGE = "Daemon will be stopped at the end of the build";
@@ -50,6 +53,12 @@ public class GradleOutputNormalizer implements OutputNormalizer {
             if (line.startsWith(GENERATING_JAR_PREFIX)) {
                 i++;
             } else if (line.startsWith(DOWNLOAD_MESSAGE_PREFIX)) {
+                i++;
+            } else if (line.startsWith(DOWNLOADING_WRAPPER_MESSAGE_PREFIX)) {
+                // Remove the "Dowloading https://..." message for wrapper
+                i++;
+            } else if (line.startsWith(DOWNLOADING_WRAPPER_PROGRESS_PREFIX)) {
+                // Remove the ".........10%.........20%" message
                 i++;
             } else if (line.contains(STARTING_A_GRADLE_DAEMON_MESSAGE)) {
                 // Remove the "daemon starting" message
