@@ -208,4 +208,26 @@ BUILD FAILED in 0s
         def result = normalizer.normalize(input, executionMetadata)
         result.endsWith('\n')
     }
+
+    def "removes incubating feature messsage"() {
+        given:
+        OutputNormalizer normalizer = new GradleOutputNormalizer()
+        String input = """
+            |Partial virtual file system invalidation is an incubating feature.
+            |> Task :compileJava
+            |> Task :processResources NO-SOURCE
+            |> Task :classes
+            |
+            |> Task :run
+            |Hello, World!
+            |
+            |BUILD SUCCESSFUL in 0s
+            |2 actionable tasks: 2 executed
+            |""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        result.endsWith('\n')
+    }
 }

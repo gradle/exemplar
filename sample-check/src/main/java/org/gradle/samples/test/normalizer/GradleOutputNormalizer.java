@@ -35,6 +35,8 @@ public class GradleOutputNormalizer implements OutputNormalizer {
     public static final String DOWNLOADING_WRAPPER_MESSAGE_PREFIX = "Downloading https://services.gradle.org/distributions";
     public static final String DOWNLOADING_WRAPPER_PROGRESS_PREFIX = ".........10%";
 
+    public static final String INCUBATING_FEATURE_SUFFIX = "incubating feature.";
+
     // Duplicating here to avoid use of Gradle's internal API
     public static final String STARTING_A_GRADLE_DAEMON_MESSAGE = "Starting a Gradle Daemon";
     public static final String DAEMON_WILL_BE_STOPPED_MESSAGE = "Daemon will be stopped at the end of the build";
@@ -59,6 +61,9 @@ public class GradleOutputNormalizer implements OutputNormalizer {
                 i++;
             } else if (line.startsWith(DOWNLOADING_WRAPPER_PROGRESS_PREFIX)) {
                 // Remove the ".........10%.........20%" message
+                i++;
+            } else if (line.endsWith(INCUBATING_FEATURE_SUFFIX)) {
+                // Remove the "...incubating feature." message
                 i++;
             } else if (line.contains(STARTING_A_GRADLE_DAEMON_MESSAGE)) {
                 // Remove the "daemon starting" message
