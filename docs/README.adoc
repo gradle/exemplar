@@ -283,6 +283,10 @@ image::https://img.shields.io/badge/code%20of-conduct-lightgrey.svg?style=flat&c
 
 - Allow multiple commands to be defined in a `[.sample-command]` block.
 
+=== 0.12.5
+
+- `GradleOutputNormalizer` can normalize incubating feature message
+
 === 0.12.4
 
 - Ensure output normalizer aren't removing trailing new lines (except for the `TrailingNewLineOutputNormalizer`
