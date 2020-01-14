@@ -35,4 +35,17 @@ class FileSeparatorOutputNormalizerTest extends Specification {
         expect:
         normalizer.normalize("Path C:\\Users\\username\\dir", executionMetadata, '\\' as char) == "Path C:/Users/username/dir"
     }
+
+    def "does not remove trailing new lines"() {
+        given:
+        OutputNormalizer normalizer = new FileSeparatorOutputNormalizer()
+        String input = """
+            |Path C:\\Users\\username\\dir
+            |""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        result.endsWith('\n')
+    }
 }

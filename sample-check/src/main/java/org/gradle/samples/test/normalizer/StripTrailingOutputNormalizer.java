@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 public class StripTrailingOutputNormalizer implements OutputNormalizer {
     @Override
     public String normalize(String commandOutput, ExecutionMetadata executionMetadata) {
-        return Arrays.stream(commandOutput.split("\\r?\\n")).map(StripTrailingOutputNormalizer::stripTrailing).collect(Collectors.joining("\n"));
+        return Arrays.stream(commandOutput.split("\\r?\\n", -1)).map(StripTrailingOutputNormalizer::stripTrailing).collect(Collectors.joining("\n"));
     }
 
     private static String stripTrailing(String self) {

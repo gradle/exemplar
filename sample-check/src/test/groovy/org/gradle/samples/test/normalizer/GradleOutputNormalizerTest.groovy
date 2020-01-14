@@ -194,4 +194,18 @@ BUILD FAILED in 0s
         !result.contains('Downloading https://services.gradle.org/distributions-snapshots/gradle-6.2-20191223165223+0000-bin.zip')
         !result.contains('.........10%')
     }
+
+    def "does not remove trailing new lines"() {
+        given:
+        OutputNormalizer normalizer = new GradleOutputNormalizer()
+        String input = """
+            |BUILD SUCCESSFUL in 0s
+            |55 actionable tasks: 1 executed, 54 up-to-date
+            |""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        result.endsWith('\n')
+    }
 }

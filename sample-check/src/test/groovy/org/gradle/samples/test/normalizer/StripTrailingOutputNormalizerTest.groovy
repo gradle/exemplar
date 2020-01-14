@@ -20,4 +20,18 @@ class StripTrailingOutputNormalizerTest extends Specification {
         (input =~ /[ ]+$/).find()
         !(result =~ /[ ]+$/).find()
     }
+
+    def "does not remove trailing new lines"() {
+        given:
+        OutputNormalizer normalizer = new StripTrailingOutputNormalizer()
+        String input = """
+            |BUILD SUCCESSFUL
+            |2 actionable tasks: 2 executed
+            |""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        result.endsWith('\n')
+    }
 }

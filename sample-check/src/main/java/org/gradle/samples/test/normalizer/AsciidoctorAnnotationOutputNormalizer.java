@@ -11,7 +11,7 @@ public class AsciidoctorAnnotationOutputNormalizer implements OutputNormalizer {
 
     @Override
     public String normalize(String commandOutput, ExecutionMetadata executionMetadata) {
-        return Arrays.stream(commandOutput.split("\\r?\\n"))
+        return Arrays.stream(commandOutput.split("\\r?\\n", -1))
                 .map(AsciidoctorAnnotationOutputNormalizer::stripAsciidoctorAnnotation)
                 .collect(Collectors.joining("\n"));
     }

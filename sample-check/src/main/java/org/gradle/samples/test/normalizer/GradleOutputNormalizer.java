@@ -46,7 +46,7 @@ public class GradleOutputNormalizer implements OutputNormalizer {
     public String normalize(String commandOutput, ExecutionMetadata executionMetadata) {
         //commandOutput = commandOutput.replaceAll(executionMetadata.getTempSampleProjectDir().getAbsolutePath(), NORMALIZED_SAMPLES_PATH);
         List<String> result = new ArrayList<>();
-        final List<String> lines = Arrays.asList(commandOutput.split("\\r?\\n"));
+        final List<String> lines = Arrays.asList(commandOutput.split("\\r?\\n", -1));
         int i = 0;
         while (i < lines.size()) {
             String line = lines.get(i);
