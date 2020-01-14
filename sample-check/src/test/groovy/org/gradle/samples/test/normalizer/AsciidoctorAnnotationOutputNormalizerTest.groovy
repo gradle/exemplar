@@ -72,9 +72,7 @@ class AsciidoctorAnnotationOutputNormalizerTest extends Specification {
             |        └── building-cpp-applicationsTest  // <3>
             |
             |5 directories, 4 files
-            |
-            
-            """.stripMargin()
+            |""".stripMargin()
         ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
 
         expect:
