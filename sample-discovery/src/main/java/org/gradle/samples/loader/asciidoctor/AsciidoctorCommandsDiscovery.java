@@ -48,11 +48,15 @@ public class AsciidoctorCommandsDiscovery {
     public static List<Command> extractFromAsciidoctorFile(File documentFile, Consumer<OptionsBuilder> action) throws IOException {
         Asciidoctor asciidoctor = Asciidoctor.Factory.create();
 
-        OptionsBuilder options = options();
-        action.accept(options);
+        try {
+            OptionsBuilder options = options();
+            action.accept(options);
 
-        Document document = asciidoctor.loadFile(documentFile, options.asMap());
-        return extractAsciidocCommands(document);
+            Document document = asciidoctor.loadFile(documentFile, options.asMap());
+            return extractAsciidocCommands(document);
+        } finally {
+            asciidoctor.shutdown();
+        }
     }
 
     private static List<Command> extractAsciidocCommands(AbstractBlock testableSampleBlock) {

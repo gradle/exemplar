@@ -52,11 +52,15 @@ public class AsciidoctorSamplesDiscovery {
     public static List<Sample> extractFromAsciidoctorFile(File documentFile, Consumer<OptionsBuilder> action) throws IOException {
         Asciidoctor asciidoctor = Asciidoctor.Factory.create();
 
-        OptionsBuilder options = options();
-        action.accept(options);
+        try {
+            OptionsBuilder options = options();
+            action.accept(options);
 
-        Document document = asciidoctor.loadFile(documentFile, options.asMap());
-        return processAsciidocSampleBlocks(document);
+            Document document = asciidoctor.loadFile(documentFile, options.asMap());
+            return processAsciidocSampleBlocks(document);
+        } finally {
+            asciidoctor.shutdown();
+        }
     }
 
     /**
