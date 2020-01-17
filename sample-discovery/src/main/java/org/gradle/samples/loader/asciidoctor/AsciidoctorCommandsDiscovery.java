@@ -122,8 +122,13 @@ public class AsciidoctorCommandsDiscovery {
                 expectedOutput.toString(),
                 attributes.containsKey("expect-failure"),
                 attributes.containsKey("allow-additional-output"),
-                attributes.containsKey("allow-disordered-output"));
+                attributes.containsKey("allow-disordered-output"),
+                attributes.containsKey("user-inputs") ? toUserInputs(attributes.get("user-inputs").toString()) : Collections.emptyList());
         commands.add(command);
         return nextCommand;
+    }
+
+    private static List<String> toUserInputs(String value) {
+        return Arrays.asList(value.split("\\|", -1));
     }
 }

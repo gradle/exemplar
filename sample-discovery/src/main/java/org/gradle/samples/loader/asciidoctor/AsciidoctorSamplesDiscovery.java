@@ -197,7 +197,8 @@ public class AsciidoctorSamplesDiscovery {
             expectedOutput.toString(),
             attributes.containsKey("expect-failure"),
             attributes.containsKey("allow-additional-output"),
-            attributes.containsKey("allow-disordered-output"));
+            attributes.containsKey("allow-disordered-output"),
+            Collections.emptyList());
         commands.add(command);
         return nextCommand;
     }

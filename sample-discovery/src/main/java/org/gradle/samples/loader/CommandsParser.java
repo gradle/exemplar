@@ -37,6 +37,7 @@ public class CommandsParser {
     private static final String ALLOW_ADDITIONAL_OUTPUT = "allow-additional-output";
     private static final String ALLOW_DISORDERED_OUTPUT = "allow-disordered-output";
     private static final String EXPECTED_OUTPUT_FILE = "expected-output-file";
+    private static final String USER_INPUTS = "user-inputs";
 
     public static List<Command> parse(final File sampleConfigFile) {
         try {
@@ -86,7 +87,8 @@ public class CommandsParser {
         final boolean expectFailures = ConfigUtil.booleanValue(commandConfig, EXPECT_FAILURE, false);
         final boolean allowAdditionalOutput = ConfigUtil.booleanValue(commandConfig, ALLOW_ADDITIONAL_OUTPUT, false);
         final boolean allowDisorderedOutput = ConfigUtil.booleanValue(commandConfig, ALLOW_DISORDERED_OUTPUT, false);
+        final List<String> userInputs = ConfigUtil.strings(commandConfig, USER_INPUTS, Collections.emptyList());
 
-        return new Command(executable, executionDirectory, commands, flags, expectedOutput, expectFailures, allowAdditionalOutput, allowDisorderedOutput);
+        return new Command(executable, executionDirectory, commands, flags, expectedOutput, expectFailures, allowAdditionalOutput, allowDisorderedOutput, userInputs);
     }
 }

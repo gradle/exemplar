@@ -17,6 +17,7 @@ package org.gradle.samples.model;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 
 public class Command {
@@ -28,8 +29,9 @@ public class Command {
     private final boolean expectFailure;
     private final boolean allowAdditionalOutput;
     private final boolean allowDisorderedOutput;
+    private final List<String> userInputs;
 
-    public Command(@Nonnull String executable, @Nullable String executionDirectory, List<String> args, List<String> flags, @Nullable String expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput) {
+    public Command(@Nonnull String executable, @Nullable String executionDirectory, List<String> args, List<String> flags, @Nullable String expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput, List<String> userInputs) {
         this.executable = executable;
         this.executionSubdirectory = executionDirectory;
         this.args = args;
@@ -38,6 +40,7 @@ public class Command {
         this.expectFailure = expectFailure;
         this.allowAdditionalOutput = allowAdditionalOutput;
         this.allowDisorderedOutput = allowDisorderedOutput;
+        this.userInputs = userInputs;
     }
 
     @Nonnull
@@ -84,6 +87,13 @@ public class Command {
         return allowDisorderedOutput;
     }
 
+    /**
+     * @return a list of user inputs to provide to the command
+     */
+    public List<String> getUserInputs() {
+        return userInputs;
+    }
+
     public Builder toBuilder() {
         return new Builder(getExecutable(),
                 getExecutionSubdirectory(),
@@ -92,7 +102,8 @@ public class Command {
                 getExpectedOutput(),
                 isExpectFailure(),
                 isAllowAdditionalOutput(),
-                isAllowDisorderedOutput());
+                isAllowDisorderedOutput(),
+                getUserInputs());
     }
 
     public static class Builder {
@@ -104,8 +115,9 @@ public class Command {
         private boolean expectFailure;
         private boolean allowAdditionalOutput;
         private boolean allowDisorderedOutput;
+        private List<String> userInputs;
 
-        private Builder(String executable, String executionDirectory, List<String> args, List<String> flags, String expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput) {
+        private Builder(String executable, String executionDirectory, List<String> args, List<String> flags, String expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput, List<String> userInputs) {
             this.executable = executable;
             this.executionSubdirectory = executionDirectory;
             this.args = args;
@@ -114,6 +126,7 @@ public class Command {
             this.expectFailure = expectFailure;
             this.allowAdditionalOutput = allowAdditionalOutput;
             this.allowDisorderedOutput = allowDisorderedOutput;
+            this.userInputs = userInputs;
         }
 
         public Builder setExecutable(String executable) {
@@ -157,7 +170,7 @@ public class Command {
         }
 
         public Command build() {
-            return new Command(executable, executionSubdirectory, args, flags, expectedOutput, expectFailure, allowAdditionalOutput, allowDisorderedOutput);
+            return new Command(executable, executionSubdirectory, args, flags, expectedOutput, expectFailure, allowAdditionalOutput, allowDisorderedOutput, userInputs);
         }
     }
 }

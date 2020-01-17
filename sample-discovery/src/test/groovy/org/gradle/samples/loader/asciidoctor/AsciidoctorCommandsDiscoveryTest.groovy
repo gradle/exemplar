@@ -188,4 +188,49 @@ class AsciidoctorCommandsDiscoveryTest extends Specification {
         command.args == []
         command.expectedOutput == 'Some output // <1>'
     }
+
+    def "can extract empty user inputs when none is specified"() {
+        given:
+        def file = tmpDir.newFile('sample.adoc') << '''
+            |= Document Title
+            |
+            |[listing.terminal.sample-command]
+            |----
+            |$ ./command
+            |Some output
+            |----
+            |'''.stripMargin()
+
+        when:
+        Collection<Command> commands = AsciidoctorCommandsDiscovery.extractFromAsciidoctorFile(file)
+
+        then:
+        commands.size() == 1
+        def command = commands.get(0)
+        command.userInputs.size() == 0
+    }
+
+    def "can extract user inputs to the command"() {
+        given:
+        def file = tmpDir.newFile('sample.adoc') << '''
+            |= Document Title
+            |
+            |[listing.terminal.sample-command,user-inputs="1||yes"]
+            |----
+            |$ ./command
+            |Some output
+            |----
+            |'''.stripMargin()
+
+        when:
+        Collection<Command> commands = AsciidoctorCommandsDiscovery.extractFromAsciidoctorFile(file)
+
+        then:
+        commands.size() == 1
+        def command = commands.get(0)
+        command.userInputs.size() == 3
+        command.userInputs.get(0) == '1'
+        command.userInputs.get(1) == ''
+        command.userInputs.get(2) == 'yes'
+    }
 }
