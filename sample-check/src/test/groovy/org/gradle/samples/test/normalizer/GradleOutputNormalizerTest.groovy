@@ -228,6 +228,6 @@ BUILD FAILED in 0s
 
         expect:
         def result = normalizer.normalize(input, executionMetadata)
-        result.endsWith('\n')
+        !result.contains('Partial virtual file system invalidation is an incubating feature.')
     }
 }
