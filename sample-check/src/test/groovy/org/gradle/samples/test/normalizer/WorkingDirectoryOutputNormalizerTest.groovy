@@ -22,6 +22,20 @@ class WorkingDirectoryOutputNormalizerTest extends Specification {
         result.contains('/working-directory/demo/build/classes/java/main')
     }
 
+    def "does not remove leading new lines"() {
+        given:
+        OutputNormalizer normalizer = new WorkingDirectoryOutputNormalizer()
+        String input = """
+            |BUILD SUCCESSFUL
+            |2 actionable tasks: 2 executed
+            |""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(new File('/private/var/folders/rg/y7myh0qj1sd58f02v_tgypvh0000gn/T/exemplar1868731005284620663'), [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        result.startsWith('\n')
+    }
+
     def "does not remove trailing new lines"() {
         given:
         OutputNormalizer normalizer = new WorkingDirectoryOutputNormalizer()

@@ -56,6 +56,30 @@ class AsciidoctorAnnotationOutputNormalizerTest extends Specification {
         !(result =~ /\s+$/).find()
     }
 
+    def "does not remove leading new lines"() {
+        given:
+        OutputNormalizer normalizer = new AsciidoctorAnnotationOutputNormalizer()
+        String input = """
+            |./build/install
+            |├── main
+            |│   └── debug
+            |│       ├── building-cpp-applications      // <1>
+            |│       └── lib
+            |│           └── building-cpp-applications  // <2>
+            |└── test
+            |    ├── building-cpp-applicationsTest      // <1>
+            |    └── lib
+            |        └── building-cpp-applicationsTest  // <3>
+            |
+            |5 directories, 4 files
+            |""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        result.startsWith('\n')
+    }
+
     def "does not remove trailing new lines"() {
         given:
         OutputNormalizer normalizer = new AsciidoctorAnnotationOutputNormalizer()

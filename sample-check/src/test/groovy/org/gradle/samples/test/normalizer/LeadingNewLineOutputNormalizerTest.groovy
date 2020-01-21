@@ -4,40 +4,43 @@ import org.gradle.samples.executor.ExecutionMetadata
 import spock.lang.Specification
 import spock.lang.Subject
 
-@Subject(StripTrailingOutputNormalizer)
-class StripTrailingOutputNormalizerTest extends Specification {
-    def "can remove trailing spaces at the end of each output line"() {
+@Subject(LeadingNewLineOutputNormalizer)
+class LeadingNewLineOutputNormalizerTest extends Specification {
+    def "can normalize empty output"() {
         given:
-        OutputNormalizer normalizer = new StripTrailingOutputNormalizer()
-        String input = """
-            |BUILD SUCCESSFUL   
-            |2 actionable tasks: 2 executed   
-            |""".stripMargin()
+        OutputNormalizer normalizer = new LeadingNewLineOutputNormalizer()
+        String input = ''
         ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
 
-        expect:
+        when:
         def result = normalizer.normalize(input, executionMetadata)
-        (input =~ /[ ]+$/).find()
-        !(result =~ /[ ]+$/).find()
+
+        then:
+        noExceptionThrown()
+
+        and:
+        result == ''
     }
 
-    def "does not remove leading new lines"() {
+    def "can normalize one line of output"() {
         given:
-        OutputNormalizer normalizer = new StripTrailingOutputNormalizer()
-        String input = """
-            |BUILD SUCCESSFUL
-            |2 actionable tasks: 2 executed
-            |""".stripMargin()
+        OutputNormalizer normalizer = new LeadingNewLineOutputNormalizer()
+        String input = 'Some output'
         ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
 
-        expect:
+        when:
         def result = normalizer.normalize(input, executionMetadata)
-        result.startsWith('\n')
+
+        then:
+        noExceptionThrown()
+
+        and:
+        result == 'Some output'
     }
 
     def "does not remove trailing new lines"() {
         given:
-        OutputNormalizer normalizer = new StripTrailingOutputNormalizer()
+        OutputNormalizer normalizer = new LeadingNewLineOutputNormalizer()
         String input = """
             |BUILD SUCCESSFUL
             |2 actionable tasks: 2 executed

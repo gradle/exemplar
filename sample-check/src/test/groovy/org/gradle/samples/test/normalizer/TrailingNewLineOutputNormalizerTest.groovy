@@ -67,4 +67,18 @@ class TrailingNewLineOutputNormalizerTest extends Specification {
         and:
         result == 'Some output'
     }
+
+    def "does not remove leading new lines"() {
+        given:
+        OutputNormalizer normalizer = new TrailingNewLineOutputNormalizer()
+        String input = """
+            |BUILD SUCCESSFUL
+            |2 actionable tasks: 2 executed
+            |""".stripMargin()
+        ExecutionMetadata executionMetadata = new ExecutionMetadata(null, [:])
+
+        expect:
+        def result = normalizer.normalize(input, executionMetadata)
+        result.startsWith('\n')
+    }
 }
