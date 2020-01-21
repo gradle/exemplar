@@ -12,12 +12,6 @@ public class TrailingNewLineOutputNormalizer implements OutputNormalizer {
         if (commandOutput.isEmpty()) {
             return commandOutput;
         }
-        List<String> lines = Arrays.asList(commandOutput.split("\\r?\\n"));
-
-        while (lines.get(lines.size() - 1).isEmpty()) {
-            lines.remove(lines.size() - 1);
-        }
-
-        return lines.stream().collect(Collectors.joining("\n"));
+        return Arrays.stream(commandOutput.split("\\r?\\n")).collect(Collectors.joining("\n"));
     }
 }
