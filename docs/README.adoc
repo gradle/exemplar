@@ -279,9 +279,10 @@ image::https://img.shields.io/badge/code%20of-conduct-lightgrey.svg?style=flat&c
 
 == Changes
 
-=== Next release
+=== 0.12.6
 
-- Allow multiple commands to be defined in a `[.sample-command]` block.
+- `AsciidoctorCommandsDiscovery` now support `user-inputs` for providing inputs to a command
+- Introduce a output normalizer removing leading new lines
 
 === 0.12.5
 
