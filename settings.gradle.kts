@@ -1,11 +1,12 @@
 plugins {
-    id("com.gradle.enterprise").version("3.1.1")
+    id("com.gradle.enterprise").version("3.4.1")
 }
 
 rootProject.name = "exemplar"
 
 include("sample-discovery")
 include("sample-check")
+include("docs")
 
 gradleEnterprise {
     buildScan {

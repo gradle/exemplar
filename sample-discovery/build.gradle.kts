@@ -1,5 +1,7 @@
 plugins {
-    groovy
+    id("exemplar.java-conventions")
+    id("exemplar.publishing-conventions")
+    id("groovy")
 }
 
 dependencies {
