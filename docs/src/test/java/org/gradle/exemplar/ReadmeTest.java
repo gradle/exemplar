@@ -20,6 +20,6 @@ import org.gradle.samples.test.runner.SamplesRoot;
 import org.junit.runner.RunWith;
 
 @RunWith(GradleEmbeddedSamplesRunner.class)
-@SamplesRoot("docs")
+@SamplesRoot(".")
 public class ReadmeTest {
 }
