@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.exemplar;
+package org.gradle.exemplar.test.runner;
 
-import org.gradle.exemplar.test.runner.GradleEmbeddedSamplesRunner;
-import org.gradle.exemplar.test.runner.SamplesRoot;
-import org.junit.runner.RunWith;
+import org.gradle.exemplar.test.normalizer.OutputNormalizer;
 
-@RunWith(GradleEmbeddedSamplesRunner.class)
-@SamplesRoot(".")
-public class ReadmeTest {
+import java.lang.annotation.*;
+
+/**
+ * Specifies output normalizer classes to invoke on a given subset of samples.
+ *
+ * @see SamplesRunner
+ */
+@Documented
+@Inherited
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SamplesOutputNormalizers {
+    Class<? extends OutputNormalizer>[] value();
 }

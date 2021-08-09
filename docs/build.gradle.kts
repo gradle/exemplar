@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":sample-check"))
+    implementation(project(":check"))
 }
 
 tasks.test {

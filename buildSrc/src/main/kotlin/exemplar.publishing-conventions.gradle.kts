@@ -2,7 +2,7 @@ plugins {
     id("maven-publish")
 }
 
-group = "org.gradle"
+group = "org.gradle.exemplar"
 version = rootProject.version
 
 publishing {

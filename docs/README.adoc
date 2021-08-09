@@ -160,8 +160,8 @@ Like this:
 package com.example;
 
 import org.junit.runner.RunWith;
-import org.gradle.samples.test.runner.GradleSamplesRunner;
-import org.gradle.samples.test.runner.SamplesRoot;
+import org.gradle.exemplar.test.runner.GradleSamplesRunner;
+import org.gradle.exemplar.test.runner.SamplesRoot;
 
 @RunWith(GradleSamplesRunner.class)
 @SamplesRoot("src/docs/samples")
@@ -179,7 +179,7 @@ Use of the JUnit runners is preferred, as discovery, output normalization, and r
 
 You can get some inspiration for API use from link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/runner/SamplesRunner.java[SamplesRunner] and link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/runner/GradleSamplesRunner.java[GradleSamplesRunner].
 
-Command execution is handled in the `org.gradle.samples.executor.*` classes, some output normalizers are provided in the `org.gradle.samples.test.normalizer` package, and output verification is handled by classes in the `org.gradle.samples.test.verifier` package.
+Command execution is handled in the `org.gradle.exemplar.executor.*` classes, some output normalizers are provided in the `org.gradle.exemplar.test.normalizer` package, and output verification is handled by classes in the `org.gradle.exemplar.test.verifier` package.
 
 === Using Samples for other integration tests
 
@@ -193,8 +193,8 @@ package com.example;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.gradle.samples.test.rule.Sample;
-import org.gradle.samples.test.rule.UsesSample;
+import org.gradle.exemplar.test.rule.Sample;
+import org.gradle.exemplar.test.rule.UsesSample;
 
 public class BasicSampleTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder()

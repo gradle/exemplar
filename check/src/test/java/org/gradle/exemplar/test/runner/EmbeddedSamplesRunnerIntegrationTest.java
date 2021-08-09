@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.exemplar;
+package org.gradle.exemplar.test.runner;
 
-import org.gradle.exemplar.test.runner.GradleEmbeddedSamplesRunner;
-import org.gradle.exemplar.test.runner.SamplesRoot;
 import org.junit.runner.RunWith;
 
 @RunWith(GradleEmbeddedSamplesRunner.class)
-@SamplesRoot(".")
-public class ReadmeTest {
+@SamplesRoot("src/test/docs")
+public class EmbeddedSamplesRunnerIntegrationTest {
 }
