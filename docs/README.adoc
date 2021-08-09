@@ -10,7 +10,7 @@ toc::[]
 
 == Use cases
 
-The intent of sample-check is to ensure that users of your command-line tool see what you expect them to see.
+The intent of check is to ensure that users of your command-line tool see what you expect them to see.
 It handles sample discovery, normalization (semantically equivalent output in different environments), and flexible output verification.
 It allows any command-line executable on the `PATH` to be invoked. You are not limited to Gradle or Java.
 
@@ -42,7 +42,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.gradle:sample-check:0.12.6")
+    testImplementation("org.gradle.exemplar:check:0.12.6")
 }
 ----
 
@@ -94,7 +94,7 @@ When there are multiple steps specified for a sample, they are run one after the
 
 _See <<sample-conf-fields,Sample Conf fields>> for a detailed description of all the possible options._
 
-*NOTE:* There are a bunch of (tested) samples under `sample-check/src/test/samples` of this repository you can use to understand ways to configure samples.
+*NOTE:* There are a bunch of (tested) samples under `check/src/test/samples` of this repository you can use to understand ways to configure samples.
 
 === Configuring embedded samples
 
@@ -138,7 +138,7 @@ You can verify samples either through one of the <<verifying-using-a-junit-runne
 
 ==== Verifying using a JUnit Runner
 
-This library provides 2 JUnit runners link:src/main/java/org/gradle/samples/test/runner/SamplesRunner.java[`SamplesRunner`] (executes via CLI) and link:src/main/java/org/gradle/samples/test/runner/GradleSamplesRunner.java[`GradleSamplesRunner`] (executes samples using https://docs.gradle.org/current/userguide/test_kit.html[Gradle TestKit]). If you are using `GradleSamplesRunner`, you will need to add `gradleTestKit()` and SLF4J binding dependencies as well:
+This library provides 2 JUnit runners link:src/main/java/org/gradle/exemplar/test/runner/SamplesRunner.java[`SamplesRunner`] (executes via CLI) and link:src/main/java/org/gradle/exemplar/test/runner/GradleSamplesRunner.java[`GradleSamplesRunner`] (executes samples using https://docs.gradle.org/current/userguide/test_kit.html[Gradle TestKit]). If you are using `GradleSamplesRunner`, you will need to add `gradleTestKit()` and SLF4J binding dependencies as well:
 
 [source,kotlin]
 ----
@@ -177,7 +177,7 @@ The test runner will copy each sample project to a temporary location, invoke th
 
 Use of the JUnit runners is preferred, as discovery, output normalization, and reporting are handled for you. If you want to write custom samples verification or you're using a different test framework, by all means go ahead :) -- please contribute back runners or normalizers you find useful!
 
-You can get some inspiration for API use from link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/runner/SamplesRunner.java[SamplesRunner] and link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/runner/GradleSamplesRunner.java[GradleSamplesRunner].
+You can get some inspiration for API use from link:https://github.com/gradle/exemplar/blob/master/check/src/main/java/org/gradle/exemplar/test/runner/SamplesRunner.java[SamplesRunner] and link:https://github.com/gradle/exemplar/blob/master/check/src/main/java/org/gradle/exemplar/test/runner/GradleSamplesRunner.java[GradleSamplesRunner].
 
 Command execution is handled in the `org.gradle.exemplar.executor.*` classes, some output normalizers are provided in the `org.gradle.exemplar.test.normalizer` package, and output verification is handled by classes in the `org.gradle.exemplar.test.verifier` package.
 
@@ -227,11 +227,11 @@ public class BasicSampleTest {
 
 One of `executable` or `commands` are required at the root.
 If `executable` is found, the sample will be considered a single-command sample.
-Otherwise, `commands` is expected to be an Array of link:https://github.com/gradle/exemplar/blob/master/sample-discovery/src/main/java/org/gradle/samples/model/Command.java[Commands]:
+Otherwise, `commands` is expected to be an Array of link:https://github.com/gradle/exemplar/blob/master/sample-discovery/src/main/java/org/gradle/exemplar/model/Command.java[Commands]:
 
 * repeated Command `commands` -- An array of commands to run, in order.
 
-A link:https://github.com/gradle/exemplar/blob/master/sample-discovery/src/main/java/org/gradle/samples/model/Command.java[Command] is specified with these fields.
+A link:https://github.com/gradle/exemplar/blob/master/sample-discovery/src/main/java/org/gradle/exemplar/model/Command.java[Command] is specified with these fields.
 
 * required string `executable` -- Executable to invoke.
 * optional string `execution-subdirectory` -- Working directory in which to invoke the executable. _If not specified, the API assumes `./` (the directory the sample config file is in)._
@@ -244,7 +244,7 @@ A link:https://github.com/gradle/exemplar/blob/master/sample-discovery/src/main/
 
 === Output normalization
 
-sample-check allows actual output to be normalized in cases where output is semantically equivalent.
+check allows actual output to be normalized in cases where output is semantically equivalent.
 You can use normalizers by annotating your JUnit test class with `@SamplesOutputNormalizers` and specifying which normalizers (in order) you'd like to use.
 
 [source,java]
@@ -252,11 +252,11 @@ You can use normalizers by annotating your JUnit test class with `@SamplesOutput
 @SamplesOutputNormalizers({JavaObjectSerializationOutputNormalizer.class, FileSeparatorOutputNormalizer.class, GradleOutputNormalizer.class})
 ----
 
-Custom normalizers must implement the link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/normalizer/OutputNormalizer.java[`OutputNormalizer`] interface. The two above are included in sample-check.
+Custom normalizers must implement the link:https://github.com/gradle/exemplar/blob/master/check/src/main/java/org/gradle/exemplar/test/normalizer/OutputNormalizer.java[`OutputNormalizer`] interface. The two above are included in check.
 
 === Common sample modification
 
-sample-check supports modifying all samples before they are executed by implementing the link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/runner/SampleModifier.java[`SampleModifier`] interface and declaring link:https://github.com/gradle/exemplar/blob/master/sample-check/src/main/java/org/gradle/samples/test/runner/SampleModifiers.java[`SampleModifiers`].
+check supports modifying all samples before they are executed by implementing the link:https://github.com/gradle/exemplar/blob/master/check/src/main/java/org/gradle/exemplar/test/runner/SampleModifier.java[`SampleModifier`] interface and declaring link:https://github.com/gradle/exemplar/blob/master/check/src/main/java/org/gradle/exemplar/test/runner/SampleModifiers.java[`SampleModifiers`].
 This allows you to do things like set environment properties, change the executable or arguments, and even conditionally change verification based on some logic.
 For example, you might prepend a `Command` that sets up some environment before other commands are run or change `expect-failure` to `true` if you know verification conditionally won't work on Windows.
 
