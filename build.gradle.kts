@@ -2,7 +2,7 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
-version = "0.12.6"
+version = "1.0.0"
 
 nexusPublishing {
     repositories.apply {
