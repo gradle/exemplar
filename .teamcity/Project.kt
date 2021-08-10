@@ -44,6 +44,7 @@ object Verify : BuildType({
         gradle {
             useGradleWrapper = true
             tasks = "check"
+            gradleParams = "--build-cache"
             buildFile = "build.gradle.kts"
         }
     }
@@ -81,7 +82,7 @@ object Release : BuildType({
     steps {
         gradle {
             useGradleWrapper = true
-            gradleParams = "-Dgradle.publish.skip.namespace.check=true"
+            gradleParams = "--build-cache -Dgradle.publish.skip.namespace.check=true"
             tasks = "publishMavenJavaPublicationToSonatypeRepository"
             buildFile = "build.gradle.kts"
         }
