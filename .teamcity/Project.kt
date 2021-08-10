@@ -9,7 +9,7 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.vcs
 
 object Project : Project({
     buildType(Verify)
-    buildType(ReleasePlugin)
+    buildType(Release)
     params {
         param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
     }
@@ -44,7 +44,6 @@ object Verify : BuildType({
         gradle {
             useGradleWrapper = true
             tasks = "check"
-            gradleParams = "--build-cache -Dgradle.cache.remote.username=%gradle.cache.remote.username% -Dgradle.cache.remote.password=%gradle.cache.remote.password%"
             buildFile = "build.gradle.kts"
         }
     }
@@ -62,7 +61,7 @@ object Verify : BuildType({
     }
 })
 
-object ReleasePlugin : BuildType({
+object Release : BuildType({
     id = AbsoluteId("ReleaseGradleExemplar")
     uuid = "ReleaseGradleExemplar"
     name = "Release Gradle Exemplar"
@@ -82,7 +81,7 @@ object ReleasePlugin : BuildType({
     steps {
         gradle {
             useGradleWrapper = true
-            gradleParams = "--build-cache -Dgradle.publish.skip.namespace.check=true"
+            gradleParams = "-Dgradle.publish.skip.namespace.check=true"
             tasks = "publishMavenJavaPublicationToSonatypeRepository"
             buildFile = "build.gradle.kts"
         }
