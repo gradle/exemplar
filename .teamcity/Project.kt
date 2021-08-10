@@ -23,7 +23,6 @@ object Verify : BuildType({
 
     vcs {
         root(AbsoluteId("GradleExemplar_Master"))
-
         checkoutMode = CheckoutMode.ON_AGENT
         cleanCheckout = true
     }
@@ -48,18 +47,6 @@ object Verify : BuildType({
             buildFile = "build.gradle.kts"
         }
     }
-
-    features {
-        commitStatusPublisher {
-            vcsRootExtId = "GradleExemplar_Master"
-            publisher = github {
-                githubUrl = "https://api.github.com"
-                authType = personalToken {
-                    token = "%github.bot-teamcity.token%"
-                }
-            }
-        }
-    }
 })
 
 object Release : BuildType({
@@ -70,7 +57,6 @@ object Release : BuildType({
 
     vcs {
         root(AbsoluteId("GradleExemplar_Master"))
-
         checkoutMode = CheckoutMode.ON_AGENT
         cleanCheckout = true
     }
