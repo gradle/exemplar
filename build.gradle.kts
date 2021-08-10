@@ -5,6 +5,7 @@ plugins {
 version = "1.0.0"
 
 nexusPublishing {
+    packageGroup.set("com.gradle")
     repositories.apply {
         sonatype {
             nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
