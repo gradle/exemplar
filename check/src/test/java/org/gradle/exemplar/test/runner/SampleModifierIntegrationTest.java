@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.exemplar;
+package org.gradle.exemplar.test.runner;
 
-import org.gradle.exemplar.test.runner.GradleEmbeddedSamplesRunner;
-import org.gradle.exemplar.test.runner.SamplesRoot;
+import org.gradle.exemplar.test.runner.modifiers.ExtraCommandArgumentsSampleModifier;
 import org.junit.runner.RunWith;
 
-@RunWith(GradleEmbeddedSamplesRunner.class)
-@SamplesRoot(".")
-public class ReadmeTest {
+@RunWith(GradleSamplesRunner.class)
+@SamplesRoot("src/test/samples/customization")
+@SampleModifiers({ExtraCommandArgumentsSampleModifier.class})
+public class SampleModifierIntegrationTest {
 }

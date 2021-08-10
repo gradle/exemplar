@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.exemplar;
+package org.gradle.exemplar.test.normalizer;
 
-import org.gradle.exemplar.test.runner.GradleEmbeddedSamplesRunner;
-import org.gradle.exemplar.test.runner.SamplesRoot;
-import org.junit.runner.RunWith;
+import org.gradle.exemplar.executor.ExecutionMetadata;
 
-@RunWith(GradleEmbeddedSamplesRunner.class)
-@SamplesRoot(".")
-public class ReadmeTest {
+public interface OutputNormalizer {
+    /**
+     * Remove and update output that is unrelated the the sample output.
+     *
+     * @param commandOutput raw command output
+     * @param executionMetadata environment and execution information
+     * @return normalized output as a String
+     */
+    String normalize(final String commandOutput, final ExecutionMetadata executionMetadata);
 }

@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.exemplar;
+package org.gradle.exemplar.test.runner;
 
-import org.gradle.exemplar.test.runner.GradleEmbeddedSamplesRunner;
-import org.gradle.exemplar.test.runner.SamplesRoot;
+import org.gradle.exemplar.test.normalizer.FileSeparatorOutputNormalizer;
+import org.gradle.exemplar.test.normalizer.GradleOutputNormalizer;
+import org.gradle.exemplar.test.normalizer.JavaObjectSerializationOutputNormalizer;
 import org.junit.runner.RunWith;
 
-@RunWith(GradleEmbeddedSamplesRunner.class)
-@SamplesRoot(".")
-public class ReadmeTest {
+@RunWith(GradleSamplesRunner.class)
+@SamplesRoot("src/test/samples/gradle")
+// tag::sample-output-normalizers[]
+@SamplesOutputNormalizers({JavaObjectSerializationOutputNormalizer.class, FileSeparatorOutputNormalizer.class, GradleOutputNormalizer.class})
+// end::sample-output-normalizers[]
+public class GradleSamplesRunnerIntegrationTest {
 }

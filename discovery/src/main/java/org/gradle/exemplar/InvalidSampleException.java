@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
  */
 package org.gradle.exemplar;
 
-import org.gradle.exemplar.test.runner.GradleEmbeddedSamplesRunner;
-import org.gradle.exemplar.test.runner.SamplesRoot;
-import org.junit.runner.RunWith;
+public class InvalidSampleException extends RuntimeException {
+    public InvalidSampleException(String message) {
+        super(message);
+    }
 
-@RunWith(GradleEmbeddedSamplesRunner.class)
-@SamplesRoot(".")
-public class ReadmeTest {
+    public InvalidSampleException(String message, Exception cause) {
+        super(message, cause);
+    }
 }
