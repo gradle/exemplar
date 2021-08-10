@@ -10,7 +10,7 @@ toc::[]
 
 == Use cases
 
-The intent of check is to ensure that users of your command-line tool see what you expect them to see.
+The intent of the `check` module is to ensure that users of your command-line tool see what you expect them to see.
 It handles sample discovery, normalization (semantically equivalent output in different environments), and flexible output verification.
 It allows any command-line executable on the `PATH` to be invoked. You are not limited to Gradle or Java.
 

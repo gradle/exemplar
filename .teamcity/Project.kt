@@ -90,7 +90,7 @@ object ReleasePlugin : BuildType({
     params {
         param("env.JAVA_HOME", "%linux.java8.oracle.64bit%")
         param("env.GRADLE_CACHE_REMOTE_USERNAME", "%gradle.cache.remote.username%")
-        param("env.GRADLE_CACHE_REMOTE_PASSWORD", "%gradle.cache.remote.password%")
+        password("env.GRADLE_CACHE_REMOTE_PASSWORD", "%gradle.cache.remote.password%")
         param("env.MAVEN_CENTRAL_STAGING_REPO_USER", "%mavenCentralStagingRepoUser%")
         password("env.MAVEN_CENTRAL_STAGING_REPO_PASSWORD", "%mavenCentralStagingRepoPassword%")
     }

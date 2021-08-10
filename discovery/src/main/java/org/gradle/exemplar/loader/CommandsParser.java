@@ -70,9 +70,9 @@ public class CommandsParser {
         } catch (ConfigException e) {
             throw new InvalidSampleException("'executable' field cannot be empty", e);
         }
-        final String executionDirectory = org.gradle.exemplar.loader.ConfigUtil.string(commandConfig, EXECUTION_SUBDIRECTORY, null);
-        final List<String> commands = org.gradle.exemplar.loader.ConfigUtil.strings(commandConfig, ARGS, new ArrayList<String>());
-        final List<String> flags = org.gradle.exemplar.loader.ConfigUtil.strings(commandConfig, FLAGS, new ArrayList<String>());
+        final String executionDirectory = ConfigUtil.string(commandConfig, EXECUTION_SUBDIRECTORY, null);
+        final List<String> commands = ConfigUtil.strings(commandConfig, ARGS, new ArrayList<String>());
+        final List<String> flags = ConfigUtil.strings(commandConfig, FLAGS, new ArrayList<String>());
         String expectedOutput = null;
         if (commandConfig.hasPath(EXPECTED_OUTPUT_FILE)) {
             final File expectedOutputFile = new File(sampleProjectDir, commandConfig.getString(EXPECTED_OUTPUT_FILE));
@@ -84,9 +84,9 @@ public class CommandsParser {
             }
         }
 
-        final boolean expectFailures = org.gradle.exemplar.loader.ConfigUtil.booleanValue(commandConfig, EXPECT_FAILURE, false);
-        final boolean allowAdditionalOutput = org.gradle.exemplar.loader.ConfigUtil.booleanValue(commandConfig, ALLOW_ADDITIONAL_OUTPUT, false);
-        final boolean allowDisorderedOutput = org.gradle.exemplar.loader.ConfigUtil.booleanValue(commandConfig, ALLOW_DISORDERED_OUTPUT, false);
+        final boolean expectFailures = ConfigUtil.booleanValue(commandConfig, EXPECT_FAILURE, false);
+        final boolean allowAdditionalOutput = ConfigUtil.booleanValue(commandConfig, ALLOW_ADDITIONAL_OUTPUT, false);
+        final boolean allowDisorderedOutput = ConfigUtil.booleanValue(commandConfig, ALLOW_DISORDERED_OUTPUT, false);
         final List<String> userInputs = ConfigUtil.strings(commandConfig, USER_INPUTS, Collections.emptyList());
 
         return new Command(executable, executionDirectory, commands, flags, expectedOutput, expectFailures, allowAdditionalOutput, allowDisorderedOutput, userInputs);
