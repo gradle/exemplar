@@ -44,7 +44,7 @@ object Verify : BuildType({
         gradle {
             useGradleWrapper = true
             tasks = "check"
-            gradleParams = "--build-cache"
+            gradleParams = "--build-cache -Dgradle.cache.remote.push=true"
             buildFile = "build.gradle.kts"
         }
     }
@@ -89,8 +89,9 @@ object Release : BuildType({
     }
     params {
         param("env.JAVA_HOME", "%linux.java8.oracle.64bit%")
-        param("env.GRADLE_CACHE_USERNAME", "%gradle.cache.remote.username%")
-        password("env.GRADLE_CACHE_PASSWORD", "%gradle.cache.remote.password%")
+        param("env.GRADLE_CACHE_REMOTE_URL", "%gradle.cache.remote.url%")
+        param("env.GRADLE_CACHE_REMOTE_USERNAME", "%gradle.cache.remote.username%")
+        password("env.GRADLE_CACHE_REMOTE_PASSWORD", "%gradle.cache.remote.password%")
         param("env.MAVEN_CENTRAL_STAGING_REPO_USER", "%mavenCentralStagingRepoUser%")
         password("env.MAVEN_CENTRAL_STAGING_REPO_PASSWORD", "%mavenCentralStagingRepoPassword%")
     }
