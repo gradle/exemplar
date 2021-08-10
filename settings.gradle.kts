@@ -26,11 +26,7 @@ buildCache {
         .orNull
     if (username != null || password != null) {
         remote<HttpBuildCache> {
-            url = uri(
-                providers.environmentVariable("BUILD_CACHE_URL").forUseAtConfigurationTime()
-                    .orElse(providers.systemProperty("buildCacheUrl").forUseAtConfigurationTime())
-                    .getOrElse("https://e.grdev.net/cache/")
-            )
+            url = uri("https://e.grdev.net/cache/")
             isPush = true
             credentials {
                 this.username = username
