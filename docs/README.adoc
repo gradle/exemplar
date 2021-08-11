@@ -287,6 +287,7 @@ want to release. This job publishes everything to the Maven Central staging repo
 its contents.
 1. Release the staging repository.
 1. Tag the commit you just release with the version number `git tag -s VERSION -m "Tag VERSION release" && git push --tags`
+1. Go to the https://github.com/gradle/exemplar/releases[Releases section on GitHub] and create a new release using the tag you just pushed. Copy the release notes from the <<Changes>> section into the release description.
 1. Bump the version in the root build script to the next snapshot version. Push the change to `master` branch.
 
 == Changes
