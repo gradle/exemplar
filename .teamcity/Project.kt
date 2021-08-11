@@ -16,14 +16,13 @@ object Project : Project({
 })
 
 object Verify : BuildType({
-    id = AbsoluteId("VerifyGradleExemplar")
-    uuid = "VerifyGradleExemplar"
-    name = "Verify Gradle Exemplar"
-    description = "Verify Gradle Exemplar"
+    id = AbsoluteId("VerifyExemplar")
+    uuid = "VerifyExemplar"
+    name = "Verify Exemplar"
+    description = "Verify Exemplar"
 
     vcs {
-        root(AbsoluteId("GradleExemplar_Master"))
-
+        root(AbsoluteId("Exemplar_Master"))
         checkoutMode = CheckoutMode.ON_AGENT
         cleanCheckout = true
     }
@@ -48,29 +47,16 @@ object Verify : BuildType({
             buildFile = "build.gradle.kts"
         }
     }
-
-    features {
-        commitStatusPublisher {
-            vcsRootExtId = "GradleExemplar_Master"
-            publisher = github {
-                githubUrl = "https://api.github.com"
-                authType = personalToken {
-                    token = "%github.bot-teamcity.token%"
-                }
-            }
-        }
-    }
 })
 
 object Release : BuildType({
-    id = AbsoluteId("ReleaseGradleExemplar")
-    uuid = "ReleaseGradleExemplar"
-    name = "Release Gradle Exemplar"
-    description = "Release Gradle Exemplar"
+    id = AbsoluteId("ReleaseExemplar")
+    uuid = "ReleaseExemplar"
+    name = "Release Exemplar"
+    description = "Release Exemplar"
 
     vcs {
-        root(AbsoluteId("GradleExemplar_Master"))
-
+        root(AbsoluteId("Exemplar_Master"))
         checkoutMode = CheckoutMode.ON_AGENT
         cleanCheckout = true
     }

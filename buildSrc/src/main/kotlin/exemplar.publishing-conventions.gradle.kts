@@ -3,7 +3,7 @@ plugins {
     signing
 }
 
-group = "org.gradle.exemplar"
+group = rootProject.group
 version = rootProject.version
 
 publishing {
