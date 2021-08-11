@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":discovery"))
+    api(project(":samples-discovery"))
     api(Libraries.JUNIT)
     compileOnly(Libraries.JSR305)
     implementation(Libraries.COMMONS_IO)

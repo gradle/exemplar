@@ -5,6 +5,6 @@ plugins {
 
 rootProject.name = "exemplar"
 
-include("discovery")
-include("check")
+include("samples-discovery")
+include("samples-check")
 include("docs")
