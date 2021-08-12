@@ -279,9 +279,9 @@ image::https://img.shields.io/badge/code%20of-conduct-lightgrey.svg?style=flat&c
 1. Change the version number in the root build script to the version you want to release.
 1. Add missing changes to the <<Changes>> section below.
 1. Push the changes to `master` branch.
-1. Run the https://builds.gradle.org/buildConfiguration/VerifyExemplar[Verify Exemplar] job on the commit you
+1. Run the https://builds.gradle.org/buildConfiguration/Build_Tool_Services_Exemplar_Verify[Verify Exemplar] job on the commit you
 want to release.
-1. Run the https://builds.gradle.org/buildConfiguration/ReleaseExemplar[Release Exemplar] job on the commit you
+1. Run the https://builds.gradle.org/buildConfiguration/Build_Tool_Services_Exemplar_Publish[Publish Exemplar] job on the commit you
 want to release. This job publishes everything to the Maven Central staging repository.
 1. https://s01.oss.sonatype.org/#stagingRepositories[Login to Sonatype], close the staging repository after reviewing
 its contents.
