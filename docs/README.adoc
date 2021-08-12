@@ -135,7 +135,7 @@ You can verify samples either through one of the <<verifying-using-a-junit-runne
 
 ==== Verifying using a JUnit Runner
 
-This library provides 2 JUnit runners link:src/main/java/org/gradle/exemplar/test/runner/SamplesRunner.java[`SamplesRunner`] (executes via CLI) and link:src/main/java/org/gradle/exemplar/test/runner/GradleSamplesRunner.java[`GradleSamplesRunner`] (executes samples using https://docs.gradle.org/current/userguide/test_kit.html[Gradle TestKit]). If you are using `GradleSamplesRunner`, you will need to add `gradleTestKit()` and SLF4J binding dependencies as well:
+This library provides 2 JUnit runners link:../samples-check/src/main/java/org/gradle/exemplar/test/runner/SamplesRunner.java[`SamplesRunner`] (executes via CLI) and link:../samples-check/src/main/java/org/gradle/exemplar/test/runner/GradleSamplesRunner.java[`GradleSamplesRunner`] (executes samples using https://docs.gradle.org/current/userguide/test_kit.html[Gradle TestKit]). If you are using `GradleSamplesRunner`, you will need to add `gradleTestKit()` and SLF4J binding dependencies as well:
 
 [source,kotlin]
 ----
