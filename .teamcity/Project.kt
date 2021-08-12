@@ -9,7 +9,7 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.vcs
 
 object Project : Project({
     buildType(Verify)
-    buildType(Release)
+    buildType(Publish)
     params {
         param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
     }
@@ -49,7 +49,7 @@ object Verify : BuildType({
     }
 })
 
-object Release : BuildType({
+object Publish : BuildType({
     id = AbsoluteId("Build_Tool_Services_Exemplar_Publish")
     uuid = "Build_Tool_Services_Exemplar_Publish"
     name = "Publish Exemplar"
@@ -69,7 +69,7 @@ object Release : BuildType({
         gradle {
             useGradleWrapper = true
             gradleParams = "--build-cache -Dgradle.publish.skip.namespace.check=true"
-            tasks = "publishMavenJavaPublicationToSonatypeRepository"
+            tasks = "clean publishMavenJavaPublicationToSonatypeRepository"
             buildFile = "build.gradle.kts"
         }
     }
