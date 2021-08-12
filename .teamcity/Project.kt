@@ -16,10 +16,10 @@ object Project : Project({
 })
 
 object Verify : BuildType({
-    id = AbsoluteId("VerifyExemplar")
-    uuid = "VerifyExemplar"
+    id = AbsoluteId("Build_Tool_Services_Exemplar_Verify")
+    uuid = "Build_Tool_Services_Exemplar_Verify"
     name = "Verify Exemplar"
-    description = "Verify Exemplar"
+    description = "Verify integrity of Exemplar libraries"
 
     vcs {
         root(AbsoluteId("Exemplar_Master"))
@@ -50,10 +50,10 @@ object Verify : BuildType({
 })
 
 object Release : BuildType({
-    id = AbsoluteId("ReleaseExemplar")
-    uuid = "ReleaseExemplar"
-    name = "Release Exemplar"
-    description = "Release Exemplar"
+    id = AbsoluteId("Build_Tool_Services_Exemplar_Publish")
+    uuid = "Build_Tool_Services_Exemplar_Publish"
+    name = "Publish Exemplar"
+    description = "Publish Exemplar libraries to Maven Central staging repository"
 
     vcs {
         root(AbsoluteId("Exemplar_Master"))
