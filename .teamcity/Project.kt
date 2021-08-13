@@ -11,7 +11,6 @@ object Project : Project({
     buildType(Verify)
     buildType(Publish)
     params {
-        param("env.JAVA_HOME", "%linux.java8.oracle.64bit%")
         param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
         param("env.GRADLE_CACHE_REMOTE_URL", "%gradle.cache.remote.url%")
         param("env.GRADLE_CACHE_REMOTE_USERNAME", "%gradle.cache.remote.username%")
