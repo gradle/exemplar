@@ -43,7 +43,7 @@ object Verify : BuildType({
         gradle {
             useGradleWrapper = true
             tasks = "check"
-            gradleParams = "--build-cache -Dgradle.cache.remote.push=true"
+            gradleParams = "--build-cache -Dgradle.cache.remote.push=%env.BUILD_CACHE_PUSH%"
             buildFile = "build.gradle.kts"
         }
     }
@@ -68,16 +68,13 @@ object Publish : BuildType({
     steps {
         gradle {
             useGradleWrapper = true
-            gradleParams = "--build-cache -Dgradle.publish.skip.namespace.check=true"
             tasks = "clean publishMavenJavaPublicationToSonatypeRepository"
+            gradleParams = "--build-cache -Dgradle.publish.skip.namespace.check=true"
             buildFile = "build.gradle.kts"
         }
     }
     params {
         param("env.JAVA_HOME", "%linux.java8.oracle.64bit%")
-        param("env.GRADLE_CACHE_REMOTE_URL", "%gradle.cache.remote.url%")
-        param("env.GRADLE_CACHE_REMOTE_USERNAME", "%gradle.cache.remote.username%")
-        password("env.GRADLE_CACHE_REMOTE_PASSWORD", "%gradle.cache.remote.password%")
         param("env.MAVEN_CENTRAL_STAGING_REPO_USER", "%mavenCentralStagingRepoUser%")
         password("env.MAVEN_CENTRAL_STAGING_REPO_PASSWORD", "%mavenCentralStagingRepoPassword%")
     }
