@@ -6,7 +6,8 @@ plugins {
 
 dependencies {
     api(project(":samples-discovery"))
-    api(Libraries.JUNIT)
+    implementation(Libraries.JUNIT)
+    implementation("org.junit.platform:junit-platform-engine:1.8.1")
     compileOnly(Libraries.JSR305)
     implementation(Libraries.COMMONS_IO)
     implementation(Libraries.COMMONS_LANG3)
