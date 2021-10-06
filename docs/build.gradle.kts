@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     implementation(project(":samples-check"))
+    implementation(Libraries.JUNIT)
 }
 
 tasks.test {

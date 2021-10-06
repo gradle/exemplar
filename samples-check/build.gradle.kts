@@ -9,6 +9,7 @@ dependencies {
     compileOnly(libs.jsr305)
     implementation(libs.commons.io)
     implementation(libs.commons.lang3)
+    implementation("org.junit.platform:junit-platform-engine:1.8.1")
     implementation(gradleTestKit())
     testImplementation(libs.cglib)
     testImplementation(libs.groovy)
