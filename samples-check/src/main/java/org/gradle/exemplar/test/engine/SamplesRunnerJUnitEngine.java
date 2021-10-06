@@ -133,10 +133,6 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
     }
 
     protected CommandExecutor selectExecutor(ExecutionMetadata executionMetadata, File workingDir, Command command) {
-        boolean expectFailure = command.isExpectFailure();
-        if (command.getExecutable().equals("gradle")) {
-            return new PluginUnderTestAwareGradleRunnerCommandExecutor(workingDir, null, expectFailure);
-        }
         return new CliCommandExecutor(workingDir);
     }
 
