@@ -21,7 +21,7 @@ import org.gradle.exemplar.model.Command;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,6 +38,7 @@ public class CommandsParser {
     private static final String ALLOW_DISORDERED_OUTPUT = "allow-disordered-output";
     private static final String EXPECTED_OUTPUT_FILE = "expected-output-file";
     private static final String USER_INPUTS = "user-inputs";
+    private static final String COMMAND_EXECUTOR = "command-executor";
 
     public static List<Command> parse(final File sampleConfigFile) {
         try {
@@ -63,22 +64,26 @@ public class CommandsParser {
     }
 
     private static Command parseCommand(final Config commandConfig, final File sampleProjectDir) {
-        // NOTE: A user must specify an executable. This prevents unexpected behavior when an empty or unexpected file is accidentally loaded
-        String executable;
+        final String executionDirectory = ConfigUtil.string(commandConfig, EXECUTION_SUBDIRECTORY, null);
+        final String executorName = ConfigUtil.string(commandConfig, COMMAND_EXECUTOR, "CLI");
+        String executable = "";
         try {
             executable = commandConfig.getString(EXECUTABLE);
         } catch (ConfigException e) {
-            throw new InvalidSampleException("'executable' field cannot be empty", e);
+            // NOTE: A user must specify an executable for CLI executor. This prevents unexpected behavior when an empty or unexpected file is accidentally loaded.
+            // Custom executors may not need them.
+            if("CLI".equals(executorName)){
+                throw new InvalidSampleException("'executable' field cannot be empty for CLI executor", e);
+            }
         }
-        final String executionDirectory = ConfigUtil.string(commandConfig, EXECUTION_SUBDIRECTORY, null);
-        final List<String> commands = ConfigUtil.strings(commandConfig, ARGS, new ArrayList<String>());
-        final List<String> flags = ConfigUtil.strings(commandConfig, FLAGS, new ArrayList<String>());
+        final List<String> commands = ConfigUtil.strings(commandConfig, ARGS, new ArrayList<>());
+        final List<String> flags = ConfigUtil.strings(commandConfig, FLAGS, new ArrayList<>());
         String expectedOutput = null;
         if (commandConfig.hasPath(EXPECTED_OUTPUT_FILE)) {
             final File expectedOutputFile = new File(sampleProjectDir, commandConfig.getString(EXPECTED_OUTPUT_FILE));
             try {
                 final Path path = Paths.get(expectedOutputFile.getAbsolutePath());
-                expectedOutput = new String(Files.readAllBytes(path), Charset.forName("UTF-8"));
+                expectedOutput = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 throw new InvalidSampleException("Could not read sample output file " + expectedOutputFile.getAbsolutePath(), e);
             }
@@ -89,6 +94,6 @@ public class CommandsParser {
         final boolean allowDisorderedOutput = ConfigUtil.booleanValue(commandConfig, ALLOW_DISORDERED_OUTPUT, false);
         final List<String> userInputs = ConfigUtil.strings(commandConfig, USER_INPUTS, Collections.emptyList());
 
-        return new Command(executable, executionDirectory, commands, flags, expectedOutput, expectFailures, allowAdditionalOutput, allowDisorderedOutput, userInputs);
+        return new Command(executable, executionDirectory, commands, flags, expectedOutput, expectFailures, allowAdditionalOutput, allowDisorderedOutput, userInputs, executorName);
     }
 }

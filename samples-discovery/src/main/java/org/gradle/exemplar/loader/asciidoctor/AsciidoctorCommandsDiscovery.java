@@ -123,7 +123,8 @@ public class AsciidoctorCommandsDiscovery {
                 attributes.containsKey("expect-failure"),
                 attributes.containsKey("allow-additional-output"),
                 attributes.containsKey("allow-disordered-output"),
-                attributes.containsKey("user-inputs") ? toUserInputs(attributes.get("user-inputs").toString()) : Collections.emptyList());
+                attributes.containsKey("user-inputs") ? toUserInputs(attributes.get("user-inputs").toString()) : Collections.emptyList(),
+                "CLI");
         commands.add(command);
         return nextCommand;
     }

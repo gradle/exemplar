@@ -59,7 +59,7 @@ public class GradleSamplesRunner extends SamplesRunner {
         if (command.getExecutable().equals(GRADLE_EXECUTABLE)) {
             return new GradleRunnerCommandExecutor(workingDir, customGradleInstallation, expectFailure);
         }
-        return new CliCommandExecutor(workingDir);
+        return new CliCommandExecutor();
     }
 
     @Nullable
