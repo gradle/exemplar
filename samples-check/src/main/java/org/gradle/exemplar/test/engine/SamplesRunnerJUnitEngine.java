@@ -2,10 +2,7 @@ package org.gradle.exemplar.test.engine;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.exemplar.executor.CliCommandExecutor;
-import org.gradle.exemplar.executor.CommandExecutionResult;
-import org.gradle.exemplar.executor.CommandExecutor;
-import org.gradle.exemplar.executor.ExecutionMetadata;
+import org.gradle.exemplar.executor.*;
 import org.gradle.exemplar.loader.SamplesDiscovery;
 import org.gradle.exemplar.model.Command;
 import org.gradle.exemplar.model.Sample;
@@ -183,11 +180,23 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
     }
 
     private CommandExecutionResult executeSample(ExecutionMetadata executionMetadata, File workingDir, Command command) {
-        return selectExecutor(executionMetadata, workingDir, command).execute(command, executionMetadata);
+        CommandExecutorExtension commandExecutor = selectExecutor(executionMetadata, workingDir, command);
+        return commandExecutor.execute(command, executionMetadata, workingDir);
     }
 
-    protected CommandExecutor selectExecutor(ExecutionMetadata executionMetadata, File workingDir, Command command) {
-        return new CliCommandExecutor(workingDir);
+    protected CommandExecutorExtension selectExecutor(ExecutionMetadata executionMetadata, File workingDir, Command command) {
+        String executorName = command.getExecutorName();
+        if("CLI".equals(executorName)){
+            return new CliCommandExecutor();
+        }else if(StringUtils.isNotBlank(executorName)){
+            try
+            {
+                return (CommandExecutorExtension)(Class.forName(executorName).getDeclaredConstructor().newInstance());
+            }catch (Exception e){
+                throw new IllegalArgumentException("Could not init a custom executor: '"+executorName+"', caused by: "+e.getMessage(), e);
+            }
+        }
+        throw new IllegalArgumentException("Unknown executor: '"+ executorName +"' provided.");
     }
 
     private ExecutionMetadata getExecutionMetadata(final File tempSampleOutputDir) {

@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class Command {
+     private final String executorName;
     private final String executable;
     private final String executionSubdirectory;
     private final List<String> args;
@@ -30,7 +31,9 @@ public class Command {
     private final boolean allowDisorderedOutput;
     private final List<String> userInputs;
 
-    public Command(@Nonnull String executable, @Nullable String executionDirectory, List<String> args, List<String> flags, @Nullable String expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput, List<String> userInputs) {
+    public Command(@Nonnull String executable, @Nullable String executionDirectory, List<String> args, List<String> flags,
+                   @Nullable String expectedOutput, boolean expectFailure, boolean allowAdditionalOutput,
+                   boolean allowDisorderedOutput, List<String> userInputs, String executorName) {
         this.executable = executable;
         this.executionSubdirectory = executionDirectory;
         this.args = args;
@@ -40,6 +43,12 @@ public class Command {
         this.allowAdditionalOutput = allowAdditionalOutput;
         this.allowDisorderedOutput = allowDisorderedOutput;
         this.userInputs = userInputs;
+        this.executorName = executorName;
+    }
+
+    @Nonnull
+    public String getExecutorName() {
+        return executorName;
     }
 
     @Nonnull
@@ -102,7 +111,8 @@ public class Command {
                 isExpectFailure(),
                 isAllowAdditionalOutput(),
                 isAllowDisorderedOutput(),
-                getUserInputs());
+                getUserInputs(),
+                getExecutorName());
     }
 
     public static class Builder {
@@ -115,8 +125,11 @@ public class Command {
         private boolean allowAdditionalOutput;
         private boolean allowDisorderedOutput;
         private List<String> userInputs;
+        private String executorName;
 
-        private Builder(String executable, String executionDirectory, List<String> args, List<String> flags, String expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput, List<String> userInputs) {
+        private Builder(String executable, String executionDirectory, List<String> args, List<String> flags,
+                        String expectedOutput, boolean expectFailure, boolean allowAdditionalOutput,
+                        boolean allowDisorderedOutput, List<String> userInputs, String executorName) {
             this.executable = executable;
             this.executionSubdirectory = executionDirectory;
             this.args = args;
@@ -126,6 +139,7 @@ public class Command {
             this.allowAdditionalOutput = allowAdditionalOutput;
             this.allowDisorderedOutput = allowDisorderedOutput;
             this.userInputs = userInputs;
+            this.executorName = executorName;
         }
 
         public Builder setExecutable(String executable) {
@@ -168,8 +182,13 @@ public class Command {
             return this;
         }
 
+        public Builder setExecutorName(String executorName){
+            this.executorName = executorName;
+            return this;
+        }
+
         public Command build() {
-            return new Command(executable, executionSubdirectory, args, flags, expectedOutput, expectFailure, allowAdditionalOutput, allowDisorderedOutput, userInputs);
+            return new Command(executable, executionSubdirectory, args, flags, expectedOutput, expectFailure, allowAdditionalOutput, allowDisorderedOutput, userInputs, executorName);
         }
     }
 }

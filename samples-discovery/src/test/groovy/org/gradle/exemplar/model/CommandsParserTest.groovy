@@ -57,10 +57,10 @@ class CommandsParserTest extends Specification {
         e.cause.message == "A sample must be defined with an 'executable' or 'commands'"
     }
 
-    def "fails fast when no executable for command specified"() {
+    def "fails fast when no executable for CLI command is specified - default way"() {
         given:
         sampleConfigFile << """
-            commands: [{ }, { }]
+            commands: [{ }]
         """
 
         when:
@@ -69,7 +69,36 @@ class CommandsParserTest extends Specification {
         then:
         def e = thrown(InvalidSampleException)
         e.message == "Could not read sample definition from ${sampleConfigFile}."
-        e.cause.message == "'executable' field cannot be empty"
+        e.cause.message == "'executable' field cannot be empty for CLI executor"
+    }
+
+    def "fails fast when no executable for CLI command is specified - explicit way"() {
+        given:
+        sampleConfigFile << """
+            commands: [{ command-executor: CLI}]
+        """
+
+        when:
+        CommandsParser.parse(sampleConfigFile)
+
+        then:
+        def e = thrown(InvalidSampleException)
+        e.message == "Could not read sample definition from ${sampleConfigFile}."
+        e.cause.message == "'executable' field cannot be empty for CLI executor"
+    }
+
+    def "succeeds when no executable for non-CLI command is specified"() {
+        given:
+        sampleConfigFile << """
+            commands: [{ command-executor: my.custom.executor }]
+        """
+
+        when:
+        def config = CommandsParser.parse(sampleConfigFile)
+
+        then:
+        config.get(0).getExecutorName() == "my.custom.executor"
+        config.get(0).getExecutable() == ""
     }
 
     def "provides reasonable defaults for command config"() {

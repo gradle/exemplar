@@ -15,15 +15,11 @@
  */
 package org.gradle.exemplar.executor;
 
-import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CliCommandExecutor extends CommandExecutor {
-    public CliCommandExecutor(File directory) {
-        super(directory);
-    }
 
     @Override
     public int run(final String executable, final List<String> args, final List<String> flags, final OutputStream output) {

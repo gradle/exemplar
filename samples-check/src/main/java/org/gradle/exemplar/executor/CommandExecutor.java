@@ -25,16 +25,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public abstract class CommandExecutor {
-    private final File directory;
+public abstract class CommandExecutor implements CommandExecutorExtension {
 
-    public CommandExecutor() {
-        this.directory = null;
-    }
-
-    protected CommandExecutor(final File directory) {
-        this.directory = directory;
-    }
+    private File directory;
 
     protected abstract int run(final String executable, final List<String> args, final List<String> flags, final OutputStream output);
 
@@ -159,7 +152,8 @@ public abstract class CommandExecutor {
         }
     }
 
-    public CommandExecutionResult execute(final Command command, final ExecutionMetadata executionMetadata) {
+    public CommandExecutionResult execute(final Command command, final ExecutionMetadata executionMetadata, File workingDir) {
+        this.directory = workingDir;
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final int exitCode = run(command.getExecutable(), command.getArgs(), command.getFlags(), outputStream);
 

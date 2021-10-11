@@ -127,7 +127,7 @@ public class AsciidoctorSamplesDiscovery {
             try {
                 sampleDir = Files.createDirectory(tempDir.resolve(sampleId)).toFile();
             } catch (IOException e) {
-                throw new IllegalStateException("Could not create temp sample directory under " + tempDir.toString());
+                throw new IllegalStateException("Could not create temp sample directory under " + tempDir);
             }
             extractEmbeddedSampleSources((Block) node, sampleDir);
         }
@@ -198,7 +198,8 @@ public class AsciidoctorSamplesDiscovery {
             attributes.containsKey("expect-failure"),
             attributes.containsKey("allow-additional-output"),
             attributes.containsKey("allow-disordered-output"),
-            Collections.emptyList());
+            Collections.emptyList(),
+            "CLI");
         commands.add(command);
         return nextCommand;
     }
@@ -214,7 +215,7 @@ public class AsciidoctorSamplesDiscovery {
                 try {
                     Files.write(sampleFile.toPath(), block.getContent().toString().getBytes());
                 } catch (IOException e) {
-                    throw new IllegalStateException("Could not write sample source file " + sampleFile.toPath().toString());
+                    throw new IllegalStateException("Could not write sample source file " + sampleFile.toPath());
                 }
             }
         }

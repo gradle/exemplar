@@ -213,14 +213,14 @@ public class SamplesRunner extends ParentRunner<Sample> {
     }
 
     private CommandExecutionResult execute(ExecutionMetadata executionMetadata, File workingDir, Command command) {
-        return selectExecutor(executionMetadata, workingDir, command).execute(command, executionMetadata);
+        return selectExecutor(executionMetadata, workingDir, command).execute(command, executionMetadata, workingDir);
     }
 
     /**
      * Allows a subclass to provide a custom {@link CommandExecutor}.
      */
     protected CommandExecutor selectExecutor(ExecutionMetadata executionMetadata, File workingDir, Command command) {
-        return new CliCommandExecutor(workingDir);
+        return new CliCommandExecutor();
     }
 
     private ExecutionMetadata getExecutionMetadata(final File tempSampleOutputDir) {
