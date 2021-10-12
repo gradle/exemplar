@@ -10,9 +10,8 @@ import org.gradle.exemplar.loader.SamplesDiscovery;
 import org.gradle.exemplar.model.Command;
 import org.gradle.exemplar.model.Sample;
 import org.gradle.exemplar.test.normalizer.OutputNormalizer;
-import org.gradle.exemplar.test.runner.SampleModifier;
-import org.gradle.exemplar.test.runner.SamplesRoot;
-import org.gradle.exemplar.test.runner.SamplesRunner;
+import org.gradle.exemplar.test.SampleModifier;
+import org.gradle.exemplar.test.Samples;
 import org.gradle.exemplar.test.verifier.AnyOrderLineSegmentedOutputVerifier;
 import org.gradle.exemplar.test.verifier.StrictOrderLineSegmentedOutputVerifier;
 import org.junit.platform.engine.EngineDiscoveryRequest;
@@ -30,18 +29,24 @@ import org.opentest4j.AssertionFailedError;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static java.util.Collections.emptyList;
 
 public class SamplesRunnerJUnitEngine implements TestEngine {
 
+    // See https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
+    public static final List<String> SAFE_SYSTEM_PROPERTIES = Arrays.asList("file.separator", "java.home", "java.vendor", "java.version", "line.separator", "os.arch", "os.name", "os.version", "path.separator", "user.dir", "user.home", "user.name");
+
     private final File tempDir;
-    private final List<? extends OutputNormalizer> normalizers = emptyList();
-    private final List<SampleModifier> sampleModifiers = emptyList();
 
     public SamplesRunnerJUnitEngine() throws IOException {
         tempDir = Files.createTempDirectory("samples-junit-engine").toFile();
@@ -58,25 +63,47 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
         discoveryRequest.getSelectorsByType(ClassSelector.class)
                 .stream()
                 .map(ClassSelector::getJavaClass).forEach(javaClass -> {
-                    SamplesRoot samplesRoot = javaClass.getAnnotation(SamplesRoot.class);
-                    if (samplesRoot != null) {
-                        SamplesTestDescriptor samplesTestDescriptor = new SamplesTestDescriptor(
-                                uniqueId.append("className", javaClass.getSimpleName()),
-                                javaClass
-                        );
-
-                        for (Sample sample : SamplesDiscovery.externalSamples(getSamplesRootDir(samplesRoot))) {
-                            samplesTestDescriptor.addChild(new SampleTestDescriptor(
-                                    uniqueId.append("sampleId", sample.getId()),
-                                    sample
-                            ));
-                        }
-
-                        engineDescriptor.addChild(samplesTestDescriptor);
-                    }
+                    filterClass(uniqueId, engineDescriptor, javaClass);
                 });
 
         return engineDescriptor;
+    }
+
+    private void filterClass(UniqueId uniqueId, EngineDescriptor engineDescriptor, Class<?> javaClass) {
+        Samples samplesDef = javaClass.getAnnotation(Samples.class);
+        if (samplesDef != null) {
+            UniqueId classUniqueId = uniqueId.append("className", javaClass.getSimpleName());
+            SamplesTestDescriptor samplesTestDescriptor = new SamplesTestDescriptor(
+                    classUniqueId,
+                    javaClass
+            );
+
+            List<Sample> samples = samplesDef.samplesType() == Samples.SamplesType.DEFAULT ?
+                    SamplesDiscovery.externalSamples(getSamplesRootDir(
+                            samplesDef.root(),
+                            samplesDef.implicitRootDirSupplier()
+                    )) :
+                    SamplesDiscovery.embeddedSamples(getSamplesRootDir(
+                            samplesDef.root(),
+                            samplesDef.implicitRootDirSupplier()
+                    ));
+
+            List<? extends OutputNormalizer> normalizers = instantiateList(samplesDef.outputNormalizers());
+            List<SampleModifier> sampleModifiers = instantiateList(samplesDef.modifiers());
+            Function<CommandExecutorParams, CommandExecutor> commandExecutorFunction = instantiateObject(samplesDef.commandExecutorFunction());
+
+            samples.forEach(sample ->
+                    samplesTestDescriptor.addChild(new SampleTestDescriptor(
+                            classUniqueId.append("sampleId", sample.getId()),
+                            sample,
+                            commandExecutorFunction,
+                            normalizers,
+                            sampleModifiers
+                    ))
+            );
+
+            engineDescriptor.addChild(samplesTestDescriptor);
+        }
     }
 
     @Override
@@ -91,7 +118,7 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
                 SampleTestDescriptor descriptor = (SampleTestDescriptor) testDescriptor;
                 listener.executionStarted(testDescriptor);
                 try {
-                    runSample(descriptor.sample);
+                    runSample(descriptor);
                     listener.executionFinished(testDescriptor, TestExecutionResult.successful());
                 } catch (Throwable t) {
                     listener.executionFinished(testDescriptor, TestExecutionResult.failed(t));
@@ -103,12 +130,15 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
         listener.executionFinished(engineDescriptor, TestExecutionResult.successful());
     }
 
-    protected File getSamplesRootDir(SamplesRoot samplesRoot) {
-        File samplesRootDir = null;
+    protected File getSamplesRootDir(String samplesRoot, Class<? extends Supplier<File>> implicitRootDirSupplier) {
+        File samplesRootDir;
         try {
             if (samplesRoot != null) {
-                samplesRootDir = new File(samplesRoot.value());
+                samplesRootDir = new File(samplesRoot);
+            } else {
+                samplesRootDir = supply(implicitRootDirSupplier);
             }
+
             if (samplesRootDir == null) {
                 throw new IllegalArgumentException("Samples root directory is not declared. Please annotate your test class with @SamplesRoot(\"path/to/samples\")");
             }
@@ -121,8 +151,37 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
         return samplesRootDir;
     }
 
-    private void runSample(Sample sample) throws Exception {
-        final Sample testSpecificSample = initSample(sample);
+    private static <T> List<T> instantiateList(Class<? extends T>[] classes) {
+        if (classes == null) {
+            return emptyList();
+        }
+
+        List<T> list = new ArrayList<>();
+        for (Class<? extends T> clazz : classes) {
+            try {
+                list.add(clazz.getConstructor().newInstance());
+            } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException("Could not instantiate " + clazz.getName(), e);
+            }
+        }
+
+        return list;
+    }
+
+    private static <T> T instantiateObject(Class<? extends T> supplierClass) {
+        try {
+            return supplierClass.getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            throw new IllegalArgumentException("Unable to supply a value from " + supplierClass + " class", e);
+        }
+    }
+
+    private static <T> T supply(Class<? extends Supplier<T>> supplierClass) {
+        return instantiateObject(supplierClass).get();
+    }
+
+    private void runSample(SampleTestDescriptor descriptor) throws Exception {
+        final Sample testSpecificSample = initSample(descriptor);
         File baseWorkingDir = testSpecificSample.getProjectDir();
 
         // Execute and verify each command
@@ -139,7 +198,7 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
                 continue;
             }
 
-            CommandExecutionResult result = executeSample(getExecutionMetadata(testSpecificSample.getProjectDir()), workingDir, command);
+            CommandExecutionResult result = executeSample(descriptor, workingDir, command);
 
             if (result.getExitCode() != 0 && !command.isExpectFailure()) {
                 throw new AssertionFailedError(String.format(
@@ -159,11 +218,15 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
                 ));
             }
 
-            verifyOutput(command, result);
+            verifyOutput(command, result, descriptor.normalizers);
         }
     }
 
-    private void verifyOutput(final Command command, final CommandExecutionResult executionResult) {
+    private void verifyOutput(
+            final Command command,
+            final CommandExecutionResult executionResult,
+            final List<? extends OutputNormalizer> normalizers
+    ) {
         if (command.getExpectedOutput() == null) {
             return;
         }
@@ -182,28 +245,29 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
         }
     }
 
-    private CommandExecutionResult executeSample(ExecutionMetadata executionMetadata, File workingDir, Command command) {
-        return selectExecutor(executionMetadata, workingDir, command).execute(command, executionMetadata);
-    }
-
-    protected CommandExecutor selectExecutor(ExecutionMetadata executionMetadata, File workingDir, Command command) {
-        return new CliCommandExecutor(workingDir);
+    private CommandExecutionResult executeSample(SampleTestDescriptor descriptor, File workingDir, Command command) {
+        ExecutionMetadata executionMetadata = getExecutionMetadata(descriptor.sample.getProjectDir());
+        CommandExecutorParams commandExecutorParams = new CommandExecutorParams(executionMetadata, workingDir, command);
+        return descriptor.commandExecutorFunction
+                .apply(commandExecutorParams)
+                .execute(command, executionMetadata);
     }
 
     private ExecutionMetadata getExecutionMetadata(final File tempSampleOutputDir) {
         Map<String, String> systemProperties = new HashMap<>();
-        for (String systemPropertyKey : SamplesRunner.SAFE_SYSTEM_PROPERTIES) {
+        for (String systemPropertyKey : SAFE_SYSTEM_PROPERTIES) {
             systemProperties.put(systemPropertyKey, System.getProperty(systemPropertyKey));
         }
 
         return new ExecutionMetadata(tempSampleOutputDir, systemProperties);
     }
 
-    private Sample initSample(final Sample sampleIn) throws IOException {
+    private Sample initSample(final SampleTestDescriptor descriptor) throws IOException {
+        Sample sampleIn = descriptor.sample;
         File tmpProjectDir = new File(tempDir, sampleIn.getId());
         FileUtils.copyDirectory(sampleIn.getProjectDir(), tmpProjectDir);
         Sample sample = new Sample(sampleIn.getId(), tmpProjectDir, sampleIn.getCommands());
-        for (SampleModifier sampleModifier : sampleModifiers) {
+        for (SampleModifier sampleModifier : descriptor.sampleModifiers) {
             sample = sampleModifier.modify(sample);
         }
         return sample;
@@ -212,10 +276,21 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
     private static class SampleTestDescriptor extends AbstractTestDescriptor {
 
         private final Sample sample;
+        private final Function<CommandExecutorParams, CommandExecutor> commandExecutorFunction;
+        private final List<? extends OutputNormalizer> normalizers;
+        private final List<SampleModifier> sampleModifiers;
 
-        private SampleTestDescriptor(UniqueId uniqueId, Sample sample) {
+        private SampleTestDescriptor(
+                UniqueId uniqueId,
+                Sample sample,
+                Function<CommandExecutorParams, CommandExecutor> commandExecutorFunction, List<? extends OutputNormalizer> normalizers,
+                List<SampleModifier> sampleModifiers
+        ) {
             super(uniqueId, sample.getId());
             this.sample = sample;
+            this.commandExecutorFunction = commandExecutorFunction;
+            this.normalizers = normalizers;
+            this.sampleModifiers = sampleModifiers;
         }
 
         @Override

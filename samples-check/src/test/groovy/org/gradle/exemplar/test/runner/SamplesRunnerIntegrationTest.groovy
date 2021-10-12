@@ -1,8 +1,8 @@
 package org.gradle.exemplar.test.runner
 
+import org.gradle.exemplar.test.Samples
 import org.junit.experimental.categories.Category
 import org.junit.runner.Request
-import org.junit.runner.RunWith
 import spock.lang.Specification
 
 class SamplesRunnerIntegrationTest extends Specification {
@@ -23,8 +23,7 @@ class SamplesRunnerIntegrationTest extends Specification {
         notifier.failures.empty
     }
 
-    @RunWith(SamplesRunner.class)
-    @SamplesRoot("src/test/samples/cli")
+    @Samples(root = "src/test/samples/cli")
     @Category(CoveredByTests)
     static class HappyDaySamples {}
 
@@ -42,8 +41,7 @@ class SamplesRunnerIntegrationTest extends Specification {
         notifier.failures.empty
     }
 
-    @RunWith(SamplesRunner.class)
-    @SamplesRoot("src/test/samples/cli-with-working-directory")
+    @Samples(root = "src/test/samples/cli-with-working-directory")
     @Category(CoveredByTests)
     static class HappyDayWithWorkingDirectorySamples {}
 
@@ -61,8 +59,7 @@ class SamplesRunnerIntegrationTest extends Specification {
         notifier.failures.empty
     }
 
-    @RunWith(SamplesRunner.class)
-    @SamplesRoot("src/test/samples/cli-with-working-directory-and-change-directory")
+    @Samples(root = "src/test/samples/cli-with-working-directory-and-change-directory")
     @Category(CoveredByTests)
     static class HappyDayWithWorkingDirectoryAndChangeDirectoryCommandSamples {}
 }

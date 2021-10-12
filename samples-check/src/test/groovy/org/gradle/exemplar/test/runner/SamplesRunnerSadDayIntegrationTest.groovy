@@ -1,5 +1,6 @@
 package org.gradle.exemplar.test.runner
 
+import org.gradle.exemplar.test.Samples
 import org.junit.Rule
 import org.junit.experimental.categories.Category
 import org.junit.rules.TemporaryFolder
@@ -59,13 +60,11 @@ class SamplesRunnerSadDayIntegrationTest extends Specification {
         """.stripIndent().trim()
     }
 
-    @SamplesRoot("src/test/resources/broken/command")
-    @RunWith(SamplesRunner)
+    @Samples(root = "src/test/resources/broken/command")
     @Category(CoveredByTests)
     static class HasBadCommand {}
 
-    @SamplesRoot("src/test/resources/broken/output")
-    @RunWith(SamplesRunner)
+    @Samples(root = "src/test/resources/broken/output")
     @Category(CoveredByTests)
     static class HasBadOutput {}
 }

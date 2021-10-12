@@ -15,11 +15,16 @@
  */
 package org.gradle.exemplar.test.runner;
 
+import org.gradle.exemplar.test.Samples;
+import org.gradle.exemplar.test.engine.GradleSamplesExtension;
 import org.gradle.exemplar.test.runner.modifiers.ExtraCommandArgumentsSampleModifier;
 import org.junit.runner.RunWith;
 
-@RunWith(GradleSamplesRunner.class)
-@SamplesRoot("src/test/samples/customization")
-@SampleModifiers({ExtraCommandArgumentsSampleModifier.class})
+@Samples(
+        root = "src/test/samples/customization",
+        implicitRootDirSupplier = GradleSamplesExtension.ImplicitSamplesRootDirSupplier.class,
+        commandExecutorFunction = GradleSamplesExtension.GradleCommandExecutorFunction.class,
+        modifiers = {ExtraCommandArgumentsSampleModifier.class}
+)
 public class SampleModifierIntegrationTest {
 }

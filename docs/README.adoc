@@ -135,7 +135,7 @@ You can verify samples either through one of the <<verifying-using-a-junit-runne
 
 ==== Verifying using a JUnit Runner
 
-This library provides 2 JUnit runners link:../samples-check/src/main/java/org/gradle/exemplar/test/runner/SamplesRunner.java[`SamplesRunner`] (executes via CLI) and link:../samples-check/src/main/java/org/gradle/exemplar/test/runner/GradleSamplesRunner.java[`GradleSamplesRunner`] (executes samples using https://docs.gradle.org/current/userguide/test_kit.html[Gradle TestKit]). If you are using `GradleSamplesRunner`, you will need to add `gradleTestKit()` and SLF4J binding dependencies as well:
+This library provides 2 JUnit runners link:../samples-check/src/main/java/org/gradle/exemplar/test/runner/SamplesRunner.java[`SamplesRunner`] (executes via CLI) and link:../samples-check/src/main/java/org/gradle/exemplar/test/runner/GradleSamplesRunner.java[`GradleSamplesRunner`] (executes samples using https://docs.gradle.org/current/userguide/test_kit.html[Gradle TestKit]). If you are using `GradleSamplesExtension`, you will need to add `gradleTestKit()` and SLF4J binding dependencies as well:
 
 [source,kotlin]
 ----
@@ -145,7 +145,7 @@ dependencies {
 }
 ----
 
-*NOTE:* `GradleSamplesRunner` supports Java 8 and above and ignores tests when running on Java 7 or lower.
+*NOTE:* `GradleSamplesExtension` supports Java 8 and above and ignores tests when running on Java 7 or lower.
 
 To use them, just create a JUnit test class in your test sources (maybe something like `src/integTest/com/example/SamplesIntegrationTest.java`, https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests[keeping these slow tests separate] from your fast unit tests.) and annotate it with which JUnit runner implementation you'd like and where to find samples.
 Like this:
@@ -264,7 +264,7 @@ For example, you might prepend a `Command` that sets up some environment before 
 
 === Custom Gradle installation
 
-To allow Gradle itself to run using test versions of Gradle, the `GradleSamplesRunner` allows a custom installation to be injected using the system property "integTest.gradleHomeDir".
+To allow Gradle itself to run using test versions of Gradle, the `GradleSamplesExtension` allows a custom installation to be injected using the system property "integTest.gradleHomeDir".
 
 == Contributing
 

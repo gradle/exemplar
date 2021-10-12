@@ -15,15 +15,20 @@
  */
 package org.gradle.exemplar.test.runner;
 
+import org.gradle.exemplar.test.Samples;
+import org.gradle.exemplar.test.engine.GradleSamplesExtension;
 import org.gradle.exemplar.test.normalizer.FileSeparatorOutputNormalizer;
 import org.gradle.exemplar.test.normalizer.GradleOutputNormalizer;
 import org.gradle.exemplar.test.normalizer.JavaObjectSerializationOutputNormalizer;
 import org.junit.runner.RunWith;
 
-@RunWith(GradleSamplesRunner.class)
-@SamplesRoot("src/test/samples/gradle")
+@Samples(
+        root = "src/test/samples/gradle",
+        implicitRootDirSupplier = GradleSamplesExtension.ImplicitSamplesRootDirSupplier.class,
+        commandExecutorFunction = GradleSamplesExtension.GradleCommandExecutorFunction.class,
 // tag::sample-output-normalizers[]
-@SamplesOutputNormalizers({JavaObjectSerializationOutputNormalizer.class, FileSeparatorOutputNormalizer.class, GradleOutputNormalizer.class})
+        outputNormalizers = {JavaObjectSerializationOutputNormalizer.class, FileSeparatorOutputNormalizer.class, GradleOutputNormalizer.class}
 // end::sample-output-normalizers[]
+)
 public class GradleSamplesRunnerIntegrationTest {
 }
