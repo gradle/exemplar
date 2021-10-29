@@ -1,27 +1,27 @@
 plugins {
     id("exemplar.java-conventions")
     id("exemplar.publishing-conventions")
-    id("groovy")
 }
 
 dependencies {
     api(project(":samples-discovery"))
-    api(Libraries.JUNIT)
-    compileOnly(Libraries.JSR305)
-    implementation(Libraries.COMMONS_IO)
-    implementation(Libraries.COMMONS_LANG3)
+    api(libs.junit)
+    compileOnly(libs.jsr305)
+    implementation(libs.commons.io)
+    implementation(libs.commons.lang3)
     implementation(gradleTestKit())
-    testImplementation(Libraries.SPOCK_CORE)
-    testImplementation(Libraries.CGLIB)
-    testImplementation(Libraries.OBJENESIS)
-    testImplementation(Libraries.GROOVY)
+    testImplementation(libs.cglib)
+    testImplementation(libs.groovy)
+    testImplementation(libs.objenesis)
+    testImplementation(libs.bundles.spock)
+    testRuntimeOnly(libs.junit.vintage.engine)
 }
 
 // Add samples as inputs for testing
 sourceSets["test"].resources.srcDirs("src/test/samples")
 
 tasks.test {
-    useJUnit {
-        excludeCategories.add("org.gradle.exemplar.test.runner.CoveredByTests")
+    useJUnitPlatform {
+        excludeTags.add("org.gradle.exemplar.test.runner.CoveredByTests")
     }
 }

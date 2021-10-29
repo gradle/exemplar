@@ -1,5 +1,6 @@
 plugins {
-    id("java-library")
+    `java-library`
+    groovy
 }
 
 java {
@@ -12,4 +13,14 @@ java {
 
 repositories {
     mavenCentral()
+}
+
+tasks.withType<Javadoc>().configureEach {
+    (options as StandardJavadocDocletOptions).apply {
+        addStringOption("Xdoclint:none", "-quiet")
+    }
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }

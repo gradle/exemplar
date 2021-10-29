@@ -8,8 +8,8 @@ version "1.0"
 mainClassName = "org.sample.myapp.Main"
 
 dependencies {
-    compile "org.sample:number-utils:1.0"
-    compile "org.sample:string-utils:1.0"
+    implementation "org.sample:number-utils:1.0"
+    implementation "org.sample:string-utils:1.0"
 }
 
 repositories {
