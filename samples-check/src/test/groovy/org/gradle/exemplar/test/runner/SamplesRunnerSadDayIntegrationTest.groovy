@@ -5,9 +5,10 @@ import org.junit.Rule
 import org.junit.experimental.categories.Category
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.Request
-import org.junit.runner.RunWith
+import spock.lang.Ignore
 import spock.lang.Specification
 
+@Ignore("Find a way to test the JUnit5 engine instead of JUnit4 runner")
 class SamplesRunnerSadDayIntegrationTest extends Specification {
     @Rule
     TemporaryFolder tmpDir = new TemporaryFolder()

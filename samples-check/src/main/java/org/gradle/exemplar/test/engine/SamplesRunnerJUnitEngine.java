@@ -2,29 +2,32 @@ package org.gradle.exemplar.test.engine;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.exemplar.executor.CliCommandExecutor;
 import org.gradle.exemplar.executor.CommandExecutionResult;
 import org.gradle.exemplar.executor.CommandExecutor;
 import org.gradle.exemplar.executor.ExecutionMetadata;
 import org.gradle.exemplar.loader.SamplesDiscovery;
 import org.gradle.exemplar.model.Command;
 import org.gradle.exemplar.model.Sample;
-import org.gradle.exemplar.test.normalizer.OutputNormalizer;
 import org.gradle.exemplar.test.SampleModifier;
 import org.gradle.exemplar.test.Samples;
+import org.gradle.exemplar.test.normalizer.OutputNormalizer;
 import org.gradle.exemplar.test.verifier.AnyOrderLineSegmentedOutputVerifier;
 import org.gradle.exemplar.test.verifier.StrictOrderLineSegmentedOutputVerifier;
+import org.junit.experimental.categories.Category;
 import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.EngineExecutionListener;
 import org.junit.platform.engine.ExecutionRequest;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestEngine;
 import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.engine.TestTag;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.ClassSelector;
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor;
 import org.junit.platform.engine.support.descriptor.ClassSource;
 import org.junit.platform.engine.support.descriptor.EngineDescriptor;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.PostDiscoveryFilter;
 import org.opentest4j.AssertionFailedError;
 
 import java.io.File;
@@ -34,12 +37,16 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.unmodifiableSet;
 
 public class SamplesRunnerJUnitEngine implements TestEngine {
 
@@ -60,16 +67,26 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
     @Override
     public TestDescriptor discover(EngineDiscoveryRequest discoveryRequest, UniqueId uniqueId) {
         EngineDescriptor engineDescriptor = new EngineDescriptor(uniqueId, "Samples Runner JUnit Engine");
+        List<PostDiscoveryFilter> postDiscoveryFilters = new ArrayList<>();
+        if (discoveryRequest instanceof LauncherDiscoveryRequest) {
+            postDiscoveryFilters.addAll(((LauncherDiscoveryRequest) discoveryRequest).getPostDiscoveryFilters());
+        }
+
         discoveryRequest.getSelectorsByType(ClassSelector.class)
                 .stream()
                 .map(ClassSelector::getJavaClass).forEach(javaClass -> {
-                    filterClass(uniqueId, engineDescriptor, javaClass);
+                    filterClass(uniqueId, postDiscoveryFilters, engineDescriptor, javaClass);
                 });
 
         return engineDescriptor;
     }
 
-    private void filterClass(UniqueId uniqueId, EngineDescriptor engineDescriptor, Class<?> javaClass) {
+    private void filterClass(
+            UniqueId uniqueId,
+            List<PostDiscoveryFilter> postDiscoveryFilters,
+            EngineDescriptor engineDescriptor,
+            Class<?> javaClass
+    ) {
         Samples samplesDef = javaClass.getAnnotation(Samples.class);
         if (samplesDef != null) {
             UniqueId classUniqueId = uniqueId.append("className", javaClass.getSimpleName());
@@ -77,6 +94,10 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
                     classUniqueId,
                     javaClass
             );
+
+            if (postDiscoveryFilters.stream().anyMatch(filter -> filter.apply(samplesTestDescriptor).excluded())) {
+                return;
+            }
 
             List<Sample> samples = samplesDef.samplesType() == Samples.SamplesType.DEFAULT ?
                     SamplesDiscovery.externalSamples(getSamplesRootDir(
@@ -301,8 +322,26 @@ public class SamplesRunnerJUnitEngine implements TestEngine {
 
     private static class SamplesTestDescriptor extends AbstractTestDescriptor {
 
+        private final Set<TestTag> tags;
+
         private SamplesTestDescriptor(UniqueId uniqueId, Class<?> testClass) {
             super(uniqueId, testClass.getSimpleName(), ClassSource.from(testClass));
+            Category category = testClass.getAnnotation(Category.class);
+            if (category != null) {
+                Set<TestTag> tmpTags = new HashSet<>();
+                for (Class<?> tag : category.value()) {
+                    tmpTags.add(TestTag.create(tag.getName()));
+                }
+
+                tags = unmodifiableSet(tmpTags);
+            } else {
+                tags = emptySet();
+            }
+        }
+
+        @Override
+        public Set<TestTag> getTags() {
+            return tags;
         }
 
         @Override

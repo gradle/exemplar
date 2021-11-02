@@ -18,8 +18,10 @@ package org.gradle.exemplar;
 import org.gradle.exemplar.test.Samples;
 import org.gradle.exemplar.test.engine.GradleSamplesExtension;
 
+import static org.gradle.exemplar.test.Samples.SamplesType.EMBEDDED;
+
 @Samples(root = ".",
-        samplesType = Samples.SamplesType.EMBEDDED,
+        samplesType = EMBEDDED,
         implicitRootDirSupplier = GradleSamplesExtension.ImplicitSamplesRootDirSupplier.class,
         commandExecutorFunction = GradleSamplesExtension.GradleCommandExecutorFunction.class
 )

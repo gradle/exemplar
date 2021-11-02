@@ -3,8 +3,10 @@ package org.gradle.exemplar.test.runner
 import org.gradle.exemplar.test.Samples
 import org.junit.experimental.categories.Category
 import org.junit.runner.Request
+import spock.lang.Ignore
 import spock.lang.Specification
 
+@Ignore("Find a way to test the JUnit5 engine instead of JUnit4 runner")
 class SamplesRunnerIntegrationTest extends Specification {
     def "runs samples-check CLI samples"() {
         def notifier = new CollectingNotifier()
