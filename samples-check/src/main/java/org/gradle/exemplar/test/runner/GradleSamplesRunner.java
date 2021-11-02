@@ -38,9 +38,6 @@ public class GradleSamplesRunner extends SamplesRunner {
     public TemporaryFolder tempGradleUserHomeDir = new TemporaryFolder();
     private File customGradleInstallation = null;
 
-    /**
-     * {@inheritDoc}
-     */
     public GradleSamplesRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
     }

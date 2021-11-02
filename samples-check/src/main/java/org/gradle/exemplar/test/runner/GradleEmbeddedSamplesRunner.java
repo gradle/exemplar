@@ -26,9 +26,6 @@ import java.util.List;
  * A custom implementation of {@link SamplesRunner} that uses the Gradle Tooling API to execute sample builds.
  */
 public class GradleEmbeddedSamplesRunner extends GradleSamplesRunner {
-    /**
-     * {@inheritDoc}
-     */
     public GradleEmbeddedSamplesRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
     }
