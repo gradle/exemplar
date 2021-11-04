@@ -10,7 +10,6 @@ dependencies {
     implementation(libs.commons.io)
     implementation(libs.commons.lang3)
     implementation(gradleTestKit())
-    testImplementation(libs.cglib)
     testImplementation(libs.groovy)
     testImplementation(libs.objenesis)
     testImplementation(libs.bundles.spock)
