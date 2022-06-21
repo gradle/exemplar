@@ -174,7 +174,7 @@ The test runner will copy each sample project to a temporary location, invoke th
 
 Use of the JUnit runners is preferred, as discovery, output normalization, and reporting are handled for you. If you want to write custom samples verification or you're using a different test framework, by all means go ahead :) -- please contribute back runners or normalizers you find useful!
 
-You can get some inspiration for API use from link:https://github.com/gradle/exemplar/blob/master/samples-check/src/main/java/org/gradle/exemplar/test/runner/SamplesRunner.java[SamplesRunner] and link:https://github.com/gradle/exemplar/blob/master/samples-check/src/main/java/org/gradle/exemplar/test/runner/GradleSamplesRunner.java[GradleSamplesRunner].
+You can get some inspiration for API use from link:https://github.com/gradle/exemplar/blob/main/samples-check/src/main/java/org/gradle/exemplar/test/runner/SamplesRunner.java[SamplesRunner] and link:https://github.com/gradle/exemplar/blob/main/samples-check/src/main/java/org/gradle/exemplar/test/runner/GradleSamplesRunner.java[GradleSamplesRunner].
 
 Command execution is handled in the `org.gradle.exemplar.executor.*` classes, some output normalizers are provided in the `org.gradle.exemplar.test.normalizer` package, and output verification is handled by classes in the `org.gradle.exemplar.test.verifier` package.
 
@@ -224,11 +224,11 @@ public class BasicSampleTest {
 
 One of `executable` or `commands` are required at the root.
 If `executable` is found, the sample will be considered a single-command sample.
-Otherwise, `commands` is expected to be an Array of link:https://github.com/gradle/exemplar/blob/master/samples-discovery/src/main/java/org/gradle/exemplar/model/Command.java[Commands]:
+Otherwise, `commands` is expected to be an Array of link:https://github.com/gradle/exemplar/blob/main/samples-discovery/src/main/java/org/gradle/exemplar/model/Command.java[Commands]:
 
 * repeated Command `commands` -- An array of commands to run, in order.
 
-A link:https://github.com/gradle/exemplar/blob/master/samples-discovery/src/main/java/org/gradle/exemplar/model/Command.java[Command] is specified with these fields.
+A link:https://github.com/gradle/exemplar/blob/main/samples-discovery/src/main/java/org/gradle/exemplar/model/Command.java[Command] is specified with these fields.
 
 * required string `executable` -- Executable to invoke.
 * optional string `execution-subdirectory` -- Working directory in which to invoke the executable. _If not specified, the API assumes `./` (the directory the sample config file is in)._
@@ -249,11 +249,11 @@ You can use normalizers by annotating your JUnit test class with `@SamplesOutput
 @SamplesOutputNormalizers({JavaObjectSerializationOutputNormalizer.class, FileSeparatorOutputNormalizer.class, GradleOutputNormalizer.class})
 ----
 
-Custom normalizers must implement the link:https://github.com/gradle/exemplar/blob/master/samples-check/src/main/java/org/gradle/exemplar/test/normalizer/OutputNormalizer.java[`OutputNormalizer`] interface. The two above are included in check.
+Custom normalizers must implement the link:https://github.com/gradle/exemplar/blob/main/samples-check/src/main/java/org/gradle/exemplar/test/normalizer/OutputNormalizer.java[`OutputNormalizer`] interface. The two above are included in check.
 
 === Common sample modification
 
-samples-check supports modifying all samples before they are executed by implementing the link:https://github.com/gradle/exemplar/blob/master/samples-check/src/main/java/org/gradle/exemplar/test/runner/SampleModifier.java[`SampleModifier`] interface and declaring link:https://github.com/gradle/exemplar/blob/master/samples-check/src/main/java/org/gradle/exemplar/test/runner/SampleModifiers.java[`SampleModifiers`].
+samples-check supports modifying all samples before they are executed by implementing the link:https://github.com/gradle/exemplar/blob/main/samples-check/src/main/java/org/gradle/exemplar/test/runner/SampleModifier.java[`SampleModifier`] interface and declaring link:https://github.com/gradle/exemplar/blob/main/samples-check/src/main/java/org/gradle/exemplar/test/runner/SampleModifiers.java[`SampleModifiers`].
 This allows you to do things like set environment properties, change the executable or arguments, and even conditionally change verification based on some logic.
 For example, you might prepend a `Command` that sets up some environment before other commands are run or change `expect-failure` to `true` if you know verification conditionally won't work on Windows.
 
@@ -278,7 +278,7 @@ image::https://img.shields.io/badge/code%20of-conduct-lightgrey.svg?style=flat&c
 
 1. Change the version number in the root build script to the version you want to release.
 1. Add missing changes to the <<Changes>> section below.
-1. Push the changes to `master` branch.
+1. Push the changes to `main` branch.
 1. Run the https://builds.gradle.org/buildConfiguration/Build_Tool_Services_Exemplar_Verify[Verify Exemplar] job on the commit you
 want to release.
 1. Run the https://builds.gradle.org/buildConfiguration/Build_Tool_Services_Exemplar_Publish[Publish Exemplar] job on the commit you
@@ -288,7 +288,7 @@ its contents.
 1. Release the staging repository.
 1. Tag the commit you just release with the version number `git tag -s VERSION -m "Tag VERSION release" && git push --tags`
 1. Go to the https://github.com/gradle/exemplar/releases[Releases section on GitHub] and create a new release using the tag you just pushed. Copy the release notes from the <<Changes>> section into the release description.
-1. Bump the version in the root build script to the next snapshot version. Push the change to `master` branch.
+1. Bump the version in the root build script to the next snapshot version. Push the change to `main` branch.
 
 == Changes
 
