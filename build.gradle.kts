@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "org.gradle.exemplar"
-version = "1.0.1"
+version = "1.1.0-SNAPSHOT"
 
 nexusPublishing {
     repositories.apply {
