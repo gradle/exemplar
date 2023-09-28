@@ -292,6 +292,10 @@ its contents.
 
 == Changes
 
+=== 1.0.2
+
+- Published with new PGP key (no functional changes since 1.0.0)
+
 === 1.0.1
 
 - Published with new PGP key (no functional changes since 1.0.0)
