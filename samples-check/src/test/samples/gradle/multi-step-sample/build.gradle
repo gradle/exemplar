@@ -1,17 +1,23 @@
+import org.gradle.work.ChangeType
+import org.gradle.work.Incremental
+import org.gradle.work.InputChanges
+
+def inputsDir = layout.projectDirectory.dir("inputs")
+
 task originalInputs() {
     doLast {
-        file('inputs').mkdir()
-        file('inputs/1.txt').text = 'Content for file 1.'
-        file('inputs/2.txt').text = 'Content for file 2.'
-        file('inputs/3.txt').text = 'Content for file 3.'
+        inputsDir.asFile.mkdir()
+        inputsDir.file('1.txt').asFile.text = 'Content for file 1.'
+        inputsDir.file('2.txt').asFile.text = 'Content for file 2.'
+        inputsDir.file('3.txt').asFile.text = 'Content for file 3.'
     }
 }
 
 // START SNIPPET updated-inputs
 task updateInputs() {
     doLast {
-        file('inputs/1.txt').text = 'Changed content for existing file 1.'
-        file('inputs/4.txt').text = 'Content for new file 4.'
+        inputsDir.file('1.txt').asFile.text = 'Changed content for existing file 1.'
+        inputsDir.file('4.txt').asFile.text = 'Content for new file 4.'
     }
 }
 // END SNIPPET updated-inputs
@@ -19,7 +25,7 @@ task updateInputs() {
 // START SNIPPET removed-input
 task removeInput() {
     doLast {
-        file('inputs/3.txt').delete()
+        inputsDir.file('3.txt').asFile.delete()
     }
 }
 // END SNIPPET removed-input
@@ -27,56 +33,66 @@ task removeInput() {
 // START SNIPPET removed-output
 task removeOutput() {
     doLast {
-        file("$buildDir/outputs/1.txt").delete()
+        layout.buildDirectory.file('outputs/1.txt').get().asFile.delete()
     }
 }
 // END SNIPPET removed-output
 
 // START SNIPPET reverse
 task incrementalReverse(type: IncrementalReverseTask) {
-    inputDir = file('inputs')
-    outputDir = file("$buildDir/outputs")
+    inputDir = inputsDir.asFileTree
+    outputDir = layout.buildDirectory.dir('outputs')
     inputProperty = project.properties['taskInputProperty'] ?: 'original'
 }
 // END SNIPPET reverse
 
 // START SNIPPET incremental-task
 class IncrementalReverseTask extends DefaultTask {
-    @InputDirectory
-    def File inputDir
+    @InputFiles
+    @SkipWhenEmpty
+    FileCollection inputDir
 
     @OutputDirectory
-    def File outputDir
+    Provider<Directory> outputDir
 
     @Input
     def inputProperty
 
     @TaskAction
-    void execute(IncrementalTaskInputs inputs) {
+    void execute(InputChanges inputs) {
         println inputs.incremental ? 'CHANGED inputs considered out of date'
                                    : 'ALL inputs considered out of date'
         // START SNIPPET handle-non-incremental-inputs
         if (!inputs.incremental)
-            project.delete(outputDir.listFiles())
+            project.delete(outputDir.get().asFile.listFiles())
         // END SNIPPET handle-non-incremental-inputs
 
-        // START SNIPPET out-of-date-inputs
-        inputs.outOfDate { change ->
-            if (change.file.file) {
-                println "out of date: ${change.file.name}"
-                def targetFile = new File(outputDir, change.file.name)
-                targetFile.text = change.file.text.reverse()
+        if (inputs.incremental) {
+            inputs.getFileChanges(inputDir).each { change ->
+                // START SNIPPET out-of-date-inputs
+                if (change.changeType == ChangeType.MODIFIED && change.file.file) {
+                    println "out of date: ${change.file.name}"
+                    def targetFile = new File(outputDir.get().asFile, change.file.name)
+                    targetFile.text = change.file.text.reverse()
+                }
+                // END SNIPPET out-of-date-inputs
+                // START SNIPPET added-inputs
+                if (change.changeType == ChangeType.ADDED && change.file.file) {
+                    println "added: ${change.file.name}"
+                    def targetFile = new File(outputDir.get().asFile, change.file.name)
+                    targetFile.text = change.file.text.reverse()
+                }
+                // END SNIPPET added-inputs
+
+                // START SNIPPET removed-inputs
+                if (change.changeType == ChangeType.REMOVED) {
+                    println "removed: ${change.file.name}"
+                    def targetFile = new File(outputDir.get().asFile, change.file.name)
+                    targetFile.delete()
+                }
+                // END SNIPPET removed-inputs
             }
         }
-        // END SNIPPET out-of-date-inputs
-
-        // START SNIPPET removed-inputs
-        inputs.removed { change ->
-            println "removed: ${change.file.name}"
-            def targetFile = new File(outputDir, change.file.name)
-            targetFile.delete()
-        }
-        // END SNIPPET removed-inputs
     }
 }
 // END SNIPPET incremental-task
