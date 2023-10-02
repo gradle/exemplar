@@ -2,10 +2,10 @@ plugins {
     `kotlin-dsl`
 }
 
-tasks.compileKotlin {
-    kotlinJavaToolchain.toolchain.use(javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    })
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
 }
 
 repositories {
