@@ -16,10 +16,11 @@ dependencies {
     testRuntimeOnly(libs.junit.vintage.engine)
 }
 
-// Add samples as inputs for testing
-sourceSets["test"].resources.srcDirs("src/test/samples")
-
 tasks.test {
+    inputs.dir(layout.projectDirectory.dir("src/test/samples"))
+        .withPropertyName("samplesDir")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+
     useJUnitPlatform {
         excludeTags.add("org.gradle.exemplar.test.runner.CoveredByTests")
     }
