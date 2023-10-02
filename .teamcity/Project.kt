@@ -11,10 +11,8 @@ object Project : Project({
     buildType(Verify)
     buildType(Publish)
     params {
-        param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
-        param("env.GRADLE_CACHE_REMOTE_URL", "%gradle.cache.remote.url%")
-        param("env.GRADLE_CACHE_REMOTE_USERNAME", "%gradle.cache.remote.username%")
-        password("env.GRADLE_CACHE_REMOTE_PASSWORD", "%gradle.cache.remote.password%")
+        param("env.JAVA_HOME", "%linux.java17.openjdk.64bit%")
+        password("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
     }
 })
 
@@ -46,7 +44,7 @@ object Verify : BuildType({
         gradle {
             useGradleWrapper = true
             tasks = "check"
-            gradleParams = "--build-cache -Dgradle.cache.remote.push=%env.BUILD_CACHE_PUSH%"
+            gradleParams = "-Dgradle.cache.remote.push=%env.BUILD_CACHE_PUSH%"
             buildFile = "build.gradle.kts"
         }
     }
@@ -72,7 +70,7 @@ object Publish : BuildType({
         gradle {
             useGradleWrapper = true
             tasks = "clean publishMavenJavaPublicationToSonatypeRepository"
-            gradleParams = "--build-cache -Dgradle.publish.skip.namespace.check=true"
+            gradleParams = "-Dgradle.publish.skip.namespace.check=true"
             buildFile = "build.gradle.kts"
         }
     }
