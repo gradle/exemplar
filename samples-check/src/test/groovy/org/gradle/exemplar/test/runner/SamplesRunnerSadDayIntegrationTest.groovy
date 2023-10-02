@@ -26,14 +26,14 @@ class SamplesRunnerSadDayIntegrationTest extends Specification {
         notifier.failures[0].description == notifier.tests[0]
 
         def expectedOutput = """
-            |Expected sample invocation to succeed but it failed.
-            |Command was: 'bash broken'
-            |Working directory: '.+/_broken-command.sample'
-            |\\[BEGIN OUTPUT\\]
-            |bash: broken: No such file or directory
-            |
-            |\\[END OUTPUT\\]
-        """.stripMargin().trim()
+            Expected sample invocation to succeed but it failed.
+            Command was: 'bash broken'
+            Working directory: '.+/_broken-command.sample'
+            \\[BEGIN OUTPUT\\]
+            bash: broken: No such file or directory
+
+            \\[END OUTPUT\\]
+        """.stripIndent(true).trim()
         notifier.failures[0].message.trim() ==~ /${expectedOutput}/
     }
 
@@ -51,12 +51,12 @@ class SamplesRunnerSadDayIntegrationTest extends Specification {
         notifier.failures.size() == 1
         notifier.failures[0].description == notifier.tests[0]
         notifier.failures[0].message.trim() == """
-            |Missing text at line 1.
-            |Expected: not a thing
-            |Actual: thing
-            |Actual output:
-            |thing
-        """.stripMargin().trim()
+            Missing text at line 1.
+            Expected: not a thing
+            Actual: thing
+            Actual output:
+            thing
+        """.stripIndent(true).trim()
     }
 
     @SamplesRoot("src/test/resources/broken/command")
