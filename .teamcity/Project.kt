@@ -13,6 +13,7 @@ object Project : Project({
     params {
         param("env.JAVA_HOME", "%linux.java17.openjdk.64bit%")
         password("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
+        password("env.GRADLE_CACHE_REMOTE_PASSWORD", "%gradle.cache.remote.password%")
     }
 })
 
