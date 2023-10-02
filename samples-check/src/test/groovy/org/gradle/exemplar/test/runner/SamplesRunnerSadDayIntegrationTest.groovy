@@ -31,9 +31,9 @@ class SamplesRunnerSadDayIntegrationTest extends Specification {
             Working directory: '.+/_broken-command.sample'
             \\[BEGIN OUTPUT\\]
             bash: broken: No such file or directory
-            
+
             \\[END OUTPUT\\]
-        """.stripIndent().trim()
+        """.stripIndent(true).trim()
         notifier.failures[0].message.trim() ==~ /${expectedOutput}/
     }
 
@@ -56,7 +56,7 @@ class SamplesRunnerSadDayIntegrationTest extends Specification {
             Actual: thing
             Actual output:
             thing
-        """.stripIndent().trim()
+        """.stripIndent(true).trim()
     }
 
     @SamplesRoot("src/test/resources/broken/command")
