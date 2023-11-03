@@ -1,8 +1,6 @@
 version: 2
 updates:
     - package-ecosystem: "gradle"
-      directory: "gradle"
-      target-branch: "main"
       reviewers:
           - "@gradle/ge-build-platform"
       schedule:
