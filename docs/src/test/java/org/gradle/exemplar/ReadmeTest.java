@@ -15,11 +15,15 @@
  */
 package org.gradle.exemplar;
 
-import org.gradle.exemplar.test.runner.GradleEmbeddedSamplesRunner;
-import org.gradle.exemplar.test.runner.SamplesRoot;
-import org.junit.runner.RunWith;
+import org.gradle.exemplar.test.Samples;
+import org.gradle.exemplar.test.engine.GradleSamplesExtension;
 
-@RunWith(GradleEmbeddedSamplesRunner.class)
-@SamplesRoot(".")
+import static org.gradle.exemplar.test.Samples.SamplesType.EMBEDDED;
+
+@Samples(root = ".",
+        samplesType = EMBEDDED,
+        implicitRootDirSupplier = GradleSamplesExtension.ImplicitSamplesRootDirSupplier.class,
+        commandExecutorFunction = GradleSamplesExtension.GradleCommandExecutorFunction.class
+)
 public class ReadmeTest {
 }
