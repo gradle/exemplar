@@ -1,7 +1,8 @@
 version: 2
 updates:
-    - package-ecosystem: "gradle"
-      reviewers:
-          - "@gradle/ge-build-platform"
-      schedule:
-          interval: "daily"
+  - package-ecosystem: "gradle"
+    directory: "gradle"
+    reviewers:
+      - "@gradle/ge-build-platform"
+    schedule:
+      interval: "daily"
