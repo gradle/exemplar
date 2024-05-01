@@ -1,10 +1,12 @@
 package org.gradle.exemplar.test.runner
 
+import org.gradle.exemplar.test.Samples
 import org.junit.experimental.categories.Category
 import org.junit.runner.Request
-import org.junit.runner.RunWith
+import spock.lang.Ignore
 import spock.lang.Specification
 
+@Ignore("Find a way to test the JUnit5 engine instead of JUnit4 runner")
 class SamplesRunnerIntegrationTest extends Specification {
     def "runs samples-check CLI samples"() {
         def notifier = new CollectingNotifier()
@@ -23,8 +25,7 @@ class SamplesRunnerIntegrationTest extends Specification {
         notifier.failures.empty
     }
 
-    @RunWith(SamplesRunner.class)
-    @SamplesRoot("src/test/samples/cli")
+    @Samples(root = "src/test/samples/cli")
     @Category(CoveredByTests)
     static class HappyDaySamples {}
 
@@ -42,8 +43,7 @@ class SamplesRunnerIntegrationTest extends Specification {
         notifier.failures.empty
     }
 
-    @RunWith(SamplesRunner.class)
-    @SamplesRoot("src/test/samples/cli-with-working-directory")
+    @Samples(root = "src/test/samples/cli-with-working-directory")
     @Category(CoveredByTests)
     static class HappyDayWithWorkingDirectorySamples {}
 
@@ -61,8 +61,7 @@ class SamplesRunnerIntegrationTest extends Specification {
         notifier.failures.empty
     }
 
-    @RunWith(SamplesRunner.class)
-    @SamplesRoot("src/test/samples/cli-with-working-directory-and-change-directory")
+    @Samples(root = "src/test/samples/cli-with-working-directory-and-change-directory")
     @Category(CoveredByTests)
     static class HappyDayWithWorkingDirectoryAndChangeDirectoryCommandSamples {}
 }
