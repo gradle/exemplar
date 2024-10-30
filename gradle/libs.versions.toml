@@ -3,7 +3,7 @@ spock = "2.0-groovy-3.0"
 
 [libraries]
 asciidoctorj = "org.asciidoctor:asciidoctorj:1.5.8.1"
-commons-io = "commons-io:commons-io:2.11.0"
+commons-io = "commons-io:commons-io:2.14.0"
 commons-lang3 = "org.apache.commons:commons-lang3:3.12.0"
 groovy = "org.codehaus.groovy:groovy:3.0.8"
 junit = "junit:junit:4.13.2"
