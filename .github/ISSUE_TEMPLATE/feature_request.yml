@@ -1,0 +1,29 @@
+name: Feature Request
+description: Suggest an idea for this project
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Provide a brief summary of the issue in the title above
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: Tell us how this feature should work.
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Current Behavior
+      description: Explain the difference from current behavior.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What are you trying to accomplish? Providing context helps us come up with a solution that is most useful in the real world.
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Provide any other relevant context or information that you think may be relevant for this feature request.
