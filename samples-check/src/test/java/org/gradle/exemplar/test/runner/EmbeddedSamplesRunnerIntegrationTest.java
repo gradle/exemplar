@@ -15,9 +15,14 @@
  */
 package org.gradle.exemplar.test.runner;
 
-import org.junit.runner.RunWith;
+import org.gradle.exemplar.test.Samples;
+import org.gradle.exemplar.test.engine.GradleSamplesExtension;
 
-@RunWith(GradleEmbeddedSamplesRunner.class)
-@SamplesRoot("src/test/docs")
+@Samples(
+        root = "src/test/docs",
+        samplesType = Samples.SamplesType.EMBEDDED,
+        implicitRootDirSupplier = GradleSamplesExtension.ImplicitSamplesRootDirSupplier.class,
+        commandExecutorFunction = GradleSamplesExtension.GradleCommandExecutorFunction.class
+)
 public class EmbeddedSamplesRunnerIntegrationTest {
 }

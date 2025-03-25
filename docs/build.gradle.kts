@@ -7,6 +7,5 @@ dependencies {
 }
 
 tasks.test {
-    useJUnit()
     inputs.file("README.adoc").withPathSensitivity(PathSensitivity.RELATIVE)
 }
