@@ -1,0 +1,41 @@
+name: Bug Report
+description: Report a bug to help us improve
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Provide a brief summary of the issue in the title above.
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: Tell us what should happen.
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Current Behavior
+      description: Tell us what happens instead of the expected behavior.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: |
+        How has this issue affected you? What are you trying to accomplish?
+        Providing context helps us come up with a solution that is most useful in the real world.
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: |
+        Provide a self-contained example project (as an attached archive or a Github project).
+        In the rare cases where this is infeasible, we will also accept a detailed set of instructions.
+  - type: textarea
+    id: environment
+    attributes:
+      label: Your Environment
+      description: |
+        Include as many relevant details about the environment you experienced the bug in.
+        A build scan `https://scans.gradle.com` is ideal.
+        value: https://scans.gradle.com/s/...
