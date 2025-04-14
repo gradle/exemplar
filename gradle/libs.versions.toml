@@ -1,5 +1,6 @@
 [versions]
 spock = "2.0-groovy-3.0"
+junit-platform = "1.8.1"
 
 [libraries]
 asciidoctorj = "org.asciidoctor:asciidoctorj:1.5.8.1"
@@ -8,6 +9,8 @@ commons-lang3 = "org.apache.commons:commons-lang3:3.12.0"
 groovy = "org.codehaus.groovy:groovy:3.0.8"
 junit = "junit:junit:4.13.2"
 junit-vintage-engine = "org.junit.vintage:junit-vintage-engine:5.8.1"
+junit-platform-engine = { module="org.junit.platform:junit-platform-engine", version.ref="junit-platform" }
+junit-platform-launcher = { module="org.junit.platform:junit-platform-launcher", version.ref="junit-platform" }
 jsr305 = "com.google.code.findbugs:jsr305:3.0.2"
 objenesis = "org.objenesis:objenesis:3.2"
 spock-core = { module="org.spockframework:spock-core", version.ref="spock" }

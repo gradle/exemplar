@@ -2,7 +2,7 @@ package org.gradle.exemplar.test.runner.modifiers;
 
 import org.gradle.exemplar.model.Command;
 import org.gradle.exemplar.model.Sample;
-import org.gradle.exemplar.test.runner.SampleModifier;
+import org.gradle.exemplar.test.SampleModifier;
 
 import java.util.ArrayList;
 import java.util.List;

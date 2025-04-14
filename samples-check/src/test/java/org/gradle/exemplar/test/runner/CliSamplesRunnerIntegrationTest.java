@@ -16,10 +16,9 @@
 package org.gradle.exemplar.test.runner;
 
 // tag::source[]
-import org.junit.runner.RunWith;
+import org.gradle.exemplar.test.Samples;
 
-@RunWith(SamplesRunner.class)
-@SamplesRoot("src/test/samples/cli")
+@Samples(root = "src/test/samples/cli")
 public class CliSamplesRunnerIntegrationTest {
 }
 // end::source[]

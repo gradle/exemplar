@@ -23,6 +23,7 @@ import org.gradle.exemplar.model.Sample;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 
 public class SamplesDiscovery {
@@ -49,8 +50,12 @@ public class SamplesDiscovery {
         return samples;
     }
 
-    public static List<Sample> embeddedSamples(File asciidocSrcDir) throws IOException {
-        return filteredEmbeddedSamples(asciidocSrcDir, new String[]{"adoc", "asciidoc"}, true);
+    public static List<Sample> embeddedSamples(File asciidocSrcDir) {
+        try {
+            return filteredEmbeddedSamples(asciidocSrcDir, new String[]{"adoc", "asciidoc"}, true);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public static List<Sample> filteredEmbeddedSamples(File rootSamplesDir, String[] fileExtensions, boolean recursive) throws IOException {
