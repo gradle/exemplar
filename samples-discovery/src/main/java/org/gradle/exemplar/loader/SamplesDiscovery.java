@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.exemplar.loader.asciidoctor.AsciidoctorSamplesDiscovery;
 import org.gradle.exemplar.model.Command;
+import org.gradle.exemplar.model.InvalidSample;
 import org.gradle.exemplar.model.Sample;
 
 import java.io.File;
@@ -37,11 +38,15 @@ public class SamplesDiscovery {
         List<Sample> samples = new ArrayList<>();
         for (File sampleConfigFile : sampleConfigFiles) {
             final String id = generateSampleId(rootSamplesDir, sampleConfigFile);
-            final List<Command> commands = CommandsParser.parse(sampleConfigFile);
-            // FIXME: Currently the temp directory used when running samples-check has a different name.
-            // This causes Gradle project names to differ when one is not explicitly set in settings.gradle. This should be preserved.
-            final File sampleProjectDir = sampleConfigFile.getParentFile();
-            samples.add(new Sample(id, sampleProjectDir, commands));
+            try {
+                final List<Command> commands = CommandsParser.parse(sampleConfigFile);
+                // FIXME: Currently the temp directory used when running samples-check has a different name.
+                // This causes Gradle project names to differ when one is not explicitly set in settings.gradle. This should be preserved.
+                final File sampleProjectDir = sampleConfigFile.getParentFile();
+                samples.add(new Sample(id, sampleProjectDir, commands));
+            } catch (Exception e) {
+                samples.add(new InvalidSample(id, e));
+            }
         }
         // Always return (and test) samples in a fixed order
         sortSamples(samples);

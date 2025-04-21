@@ -23,6 +23,7 @@ import org.gradle.exemplar.executor.CommandExecutor;
 import org.gradle.exemplar.executor.ExecutionMetadata;
 import org.gradle.exemplar.loader.SamplesDiscovery;
 import org.gradle.exemplar.model.Command;
+import org.gradle.exemplar.model.InvalidSample;
 import org.gradle.exemplar.model.Sample;
 import org.gradle.exemplar.test.normalizer.OutputNormalizer;
 import org.gradle.exemplar.test.verifier.AnyOrderLineSegmentedOutputVerifier;
@@ -142,7 +143,9 @@ public class SamplesRunner extends ParentRunner<Sample> {
     @Override
     protected void runChild(final Sample sample, final RunNotifier notifier) {
         Description childDescription = describeChild(sample);
-        if (isIgnored(sample)) {
+        if (sample instanceof InvalidSample) {
+            notifier.fireTestFailure(new Failure(childDescription, ((InvalidSample) sample).getException()));
+        } else if (isIgnored(sample)) {
             notifier.fireTestIgnored(childDescription);
         } else {
             notifier.fireTestStarted(childDescription);
