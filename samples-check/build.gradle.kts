@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     api(project(":samples-discovery"))
-    api(libs.junit)
+    api(libs.junit4)
     compileOnly(libs.jsr305)
     implementation(libs.commons.io)
     implementation(libs.commons.lang3)
@@ -13,7 +13,8 @@ dependencies {
     testImplementation(libs.groovy)
     testImplementation(libs.objenesis)
     testImplementation(libs.bundles.spock)
-    testRuntimeOnly(libs.junit.vintage.engine)
+    testRuntimeOnly(libs.junit.vintage)
+    testRuntimeOnly(libs.junit.launcher)
 }
 
 tasks.test {
