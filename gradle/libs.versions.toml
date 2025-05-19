@@ -15,7 +15,7 @@ jsr305 = "com.google.code.findbugs:jsr305:3.0.2"
 objenesis = "org.objenesis:objenesis:3.2"
 spock-core = { module="org.spockframework:spock-core", version.ref="spock" }
 spock-junit4 = { module="org.spockframework:spock-junit4", version.ref="spock" }
-typesafe-config = "com.typesafe:config:1.4.1"
+typesafe-config = "com.typesafe:config:1.4.3"
 
 [bundles]
 spock = ["spock-core", "spock-junit4"]
