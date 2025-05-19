@@ -19,8 +19,6 @@ jobs:
 
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@v4
-      with:
-        build-scan-publish: false
 
     - name: Perform dependency review
       uses: actions/dependency-review-action@v4
