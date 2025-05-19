@@ -4,7 +4,7 @@ junit-vintage = "5.12.2"
 junit-launcher = "1.12.2"
 
 [libraries]
-asciidoctorj = "org.asciidoctor:asciidoctorj:1.5.8.1"
+asciidoctorj = "org.asciidoctor:asciidoctorj:3.0.0"
 commons-io = "commons-io:commons-io:2.18.0"
 commons-lang3 = "org.apache.commons:commons-lang3:3.17.0"
 groovy = "org.codehaus.groovy:groovy:3.0.8"
