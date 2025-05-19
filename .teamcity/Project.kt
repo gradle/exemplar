@@ -14,7 +14,7 @@ object Project : Project({
         param("env.GRADLE_CACHE_REMOTE_URL", "%gradle.cache.remote.url%")
         param("env.GRADLE_CACHE_REMOTE_USERNAME", "%gradle.cache.remote.username%")
         password("env.GRADLE_CACHE_REMOTE_PASSWORD", "%gradle.cache.remote.password%")
-        password("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
+        password("env.DEVELOCITY_ACCESS_KEY", "%ge.gradle.org.access.key%")
     }
 })
 
