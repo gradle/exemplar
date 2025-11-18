@@ -1,7 +1,7 @@
 [versions]
 spock = "2.0-groovy-3.0"
 junit-vintage = "5.12.2"
-junit-launcher = "1.12.2"
+junit-launcher = "6.0.1"
 
 [libraries]
 asciidoctorj = "org.asciidoctor:asciidoctorj:1.5.8.1"
