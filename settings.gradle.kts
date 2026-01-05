@@ -7,4 +7,5 @@ rootProject.name = "exemplar"
 
 include("samples-discovery")
 include("samples-check")
+include("samples-junit-engine")
 include("docs")
