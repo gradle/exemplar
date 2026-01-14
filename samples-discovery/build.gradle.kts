@@ -11,4 +11,5 @@ dependencies {
     implementation(libs.typesafe.config)
     testImplementation(libs.groovy)
     testImplementation(libs.bundles.spock)
+    testRuntimeOnly(libs.junit.launcher)
 }

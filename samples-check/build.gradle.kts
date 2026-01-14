@@ -12,9 +12,9 @@ dependencies {
     implementation(gradleTestKit())
     testImplementation(libs.groovy)
     testImplementation(libs.objenesis)
+    testImplementation(libs.junit.launcher)
     testImplementation(libs.bundles.spock)
     testRuntimeOnly(libs.junit.vintage)
-    testRuntimeOnly(libs.junit.launcher)
 }
 
 tasks.test {
