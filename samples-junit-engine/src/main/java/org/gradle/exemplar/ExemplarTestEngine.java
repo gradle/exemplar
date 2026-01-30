@@ -12,6 +12,7 @@ import org.gradle.exemplar.model.Sample;
 import org.gradle.exemplar.test.normalizer.OutputNormalizer;
 import org.gradle.exemplar.test.runner.SampleModifier;
 import org.gradle.exemplar.test.verifier.AnyOrderLineSegmentedOutputVerifier;
+import org.gradle.exemplar.test.verifier.OutputVerifier;
 import org.gradle.exemplar.test.verifier.StrictOrderLineSegmentedOutputVerifier;
 import org.junit.platform.commons.logging.Logger;
 import org.junit.platform.commons.logging.LoggerFactory;
@@ -161,7 +162,7 @@ public class ExemplarTestEngine implements TestEngine {
                     try {
                         verifyOutput(command, result);
                         listener.executionFinished(childDescriptor, TestExecutionResult.successful());
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         listener.executionFinished(childDescriptor, TestExecutionResult.failed(e));
                     }
                 }
@@ -242,10 +243,7 @@ public class ExemplarTestEngine implements TestEngine {
             actualOutput = normalizer.normalize(actualOutput, executionResult.getExecutionMetadata());
         }
 
-        if (command.isAllowDisorderedOutput()) {
-            new AnyOrderLineSegmentedOutputVerifier().verify(expectedOutput, actualOutput, command.isAllowAdditionalOutput());
-        } else {
-            new StrictOrderLineSegmentedOutputVerifier().verify(expectedOutput, actualOutput, command.isAllowAdditionalOutput());
-        }
+        OutputVerifier verifier = command.isAllowDisorderedOutput() ? new AnyOrderLineSegmentedOutputVerifier() : new StrictOrderLineSegmentedOutputVerifier();
+        verifier.verify(expectedOutput, actualOutput, command.isAllowAdditionalOutput());
     }
 }
