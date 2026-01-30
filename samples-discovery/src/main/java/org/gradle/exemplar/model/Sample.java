@@ -15,6 +15,7 @@
  */
 package org.gradle.exemplar.model;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
 
@@ -22,11 +23,20 @@ public class Sample {
     private final String id;
     private final File projectDir;
     private final List<Command> commands;
+    private final File configFile;
 
     public Sample(String id, File projectDir, List<Command> commands) {
         this.id = id;
         this.projectDir = projectDir;
         this.commands = commands;
+        this.configFile = null;
+    }
+
+    public Sample(String id, File projectDir, List<Command> commands, File configFile) {
+        this.id = id;
+        this.projectDir = projectDir;
+        this.commands = commands;
+        this.configFile = configFile;
     }
 
     public String getId() {
@@ -39,5 +49,10 @@ public class Sample {
 
     public List<Command> getCommands() {
         return commands;
+    }
+
+    @Nullable
+    public File getConfigFile() {
+        return configFile;
     }
 }
