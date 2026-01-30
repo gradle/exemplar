@@ -75,8 +75,8 @@ public class ExemplarTestEngine implements TestEngine {
         File tmpDir = createTmpDir(executionRequest);
         EngineExecutionListener listener = executionRequest.getEngineExecutionListener();
         executionRequest.getRootTestDescriptor().getChildren().forEach(test -> {
-            if (test instanceof ExemplarTestDescriptor) {
-                execute(((ExemplarTestDescriptor) test), tmpDir, executionRequest, listener);
+            if (test instanceof ExemplarSampleDescriptor) {
+                execute(((ExemplarSampleDescriptor) test), tmpDir, executionRequest, listener);
             } else {
                 throw new IllegalStateException("Cannot execute test: " + test + " of type: " + test.getClass().getName());
             }
@@ -118,7 +118,7 @@ public class ExemplarTestEngine implements TestEngine {
         }
     }
 
-    private void execute(ExemplarTestDescriptor test, File tmpDir, ExecutionRequest request, EngineExecutionListener listener) {
+    private void execute(ExemplarSampleDescriptor test, File tmpDir, ExecutionRequest request, EngineExecutionListener listener) {
         populateSampleModifiers(request);
         populateOutputNormalizers(request);
 
@@ -133,7 +133,7 @@ public class ExemplarTestEngine implements TestEngine {
 
                 // Execute and verify each command
                 for (TestDescriptor child : test.getChildren()) {
-                    ExemplarTestCommandDescriptor childDescriptor = (ExemplarTestCommandDescriptor) child;
+                    ExemplarCommandDescriptor childDescriptor = (ExemplarCommandDescriptor) child;
                     listener.executionStarted(childDescriptor);
                     Command command = childDescriptor.getCommand();
 
@@ -150,7 +150,7 @@ public class ExemplarTestEngine implements TestEngine {
                     }
 
                     CommandExecutionResult result = execute(getExecutionMetadata(testSpecificSample.getProjectDir()), workingDir, command);
-
+                    listener.reportingEntryPublished(childDescriptor, ReportEntry.from("exitCode", String.valueOf(result.getExitCode())));
                     if (result.getExitCode() != 0 && !command.isExpectFailure()) {
                         String message = String.format("Expected sample invocation to succeed but it failed.%nCommand was: '%s %s'%nWorking directory: '%s'%n[BEGIN OUTPUT]%n%s%n[END OUTPUT]%n", command.getExecutable(), StringUtils.join(command.getArgs(), " "), workingDir.getAbsolutePath(), result.getOutput());
                         listener.executionFinished(childDescriptor, TestExecutionResult.failed(new RuntimeException(message)));

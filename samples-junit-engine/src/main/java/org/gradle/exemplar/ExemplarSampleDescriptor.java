@@ -8,22 +8,22 @@ import org.junit.platform.engine.support.descriptor.DirectorySource;
 
 import java.io.File;
 
-public final class ExemplarTestDescriptor extends AbstractTestDescriptor {
-    private final File file;
-    private final String name;
+public final class ExemplarSampleDescriptor extends AbstractTestDescriptor {
     private final Sample sample;
 
-    public ExemplarTestDescriptor(UniqueId parentId, File file, String name, Sample sample) {
+    public ExemplarSampleDescriptor(UniqueId parentId, Sample sample) {
         super(
-            parentId.append("testDefinitionFile", fileNameWithoutExtension(file)).append("testDefinition", name),
-            file.getParentFile().getName(),
-            DirectorySource.from(sample.getProjectDir())
-        );
-        this.file = file;
-        this.name = name;
+            parentId.append("testDefinitionFile", fileNameWithoutExtension(sample.getConfigFile()))
+                    .append("testDefinition", sample.getId()),
+            sample.getConfigFile().getParentFile().getName(),
+            DirectorySource.from(sample.getProjectDir()));
         this.sample = sample;
+        defineTests(sample);
+    }
+
+    private void defineTests(Sample sample) {
         for (Command command : sample.getCommands()) {
-            children.add(new ExemplarTestCommandDescriptor(this, sample, command));
+            children.add(new ExemplarCommandDescriptor(this, command));
         }
     }
 
@@ -47,6 +47,6 @@ public final class ExemplarTestDescriptor extends AbstractTestDescriptor {
 
     @Override
     public String toString() {
-        return "Sample[file=" + file.getName() + ", name=" + name + "]";
+        return "Sample[file=" + sample.getConfigFile().getName() + ", name=" + sample.getId() + "]";
     }
 }

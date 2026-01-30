@@ -20,7 +20,7 @@ public class ExemplarTestResolver implements SelectorResolver {
         LOGGER.info(() -> "Test specification dir: " + selector.getDirectory().getAbsolutePath());
         List<Sample> samples = SamplesDiscovery.externalSamples(selector.getDirectory());
         Set<Match> tests = samples.stream()
-            .map(s -> context.addToParent(parent -> Optional.of(new ExemplarTestDescriptor(parent.getUniqueId(), s.getConfigFile(), s.getId(), s))))
+            .map(s -> context.addToParent(parent -> Optional.of(new ExemplarSampleDescriptor(parent.getUniqueId(), s))))
             .map(Optional::get)
             .map(Match::exact)
             .collect(Collectors.toSet());
