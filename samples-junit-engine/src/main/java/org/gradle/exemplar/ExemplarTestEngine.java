@@ -72,25 +72,31 @@ public class ExemplarTestEngine implements TestEngine {
     @Override
     public void execute(ExecutionRequest executionRequest) {
         LOGGER.info(() -> "Executing tests with engine: " + executionRequest.getRootTestDescriptor().getUniqueId());
-
-        File tmpDir = createTmpDir();
-        try {
-            EngineExecutionListener listener = executionRequest.getEngineExecutionListener();
-            executionRequest.getRootTestDescriptor().getChildren().forEach(test -> {
-                if (test instanceof ExemplarTestDescriptor) {
-                    execute(((ExemplarTestDescriptor) test), tmpDir, executionRequest, listener);
-                } else {
-                    throw new IllegalStateException("Cannot execute test: " + test + " of type: " + test.getClass().getName());
-                }
-            });
-        } finally {
-            deleteRecursively(tmpDir);
-        }
+        File tmpDir = createTmpDir(executionRequest);
+        EngineExecutionListener listener = executionRequest.getEngineExecutionListener();
+        executionRequest.getRootTestDescriptor().getChildren().forEach(test -> {
+            if (test instanceof ExemplarTestDescriptor) {
+                execute(((ExemplarTestDescriptor) test), tmpDir, executionRequest, listener);
+            } else {
+                throw new IllegalStateException("Cannot execute test: " + test + " of type: " + test.getClass().getName());
+            }
+        });
     }
 
-    private static File createTmpDir() {
+    private static File createTmpDir(ExecutionRequest request) {
         try {
-            Path path = Files.createTempDirectory("exemplar-");
+            Optional<String> s = request.getConfigurationParameters().get("exemplar.tmpdir");
+            Path path;
+            if (s.isPresent()) {
+                File dir = getFile(s);
+                if (dir.exists()) {
+                    deleteRecursively(dir);
+                }
+                path = dir.toPath();
+                Files.createDirectory(path);
+            } else {
+                path = Files.createTempDirectory("exemplar-");
+            }
             LOGGER.info(() -> "Testing base directory: " + path.toAbsolutePath());
             return path.toFile();
         } catch (IOException e) {
@@ -98,7 +104,11 @@ public class ExemplarTestEngine implements TestEngine {
         }
     }
 
-    private void deleteRecursively(File tmpDir) {
+    private static File getFile(Optional<String> s) {
+        return new File(s.get());
+    }
+
+    private static void deleteRecursively(File tmpDir) {
         if (tmpDir != null && tmpDir.exists()) {
             try {
                 FileUtils.deleteDirectory(tmpDir);
