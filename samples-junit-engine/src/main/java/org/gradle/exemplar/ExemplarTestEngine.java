@@ -23,6 +23,7 @@ import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestEngine;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.UniqueId;
+import org.junit.platform.engine.reporting.ReportEntry;
 import org.junit.platform.engine.support.descriptor.EngineDescriptor;
 import org.junit.platform.engine.support.discovery.EngineDiscoveryRequestResolver;
 
@@ -121,7 +122,11 @@ public class ExemplarTestEngine implements TestEngine {
                 File baseWorkingDir = testSpecificSample.getProjectDir();
 
                 // Execute and verify each command
-                for (Command command : testSpecificSample.getCommands()) {
+                for (TestDescriptor child : test.getChildren()) {
+                    ExemplarTestCommandDescriptor childDescriptor = (ExemplarTestCommandDescriptor) child;
+                    listener.executionStarted(childDescriptor);
+                    Command command = childDescriptor.getCommand();
+
                     File workingDir = baseWorkingDir;
 
                     if (command.getExecutionSubdirectory() != null) {
@@ -138,13 +143,17 @@ public class ExemplarTestEngine implements TestEngine {
 
                     if (result.getExitCode() != 0 && !command.isExpectFailure()) {
                         String message = String.format("Expected sample invocation to succeed but it failed.%nCommand was: '%s %s'%nWorking directory: '%s'%n[BEGIN OUTPUT]%n%s%n[END OUTPUT]%n", command.getExecutable(), StringUtils.join(command.getArgs(), " "), workingDir.getAbsolutePath(), result.getOutput());
-
-                        listener.executionFinished(test, TestExecutionResult.failed(new RuntimeException(message)));
+                        listener.executionFinished(childDescriptor, TestExecutionResult.failed(new RuntimeException(message)));
                     } else if (result.getExitCode() == 0 && command.isExpectFailure()) {
                         String message = String.format("Expected sample invocation to fail but it succeeded.%nCommand was: '%s %s'%nWorking directory: '%s'%n[BEGIN OUTPUT]%n%s%n[END OUTPUT]%n", command.getExecutable(), StringUtils.join(command.getArgs(), " "), workingDir.getAbsolutePath(), result.getOutput());
-                        listener.executionFinished(test, TestExecutionResult.failed(new RuntimeException(message)));
+                        listener.executionFinished(childDescriptor, TestExecutionResult.failed(new RuntimeException(message)));
                     }
-                    verifyOutput(command, result);
+                    try {
+                        verifyOutput(command, result);
+                        listener.executionFinished(childDescriptor, TestExecutionResult.successful());
+                    } catch (Exception e) {
+                        listener.executionFinished(childDescriptor, TestExecutionResult.failed(e));
+                    }
                 }
                 listener.executionFinished(test, TestExecutionResult.successful());
             } catch (Throwable t) {

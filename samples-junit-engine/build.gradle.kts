@@ -1,6 +1,7 @@
 plugins {
     id("exemplar.java-conventions")
     id("jvm-test-suite")
+    id("exemplar.publishing-conventions")
 }
 
 dependencies {

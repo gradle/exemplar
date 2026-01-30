@@ -1,13 +1,12 @@
 package org.gradle.exemplar;
 
+import org.gradle.exemplar.model.Command;
 import org.gradle.exemplar.model.Sample;
-import org.junit.platform.engine.TestSource;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor;
 import org.junit.platform.engine.support.descriptor.DirectorySource;
 
 import java.io.File;
-import java.util.Optional;
 
 public final class ExemplarTestDescriptor extends AbstractTestDescriptor {
     private final File file;
@@ -17,12 +16,15 @@ public final class ExemplarTestDescriptor extends AbstractTestDescriptor {
     public ExemplarTestDescriptor(UniqueId parentId, File file, String name, Sample sample) {
         super(
             parentId.append("testDefinitionFile", fileNameWithoutExtension(file)).append("testDefinition", name),
-            file.getParentFile().getName() + " - " + fileNameWithoutExtension(file),
+            file.getParentFile().getName(),
             DirectorySource.from(sample.getProjectDir())
         );
         this.file = file;
         this.name = name;
         this.sample = sample;
+        for (Command command : sample.getCommands()) {
+            children.add(new ExemplarTestCommandDescriptor(this, sample, command));
+        }
     }
 
     private static String fileNameWithoutExtension(File file) {
@@ -36,7 +38,7 @@ public final class ExemplarTestDescriptor extends AbstractTestDescriptor {
 
     @Override
     public Type getType() {
-        return Type.TEST;
+        return Type.CONTAINER;
     }
 
     public Sample getSample() {
