@@ -3,14 +3,13 @@ import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.CheckoutMode
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
+import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
-
 
 object Project : Project({
     buildType(Verify)
     buildType(Publish)
     params {
-        param("env.JAVA_HOME", "%linux.java17.openjdk.64bit%")
         param("env.GRADLE_CACHE_REMOTE_URL", "%gradle.cache.remote.url%")
         param("env.GRADLE_CACHE_REMOTE_USERNAME", "%gradle.cache.remote.username%")
         password("env.GRADLE_CACHE_REMOTE_PASSWORD", "%gradle.cache.remote.password%")
@@ -37,8 +36,12 @@ object Verify : BuildType({
     triggers {
         vcs {
             branchFilter = """
-    +:refs/heads/*
-""".trimIndent()
+                +:*
+            """.trimIndent()
+            triggerRules = """
+                +:.
+            """.trimIndent()
+            quietPeriodMode = VcsTrigger.QuietPeriodMode.DO_NOT_USE
         }
     }
 
@@ -47,7 +50,6 @@ object Verify : BuildType({
             useGradleWrapper = true
             tasks = "check"
             gradleParams = "-Dgradle.cache.remote.push=%env.BUILD_CACHE_PUSH%"
-            buildFile = "build.gradle.kts"
         }
     }
 })
@@ -73,7 +75,6 @@ object Publish : BuildType({
             useGradleWrapper = true
             tasks = "clean publishMavenJavaPublicationToSonatypeRepository"
             gradleParams = "-Dgradle.publish.skip.namespace.check=true"
-            buildFile = "build.gradle.kts"
         }
     }
     params {

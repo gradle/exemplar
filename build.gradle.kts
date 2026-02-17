@@ -5,6 +5,10 @@ plugins {
 group = "org.gradle.exemplar"
 version = "1.0.3"
 
+tasks.named<UpdateDaemonJvm>("updateDaemonJvm").configure {
+    toolchainDownloadUrls.empty()
+}
+
 nexusPublishing {
     repositories.apply {
         sonatype {
