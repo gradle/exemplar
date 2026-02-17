@@ -15,17 +15,21 @@
  */
 package org.gradle.exemplar.loader;
 
-import com.typesafe.config.*;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigParseOptions;
 import org.gradle.exemplar.InvalidSampleException;
 import org.gradle.exemplar.model.Command;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class CommandsParser {
     private static final String EXECUTABLE = "executable";
@@ -71,14 +75,14 @@ public class CommandsParser {
             throw new InvalidSampleException("'executable' field cannot be empty", e);
         }
         final String executionDirectory = ConfigUtil.string(commandConfig, EXECUTION_SUBDIRECTORY, null);
-        final List<String> commands = ConfigUtil.strings(commandConfig, ARGS, new ArrayList<String>());
-        final List<String> flags = ConfigUtil.strings(commandConfig, FLAGS, new ArrayList<String>());
+        final List<String> commands = ConfigUtil.strings(commandConfig, ARGS, new ArrayList<>());
+        final List<String> flags = ConfigUtil.strings(commandConfig, FLAGS, new ArrayList<>());
         String expectedOutput = null;
         if (commandConfig.hasPath(EXPECTED_OUTPUT_FILE)) {
             final File expectedOutputFile = new File(sampleProjectDir, commandConfig.getString(EXPECTED_OUTPUT_FILE));
             try {
                 final Path path = Paths.get(expectedOutputFile.getAbsolutePath());
-                expectedOutput = new String(Files.readAllBytes(path), Charset.forName("UTF-8"));
+                expectedOutput = Files.readString(path);
             } catch (IOException e) {
                 throw new InvalidSampleException("Could not read sample output file " + expectedOutputFile.getAbsolutePath(), e);
             }
