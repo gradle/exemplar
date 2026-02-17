@@ -19,3 +19,6 @@ typesafe-config = "com.typesafe:config:1.4.3"
 
 [bundles]
 spock = ["spock-core", "spock-junit4"]
+
+[plugins]
+nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
