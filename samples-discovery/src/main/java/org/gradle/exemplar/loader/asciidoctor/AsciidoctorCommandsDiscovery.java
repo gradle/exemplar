@@ -16,6 +16,7 @@
 package org.gradle.exemplar.loader.asciidoctor;
 
 import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
 import org.asciidoctor.OptionsBuilder;
 import org.asciidoctor.ast.Block;
 import org.asciidoctor.ast.Document;
@@ -34,8 +35,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-import static org.asciidoctor.OptionsBuilder.options;
-
 public class AsciidoctorCommandsDiscovery {
 
     private static final String COMMAND_PREFIX = "$ ";
@@ -45,16 +44,12 @@ public class AsciidoctorCommandsDiscovery {
     }
 
     public static List<Command> extractFromAsciidoctorFile(File documentFile, Consumer<OptionsBuilder> action) throws IOException {
-        Asciidoctor asciidoctor = Asciidoctor.Factory.create();
-
-        try {
-            OptionsBuilder options = options();
+        try (Asciidoctor asciidoctor = Asciidoctor.Factory.create()) {
+            OptionsBuilder options = Options.builder();
             action.accept(options);
 
-            Document document = asciidoctor.loadFile(documentFile, options.asMap());
+            Document document = asciidoctor.loadFile(documentFile, options.build());
             return extractAsciidocCommands(document);
-        } finally {
-            asciidoctor.shutdown();
         }
     }
 
