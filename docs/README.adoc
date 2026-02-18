@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.gradle.exemplar:samples-check:1.0.0")
+    testImplementation("org.gradle.exemplar:samples-check:2.0.0")
 }
 ----
 
@@ -68,7 +68,7 @@ args: sample.sh
 expected-output-file: quickstart.sample.out
 ----
 
-or maybe a more complex, multi-step sample:
+or maybe a more complex, multistep sample:
 
 .incrementalTaskRemovedOutput.sample.conf
 [source,hocon]
@@ -141,11 +141,11 @@ This library provides 2 JUnit runners link:../samples-check/src/main/java/org/gr
 ----
 dependencies {
     testImplementation(gradleTestKit())
-    testRuntimeOnly("org.slf4j:slf4j-simple:1.7.16")
+    testRuntimeOnly("org.slf4j:slf4j-simple:2.0.17")
 }
 ----
 
-*NOTE:* `GradleSamplesRunner` supports Java 8 and above and ignores tests when running on Java 7 or lower.
+*NOTE:* `GradleSamplesRunner` supports Java 17 and above.
 
 To use them, just create a JUnit test class in your test sources (maybe something like `src/integTest/com/example/SamplesIntegrationTest.java`, https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests[keeping these slow tests separate] from your fast unit tests.) and annotate it with which JUnit runner implementation you'd like and where to find samples.
 Like this:
@@ -172,7 +172,7 @@ The test runner will copy each sample project to a temporary location, invoke th
 
 ==== Verifying using the API
 
-Use of the JUnit runners is preferred, as discovery, output normalization, and reporting are handled for you. If you want to write custom samples verification or you're using a different test framework, by all means go ahead :) -- please contribute back runners or normalizers you find useful!
+Use of the JUnit runners is preferred, as discovery, output normalization, and reporting are handled for you. If you want to write custom samples verification, or you're using a different test framework, by all means go ahead :) -- please contribute back runners or normalizers you find useful!
 
 You can get some inspiration for API use from link:https://github.com/gradle/exemplar/blob/main/samples-check/src/main/java/org/gradle/exemplar/test/runner/SamplesRunner.java[SamplesRunner] and link:https://github.com/gradle/exemplar/blob/main/samples-check/src/main/java/org/gradle/exemplar/test/runner/GradleSamplesRunner.java[GradleSamplesRunner].
 
@@ -180,7 +180,7 @@ Command execution is handled in the `org.gradle.exemplar.executor.*` classes, so
 
 === Using Samples for other integration tests
 
-You might want to verify more than just log output, so this library includes link:https://github.com/junit-team/junit4/wiki/rules[JUnit rules] that allow you to easily copy sample projects to a temporarily location for other verification. Here is an example of a test that demonstrates use of the `@Sample` and `@UsesSample` rules.
+You might want to verify more than just log output, so this library includes link:https://github.com/junit-team/junit4/wiki/rules[JUnit rules] that allow you to easily copy sample projects to a temporary location for other verification. Here is an example of a test that demonstrates use of the `@Sample` and `@UsesSample` rules.
 
 .BasicSampleTest.java
 [source,java]
@@ -194,13 +194,13 @@ import org.gradle.exemplar.test.rule.Sample;
 import org.gradle.exemplar.test.rule.UsesSample;
 
 public class BasicSampleTest {
-    public TemporaryFolder temporaryFolder = new TemporaryFolder()
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
     public Sample sample = Sample.from("src/test/samples/gradle")
             .into(temporaryFolder)
-            .withDefaultSample("basic-sample")
+            .withDefaultSample("basic-sample");
 
     @Rule
-    public TestRule ruleChain = RuleChain.outerRule(temporaryFolder).around(sample)
+    public TestRule ruleChain = RuleChain.outerRule(temporaryFolder).around(sample);
 
     @Test
     void verifyDefaultSample() {
@@ -268,9 +268,6 @@ To allow Gradle itself to run using test versions of Gradle, the `GradleSamplesR
 
 == Contributing
 
-[link=https://builds.gradle.org/viewType.html?buildTypeId=Build_Tool_Services_Exemplar]
-image::https://builds.gradle.org/guestAuth/app/rest/builds/buildType:(id:Build_Tool_Services_Exemplar)/statusIcon.svg[Build status]
-
 [link=https://gradle.org/conduct/]
 image::https://img.shields.io/badge/code%20of-conduct-lightgrey.svg?style=flat&colorB=ff69b4[code of conduct]
 
@@ -291,6 +288,11 @@ its contents.
 1. Bump the version in the root build script to the next snapshot version. Push the change to `main` branch.
 
 == Changes
+
+=== 2.0.0
+
+- Updated AsciidoctorJ dependency to version 3.0.1
+- Updated minimal supported Java version to 17
 
 === 1.0.2
 

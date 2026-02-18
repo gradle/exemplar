@@ -1,21 +1,24 @@
 [versions]
-spock = "2.4-groovy-4.0"
-junit-vintage = "5.12.2"
+asciidoctorj = "3.0.1"
 junit-launcher = "1.12.2"
+junit-platform-engine = "1.14.1"
+junit-vintage = "5.12.2"
+spock = "2.4-groovy-4.0"
 
 [libraries]
-asciidoctorj = "org.asciidoctor:asciidoctorj:1.5.8.1"
+asciidoctorj = { module = "org.asciidoctor:asciidoctorj", version.ref = "asciidoctorj" }
+asciidoctorj-api = { module = "org.asciidoctor:asciidoctorj-api", version.ref = "asciidoctorj" }
 commons-io = "commons-io:commons-io:2.21.0"
 commons-lang3 = "org.apache.commons:commons-lang3:3.19.0"
 groovy = "org.apache.groovy:groovy:4.0.29"
-junit4 = "junit:junit:4.13.2"
-junit-vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-vintage" }
-junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-launcher" }
 jsr305 = "com.google.code.findbugs:jsr305:3.0.2"
-objenesis = "org.objenesis:objenesis:3.4"
-spock-core = { module="org.spockframework:spock-core", version.ref="spock" }
-spock-junit4 = { module="org.spockframework:spock-junit4", version.ref="spock" }
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-launcher" }
+junit-platform-engine = { module = "org.junit.platform:junit-platform-engine", version.ref = "junit-platform-engine" }
+junit-vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-vintage" }
+junit4 = "junit:junit:4.13.2"
+spock-core = { module = "org.spockframework:spock-core", version.ref = "spock" }
+spock-junit4 = { module = "org.spockframework:spock-junit4", version.ref = "spock" }
 typesafe-config = "com.typesafe:config:1.4.3"
 
-[bundles]
-spock = ["spock-core", "spock-junit4"]
+[plugins]
+nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }

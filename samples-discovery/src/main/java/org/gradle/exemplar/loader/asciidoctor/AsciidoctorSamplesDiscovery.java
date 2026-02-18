@@ -17,11 +17,11 @@ package org.gradle.exemplar.loader.asciidoctor;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
 import org.asciidoctor.OptionsBuilder;
-import org.asciidoctor.ast.AbstractBlock;
 import org.asciidoctor.ast.Block;
 import org.asciidoctor.ast.Document;
-import org.asciidoctor.ast.ListImpl;
+import org.asciidoctor.ast.StructuralNode;
 import org.gradle.exemplar.InvalidSampleException;
 import org.gradle.exemplar.model.Command;
 import org.gradle.exemplar.model.Sample;
@@ -39,8 +39,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-import static org.asciidoctor.OptionsBuilder.options;
-
 public class AsciidoctorSamplesDiscovery {
 
     private static final String COMMAND_PREFIX = "$ ";
@@ -50,16 +48,12 @@ public class AsciidoctorSamplesDiscovery {
     }
 
     public static List<Sample> extractFromAsciidoctorFile(File documentFile, Consumer<OptionsBuilder> action) throws IOException {
-        Asciidoctor asciidoctor = Asciidoctor.Factory.create();
-
-        try {
-            OptionsBuilder options = options();
+        try (Asciidoctor asciidoctor = Asciidoctor.Factory.create()) {
+            OptionsBuilder options = Options.builder();
             action.accept(options);
 
-            Document document = asciidoctor.loadFile(documentFile, options.asMap());
+            Document document = asciidoctor.loadFile(documentFile, options.build());
             return processAsciidocSampleBlocks(document);
-        } finally {
-            asciidoctor.shutdown();
         }
     }
 
@@ -75,22 +69,22 @@ public class AsciidoctorSamplesDiscovery {
      * @return extracted list of {@link Sample}s
      * @throws IOException if any temporary directory or file could not be created
      */
-    private static List<Sample> processAsciidocSampleBlocks(AbstractBlock rootNode) throws IOException {
+    private static List<Sample> processAsciidocSampleBlocks(StructuralNode rootNode) throws IOException {
         List<Sample> samples = new ArrayList<>();
         Path tempDir = Files.createTempDirectory("exemplar-testable-samples");
 
-        Queue<AbstractBlock> queue = new ArrayDeque<>();
+        Queue<StructuralNode> queue = new ArrayDeque<>();
         queue.add(rootNode);
         while (!queue.isEmpty()) {
-            AbstractBlock node = queue.poll();
+            StructuralNode node = queue.poll();
 
-            List<AbstractBlock> blocks = node.getBlocks();
+            List<StructuralNode> blocks = node.getBlocks();
             // Some asciidoctor AST types return null instead of an empty list
             if (blocks == null) {
                 continue;
             }
 
-            for (AbstractBlock child : blocks) {
+            for (StructuralNode child : blocks) {
                 if (child.isBlock() && child.hasRole("testable-sample")) {
                     List<Command> commands = extractAsciidocCommands(node);
                     // Nothing to verify, skip this sample
@@ -108,18 +102,18 @@ public class AsciidoctorSamplesDiscovery {
     }
 
     /**
-     * "testable-sample"s that declare a "dir" attribute have the sample sources living there.
+     * "testable-samples that declare a "dir" attribute have the sample sources living there.
      *
      * @param node     Asciidoctor StructuralNode
      * @param tempDir  Path to create any temporary dirs/files
      * @param commands Pre-extracted commands
      * @return new Sample
      */
-    private static Sample processSampleNode(AbstractBlock node, Path tempDir, List<Command> commands) {
+    private static Sample processSampleNode(StructuralNode node, Path tempDir, List<Command> commands) {
         String sampleId;
         File sampleDir;
-        if (node.getAttr("dir") != null) {
-            String dir = node.getAttr("dir").toString();
+        if (node.getAttribute("dir") != null) {
+            String dir = node.getAttribute("dir").toString();
             sampleId = dir.replaceAll("[/\\\\]", "_");
             sampleDir = new File(dir);
         } else {
@@ -134,16 +128,16 @@ public class AsciidoctorSamplesDiscovery {
         return new Sample(sampleId, sampleDir, commands);
     }
 
-    private static List<Command> extractAsciidocCommands(AbstractBlock testableSampleBlock) {
+    private static List<Command> extractAsciidocCommands(StructuralNode testableSampleBlock) {
         List<Command> commands = new ArrayList<>();
-        Queue<AbstractBlock> queue = new ArrayDeque<>();
+        Queue<StructuralNode> queue = new ArrayDeque<>();
         queue.add(testableSampleBlock);
         while (!queue.isEmpty()) {
-            AbstractBlock node = queue.poll();
-            if (node instanceof ListImpl) {
-                queue.addAll(((ListImpl) node).getItems());
+            StructuralNode node = queue.poll();
+            if (node instanceof org.asciidoctor.ast.List list) {
+                queue.addAll(list.getItems());
             } else {
-                for (AbstractBlock child : node.getBlocks()) {
+                for (StructuralNode child : node.getBlocks()) {
                     if (child.isBlock() && child.hasRole("sample-command")) {
                         parseEmbeddedCommand((Block) child, commands);
                     } else {
@@ -158,7 +152,7 @@ public class AsciidoctorSamplesDiscovery {
 
     private static void parseEmbeddedCommand(Block block, List<Command> commands) {
         Map<String, Object> attributes = block.getAttributes();
-        String[] lines = block.source().split("\r?\n");
+        String[] lines = block.getSource().split("\r?\n");
         int pos = 0;
 
         do {
@@ -204,7 +198,7 @@ public class AsciidoctorSamplesDiscovery {
     }
 
     private static void extractEmbeddedSampleSources(Block sampleBlock, File tempSampleDir) {
-        for (AbstractBlock block : sampleBlock.getBlocks()) {
+        for (StructuralNode block : sampleBlock.getBlocks()) {
             if (block.getStyle() != null && block.getStyle().equals("source") && block.getTitle() != null) {
                 File sampleFile = new File(tempSampleDir, block.getTitle());
                 File sampleSubfolder = sampleFile.getParentFile();

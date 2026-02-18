@@ -15,7 +15,7 @@
  */
 package org.gradle.exemplar.loader.asciidoctor
 
-import org.asciidoctor.AttributesBuilder
+import org.asciidoctor.Attributes
 import org.asciidoctor.SafeMode
 import org.gradle.exemplar.model.Command
 import org.junit.Rule
@@ -154,7 +154,7 @@ class AsciidoctorCommandsDiscoveryTest extends Specification {
 
         when:
         Collection<Command> commands = AsciidoctorCommandsDiscovery.extractFromAsciidoctorFile(file) {
-            it.attributes(AttributesBuilder.attributes().attribute('sampleoutputdir', outputDir.getAbsolutePath())).safe(SafeMode.UNSAFE)
+            it.attributes(Attributes.builder().attribute('sampleoutputdir', outputDir.getAbsolutePath()).build()).safe(SafeMode.UNSAFE)
         }
 
         then:

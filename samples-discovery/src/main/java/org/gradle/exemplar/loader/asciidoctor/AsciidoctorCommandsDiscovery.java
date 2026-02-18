@@ -16,11 +16,11 @@
 package org.gradle.exemplar.loader.asciidoctor;
 
 import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
 import org.asciidoctor.OptionsBuilder;
-import org.asciidoctor.ast.AbstractBlock;
 import org.asciidoctor.ast.Block;
 import org.asciidoctor.ast.Document;
-import org.asciidoctor.ast.ListImpl;
+import org.asciidoctor.ast.StructuralNode;
 import org.gradle.exemplar.InvalidSampleException;
 import org.gradle.exemplar.model.Command;
 
@@ -35,8 +35,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-import static org.asciidoctor.OptionsBuilder.options;
-
 public class AsciidoctorCommandsDiscovery {
 
     private static final String COMMAND_PREFIX = "$ ";
@@ -46,29 +44,25 @@ public class AsciidoctorCommandsDiscovery {
     }
 
     public static List<Command> extractFromAsciidoctorFile(File documentFile, Consumer<OptionsBuilder> action) throws IOException {
-        Asciidoctor asciidoctor = Asciidoctor.Factory.create();
-
-        try {
-            OptionsBuilder options = options();
+        try (Asciidoctor asciidoctor = Asciidoctor.Factory.create()) {
+            OptionsBuilder options = Options.builder();
             action.accept(options);
 
-            Document document = asciidoctor.loadFile(documentFile, options.asMap());
+            Document document = asciidoctor.loadFile(documentFile, options.build());
             return extractAsciidocCommands(document);
-        } finally {
-            asciidoctor.shutdown();
         }
     }
 
-    private static List<Command> extractAsciidocCommands(AbstractBlock testableSampleBlock) {
+    private static List<Command> extractAsciidocCommands(StructuralNode testableSampleBlock) {
         List<Command> commands = new ArrayList<>();
-        Queue<AbstractBlock> queue = new ArrayDeque<>();
+        Queue<StructuralNode> queue = new ArrayDeque<>();
         queue.add(testableSampleBlock);
         while (!queue.isEmpty()) {
-            AbstractBlock node = queue.poll();
-            if (node instanceof ListImpl) {
-                queue.addAll(((ListImpl) node).getItems());
+            StructuralNode node = queue.poll();
+            if (node instanceof org.asciidoctor.ast.List list) {
+                queue.addAll(list.getItems());
             } else {
-                for (AbstractBlock child : node.getBlocks()) {
+                for (StructuralNode child : node.getBlocks()) {
                     if (child.isBlock() && child.hasRole("sample-command")) {
                         parseEmbeddedCommand((Block) child, commands);
                     } else {
@@ -83,7 +77,7 @@ public class AsciidoctorCommandsDiscovery {
 
     private static void parseEmbeddedCommand(Block block, List<Command> commands) {
         Map<String, Object> attributes = block.getAttributes();
-        String[] lines = block.source().split("\r?\n");
+        String[] lines = block.getSource().split("\r?\n");
         int pos = 0;
 
         do {

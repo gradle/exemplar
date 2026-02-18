@@ -1,9 +1,13 @@
 plugins {
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+    alias(libs.plugins.nexus.publish)
 }
 
 group = "org.gradle.exemplar"
-version = "1.0.3"
+version = "2.0.0"
+
+tasks.named<UpdateDaemonJvm>("updateDaemonJvm").configure {
+    toolchainDownloadUrls.empty()
+}
 
 nexusPublishing {
     repositories.apply {

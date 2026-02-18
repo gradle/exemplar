@@ -19,7 +19,11 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 class ConfigUtil {
     public static Map<String, String> map(Config config, String key, Map<String, String> defaultValues) {
@@ -36,7 +40,7 @@ class ConfigUtil {
 
     public static boolean booleanValue(Config config, String key, boolean defaultValue) {
         if (config.hasPath(key)) {
-            return Boolean.valueOf(config.getString(key));
+            return Boolean.parseBoolean(config.getString(key));
         } else {
             return defaultValue;
         }
@@ -53,13 +57,13 @@ class ConfigUtil {
     public static List<String> strings(Config config, String key, List<String> defaults) {
         if (config.hasPath(key)) {
             Object value = config.getAnyRef(key);
-            if (value instanceof List) {
+            if (value instanceof List<?> list) {
                 List<String> result = new ArrayList<>();
-                for (Object o : (List) value) {
+                for (Object o : list) {
                     result.add(o.toString());
                 }
                 return result;
-            } else if (value.toString().length() > 0) {
+            } else if (!value.toString().isEmpty()) {
                 return Arrays.asList(value.toString().split(" "));
             }
         }

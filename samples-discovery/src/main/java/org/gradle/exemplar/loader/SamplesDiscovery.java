@@ -24,7 +24,10 @@ import org.gradle.exemplar.model.Sample;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 
 public class SamplesDiscovery {
     public static List<Sample> externalSamples(File rootSamplesDir) {
@@ -80,7 +83,7 @@ public class SamplesDiscovery {
     }
 
     private static void sortSamples(List<Sample> samples) {
-        Collections.sort(samples, new SampleComparator());
+        samples.sort(new SampleComparator());
     }
 
     private static class SampleComparator implements Comparator<Sample> {
