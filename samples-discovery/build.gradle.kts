@@ -4,12 +4,18 @@ plugins {
 }
 
 dependencies {
+    api(libs.asciidoctorj.api)
     compileOnly(libs.jsr305)
-    implementation(libs.asciidoctorj)
     implementation(libs.commons.io)
     implementation(libs.commons.lang3)
     implementation(libs.typesafe.config)
+
+    runtimeOnly(libs.asciidoctorj)
+
     testImplementation(libs.groovy)
-    testImplementation(libs.bundles.spock)
+    testImplementation(libs.junit4)
+    testImplementation(libs.spock.core)
+
+    testRuntimeOnly(libs.spock.junit4)
     testRuntimeOnly(libs.junit.launcher)
 }

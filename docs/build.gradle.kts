@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":samples-check"))
+    testImplementation(project(":samples-check"))
+    testImplementation(libs.junit4)
 }
 
 tasks.test {
