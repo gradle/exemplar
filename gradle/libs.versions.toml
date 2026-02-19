@@ -1,7 +1,7 @@
 [versions]
 asciidoctorj = "3.0.1"
 junit-launcher = "6.0.3"
-junit-platform-engine = "1.14.1"
+junit-platform-engine = "6.0.3"
 junit-vintage = "5.12.2"
 spock = "2.4-groovy-4.0"
 
