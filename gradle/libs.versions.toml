@@ -10,7 +10,7 @@ asciidoctorj = { module = "org.asciidoctor:asciidoctorj", version.ref = "asciido
 asciidoctorj-api = { module = "org.asciidoctor:asciidoctorj-api", version.ref = "asciidoctorj" }
 commons-io = "commons-io:commons-io:2.21.0"
 commons-lang3 = "org.apache.commons:commons-lang3:3.19.0"
-groovy = "org.apache.groovy:groovy:4.0.29"
+groovy = "org.apache.groovy:groovy:5.0.4"
 jsr305 = "com.google.code.findbugs:jsr305:3.0.2"
 junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-launcher" }
 junit-platform-engine = { module = "org.junit.platform:junit-platform-engine", version.ref = "junit-platform-engine" }
