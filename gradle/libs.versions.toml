@@ -18,7 +18,7 @@ junit-vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref
 junit4 = "junit:junit:4.13.2"
 spock-core = { module = "org.spockframework:spock-core", version.ref = "spock" }
 spock-junit4 = { module = "org.spockframework:spock-junit4", version.ref = "spock" }
-typesafe-config = "com.typesafe:config:1.4.3"
+typesafe-config = "com.typesafe:config:1.4.6"
 
 [plugins]
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
