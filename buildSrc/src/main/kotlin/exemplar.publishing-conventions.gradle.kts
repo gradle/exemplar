@@ -24,8 +24,8 @@ publishing {
             developers {
                 developer {
                     name.set("The Gradle team")
-                    organization.set("Gradle Inc.")
-                    organizationUrl.set("https://gradle.com")
+                    organization.set("Gradle Technologies")
+                    organizationUrl.set("https://gradle.org")
                 }
             }
             scm {
