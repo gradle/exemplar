@@ -289,6 +289,10 @@ its contents.
 
 == Changes
 
+=== 2.1.0
+
+- Added `GradleTaskFailureBuildFileNormalizer` to normalize task provenance information in task failure messages.
+
 === 2.0.0
 
 - Updated AsciidoctorJ dependency to version 3.0.1

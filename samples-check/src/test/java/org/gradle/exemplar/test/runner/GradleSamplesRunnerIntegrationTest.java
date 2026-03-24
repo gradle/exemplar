@@ -17,6 +17,7 @@ package org.gradle.exemplar.test.runner;
 
 import org.gradle.exemplar.test.normalizer.FileSeparatorOutputNormalizer;
 import org.gradle.exemplar.test.normalizer.GradleOutputNormalizer;
+import org.gradle.exemplar.test.normalizer.GradleTaskFailureBuildFileNormalizer;
 import org.gradle.exemplar.test.normalizer.JavaObjectSerializationOutputNormalizer;
 import org.gradle.exemplar.test.runner.modifiers.ProjectDirPathOutputNormalizer;
 import org.junit.runner.RunWith;
@@ -24,7 +25,7 @@ import org.junit.runner.RunWith;
 @RunWith(GradleSamplesRunner.class)
 @SamplesRoot("src/test/samples/gradle")
 // tag::sample-output-normalizers[]
-@SamplesOutputNormalizers({JavaObjectSerializationOutputNormalizer.class, FileSeparatorOutputNormalizer.class, GradleOutputNormalizer.class, ProjectDirPathOutputNormalizer.class})
+@SamplesOutputNormalizers({JavaObjectSerializationOutputNormalizer.class, FileSeparatorOutputNormalizer.class, GradleOutputNormalizer.class, ProjectDirPathOutputNormalizer.class, GradleTaskFailureBuildFileNormalizer.class})
 // end::sample-output-normalizers[]
 public class GradleSamplesRunnerIntegrationTest {
 }
