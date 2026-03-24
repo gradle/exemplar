@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "org.gradle.exemplar"
-version = "2.0.0"
+version = "2.1.0"
 
 tasks.named<UpdateDaemonJvm>("updateDaemonJvm").configure {
     toolchainDownloadUrls.empty()
