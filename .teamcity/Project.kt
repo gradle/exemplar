@@ -96,7 +96,7 @@ object Publish : BuildType({
     steps {
         gradle {
             useGradleWrapper = true
-            tasks = "clean publishMavenJavaPublicationToSonatypeRepository"
+            tasks = "clean publishToSonatype closeAndReleaseSonatypeStagingRepository"
             gradleParams = "-Dgradle.publish.skip.namespace.check=true"
         }
     }
