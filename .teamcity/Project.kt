@@ -2,9 +2,14 @@ import jetbrains.buildServer.configs.kotlin.AbsoluteId
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.CheckoutMode
 import jetbrains.buildServer.configs.kotlin.Project
+import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
+import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
+import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
+
+private val vcsRoot = AbsoluteId("Exemplar_Main")
 
 object Project : Project({
     buildType(Verify)
@@ -24,7 +29,7 @@ object Verify : BuildType({
     description = "Verify integrity of Exemplar libraries"
 
     vcs {
-        root(AbsoluteId("Exemplar_Master"))
+        root(vcsRoot)
         checkoutMode = CheckoutMode.ON_AGENT
         cleanCheckout = true
     }
@@ -35,9 +40,7 @@ object Verify : BuildType({
 
     triggers {
         vcs {
-            branchFilter = """
-                +:*
-            """.trimIndent()
+            branchFilter = "+:refs/heads/*"
             triggerRules = """
                 +:.
             """.trimIndent()
@@ -52,6 +55,26 @@ object Verify : BuildType({
             gradleParams = "-Dgradle.cache.remote.push=%env.BUILD_CACHE_PUSH%"
         }
     }
+
+    features {
+        commitStatusPublisher {
+            vcsRootExtId = vcsRoot.absoluteId
+            publisher = github {
+                githubUrl = "https://api.github.com"
+                authType = personalToken {
+                    token = "%github.bot-teamcity.token%"
+                }
+            }
+        }
+        pullRequests {
+            vcsRootExtId = vcsRoot.absoluteId
+            provider = github {
+                authType = vcsRoot()
+                filterAuthorRole = PullRequests.GitHubRoleFilter.MEMBER
+                ignoreDrafts = true
+            }
+        }
+    }
 })
 
 object Publish : BuildType({
@@ -61,7 +84,7 @@ object Publish : BuildType({
     description = "Publish Exemplar libraries to Maven Central staging repository"
 
     vcs {
-        root(AbsoluteId("Exemplar_Master"))
+        root(vcsRoot)
         checkoutMode = CheckoutMode.ON_AGENT
         cleanCheckout = true
     }
