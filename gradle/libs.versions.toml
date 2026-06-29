@@ -1,6 +1,6 @@
 [versions]
 asciidoctorj = "3.0.1"
-junit = "6.1.0"
+junit = "6.1.1"
 spock = "2.4-groovy-4.0"
 
 [libraries]
