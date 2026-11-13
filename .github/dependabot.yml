@@ -11,9 +11,11 @@ updates:
       interval: "daily"
     labels:
       - "@dev-productivity"
+      - "dependencies"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
     labels:
       - "@dev-productivity"
+      - "dependencies"
