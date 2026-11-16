@@ -37,7 +37,14 @@ object Verify : BuildType({
 
     triggers {
         vcs {
-            branchFilter = "+:refs/heads/*"
+            branchFilter = """
+                +:<default>
+                +:gh-readonly-queue/*
+                +:devprod/*
+                -:dependabot/*
+                +pr: github_role=MEMBER
+                -pr: source=dependabot/*
+            """.trimIndent()
             triggerRules = """
                 +:.
             """.trimIndent()
@@ -67,8 +74,8 @@ object Verify : BuildType({
             vcsRootExtId = vcsRoot.absoluteId
             provider = github {
                 authType = vcsRoot()
-                filterAuthorRole = PullRequests.GitHubRoleFilter.MEMBER
-                ignoreDrafts = true
+                filterAuthorRole = PullRequests.GitHubRoleFilter.EVERYBODY
+                ignoreDrafts = false
             }
         }
     }
