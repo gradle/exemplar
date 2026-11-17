@@ -15,7 +15,7 @@ object Project : Project({
     buildType(Verify)
     buildType(Publish)
     params {
-        password("env.DEVELOCITY_ACCESS_KEY", "%ge.gradle.org.access.key%")
+        password("env.DEVELOCITY_ACCESS_KEY", "%gbt.public.develocity.access.key%")
     }
 })
 
