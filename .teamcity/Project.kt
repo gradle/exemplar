@@ -14,9 +14,6 @@ private val vcsRoot = AbsoluteId("Exemplar_Main")
 object Project : Project({
     buildType(Verify)
     buildType(Publish)
-    params {
-        password("env.DEVELOCITY_ACCESS_KEY", "%gbt.public.develocity.access.key%")
-    }
 })
 
 object Verify : BuildType({
